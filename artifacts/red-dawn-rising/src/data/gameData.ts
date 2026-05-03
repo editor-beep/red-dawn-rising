@@ -177,7 +177,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Accept Gregor's help.", nextSceneId: "scene-4", effects: { means: 200, addFlags: ["accepted_gregor"] } },
       { text: "Decline. Stay isolated.", nextSceneId: "scene-4", effects: { addFlags: ["declined_gregor"] } },
-      { text: "Who are you, really? (Demand proof)", dieRoll: { outcomes: { 1: "scene-3-gregor-walks", 2: "scene-3-gregor-walks", 3: "scene-3-gregor-walks", 4: "scene-4", 5: "scene-4", 6: "scene-4" } } }
+      { text: "Who are you, really? (Demand proof)", dieRoll: { outcomes: { 1: "scene-3-gregor-walks", 2: "scene-3-gregor-walks", 3: "scene-3-gregor-walks", 4: "scene-3-gregor-reveals", 5: "scene-3-gregor-reveals", 6: "scene-3-gregor-reveals" } } }
     ],
     autoEffects: {
       means: 50,
@@ -916,6 +916,23 @@ export const SCENES: Record<string, Scene> = {
       "You will not hear from Comrade Gregor again. Whatever resources he was offering vanish with the encrypted connection. You're going in with what you have."
     ],
     choices: [{ text: "Move forward without him", nextSceneId: "scene-4", effects: { addFlags: ["declined_gregor"] } }]
+  },
+
+  "scene-3-gregor-reveals": {
+    id: "scene-3-gregor-reveals",
+    act: 1,
+    title: "Proof of Good Faith",
+    text: [
+      "Four minutes pass. Then: a data burst—transaction records, shell company registrations, a scanned photograph of a government memo you recognize. It lines up.",
+      "'I understand caution,' the terminal reads. 'The factories I helped shut down in Łódź and Gdańsk also had skeptics. I am not asking for gratitude. Only results.'",
+      "Darius leans back, exhaling slowly. 'It checks out. As much as anything like this can check out.' Elena is already looking at your empty accounts. 'Then we take the money and we move.'"
+    ],
+    autoEffects: {
+      means: 200,
+      addFlags: ["accepted_gregor"],
+      addJournalEntries: ["Comrade Gregor — identity partially verified. Provided documentation linking him to prior labor actions in Poland. Funding accepted."]
+    },
+    choices: [{ text: "Accept his resources and move forward", nextSceneId: "scene-4" }]
   },
 
   "scene-4-mike-success": {
