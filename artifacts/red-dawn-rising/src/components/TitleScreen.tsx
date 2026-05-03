@@ -47,9 +47,23 @@ export default function TitleScreen() {
           </button>
         </div>
       </motion.div>
-      
-      <div className="absolute bottom-8 right-8 text-muted-foreground font-mono text-sm opacity-50">
-        v1.0.0 // SECURE COMMS ESTABLISHED
+
+      <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-2 text-muted-foreground font-mono text-xs md:text-sm px-4">
+        <a
+          href="https://www.themeansofproduction.press"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-destructive/80 hover:text-destructive uppercase tracking-widest transition-colors"
+        >
+          themeansofproduction.press
+        </a>
+        <div className="opacity-50 text-center">
+          © The Means of Production 2026
+        </div>
+      </div>
+
+      <div className="absolute bottom-8 right-8 text-muted-foreground font-mono text-xs opacity-30 hidden md:block">
+        v1.0.0
       </div>
     </div>
   );
