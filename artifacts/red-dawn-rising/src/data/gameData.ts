@@ -55,7 +55,7 @@ export const DECK: Card[] = [
 export type SceneChoice = {
   text: string;
   nextSceneId?: string;
-  condition?: { flag?: string; item?: string; missingFlag?: string; missingItem?: string };
+  condition?: { flag?: string; item?: string; missingFlag?: string; missingItem?: string; minMeans?: number };
   effects?: {
     means?: number;
     surveillance?: number;
@@ -159,7 +159,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Accept Gregor's help.", nextSceneId: "scene-4", effects: { means: 200, addFlags: ["accepted_gregor"] } },
       { text: "Decline. Stay isolated.", nextSceneId: "scene-4", effects: { addFlags: ["declined_gregor"] } },
-      { text: "Who are you, really? (Demand proof)", dieRoll: { outcomes: { 1: "scene-4", 2: "scene-4", 3: "scene-4", 4: "scene-4", 5: "scene-4", 6: "scene-4" } } }
+      { text: "Who are you, really? (Demand proof)", dieRoll: { outcomes: { 1: "scene-3-gregor-walks", 2: "scene-3-gregor-walks", 3: "scene-3-gregor-walks", 4: "scene-4", 5: "scene-4", 6: "scene-4" } } }
     ],
     autoEffects: { means: 50 } 
   },
@@ -173,8 +173,8 @@ export const SCENES: Record<string, Scene> = {
       "There's 'Big Mike' Kowalski, a 58-year-old union veteran with deep ties to the logistics network. Fatima Al-Rashid, a 26-year-old independent journalist with access to state media feeds. And 'Ghost', an anonymous hacker who approached Darius directly. Ghost's background is entirely scrubbed."
     ],
     choices: [
-      { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-5", 5: "scene-5", 6: "scene-5" } }, effects: { addFlags: ["has_mike"] } },
-      { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-5", 4: "scene-5", 5: "scene-5", 6: "scene-5" } }, effects: { addFlags: ["has_fatima"] } },
+      { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-mike-success", 5: "scene-4-mike-success", 6: "scene-4-mike-success" } } },
+      { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-fatima-success", 5: "scene-4-fatima-success", 6: "scene-4-fatima-success" } } },
       { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5", effects: { addFlags: ["has_ghost"] } }
     ]
   },
@@ -199,8 +199,8 @@ export const SCENES: Record<string, Scene> = {
       "Alternatively, with the right documents, you could forge a corporate lease in the commercial district. Hiding in plain sight."
     ],
     choices: [
-      { text: "Rent a warehouse in Gary (200 Means)", nextSceneId: "scene-6", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
-      { text: "Use Elena's cousin's farmhouse (Free)", dieRoll: { outcomes: { 1: "scene-6", 2: "scene-6", 3: "scene-6", 4: "scene-6", 5: "scene-6", 6: "scene-6" } }, effects: { addFlags: ["farm_safehouse"] } },
+      { text: "Rent a warehouse in Gary (200 Means)", condition: { minMeans: 200 }, nextSceneId: "scene-6", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
+      { text: "Use Elena's cousin's farmhouse (Free)", dieRoll: { outcomes: { 1: "scene-5-farm-blown", 2: "scene-5-farm-blown", 3: "scene-5-farm-success", 4: "scene-5-farm-success", 5: "scene-5-farm-success", 6: "scene-5-farm-success" } } },
       { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-6", effects: { addFlags: ["forged_safehouse"] } }
     ]
   },
@@ -259,7 +259,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Crowdfund anonymously", nextSceneId: "scene-8", effects: { means: 150 } },
       { text: "Approach sympathetic wealthy donor", condition: { flag: "has_fatima" }, nextSceneId: "scene-8", effects: { means: 400, surveillance: 15 } },
-      { text: "Rob a corporate payroll truck", condition: { item: "weapons_cache" }, dieRoll: { outcomes: { 1: "scene-8", 2: "scene-8", 3: "scene-8", 4: "scene-8", 5: "scene-8", 6: "scene-8" } }, effects: { means: 600, surveillance: 40 } },
+      { text: "Rob a corporate payroll truck", condition: { item: "weapons_cache" }, dieRoll: { outcomes: { 1: "scene-7-heist-fail", 2: "scene-7-heist-fail", 3: "scene-7-heist-fail", 4: "scene-7-heist-success", 5: "scene-7-heist-success", 6: "scene-7-heist-success" } } },
       { text: "Skip high-risk funding", nextSceneId: "scene-8" }
     ]
   },
@@ -288,7 +288,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Side with Elena (Slower, Safer)", nextSceneId: "scene-10", effects: { surveillance: -10, addFlags: ["elena_trust"] } },
       { text: "Side with Darius (Faster, Riskier)", nextSceneId: "scene-10", effects: { addFlags: ["darius_trust"] } },
-      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-10", 2: "scene-10", 3: "scene-10", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } }
+      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } }
     ]
   },
   "scene-10": {
@@ -302,7 +302,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Hack in remotely", condition: { item: "encrypted_comms" }, nextSceneId: "scene-11", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
-      { text: "Physical infiltration", dieRoll: { outcomes: { 1: "scene-11", 2: "scene-11", 3: "scene-11", 4: "scene-11", 5: "scene-11", 6: "scene-11" } }, effects: { means: 50, surveillance: 20 } }
+      { text: "Physical infiltration", dieRoll: { outcomes: { 1: "scene-10-infil-fail", 2: "scene-10-infil-fail", 3: "scene-10-infil-fail", 4: "scene-10-infil-success", 5: "scene-10-infil-success", 6: "scene-10-infil-success" } }, effects: { surveillance: 20 } }
     ],
     autoEffects: { means: 150 }
   },
@@ -328,7 +328,8 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Welcome him to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
-      { text: "Keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } }
+      { text: "Keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
+      { text: "Reject him entirely", nextSceneId: "scene-12-alex-rejected" }
     ],
     autoDrawCards: 3
   },
@@ -343,7 +344,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Go dark for 2 weeks", nextSceneId: "scene-14", effects: { surveillance: -30, means: -100, addFlags: ["went_dark"] } },
-      { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-14", 2: "scene-14", 3: "scene-14", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
+      { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
       { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
     ]
   },
@@ -398,7 +399,7 @@ export const SCENES: Record<string, Scene> = {
       "If you publish this, the public outrage will be uncontrollable. But the state will hunt the publisher to the ends of the earth."
     ],
     choices: [
-      { text: "Publish widely", dieRoll: { outcomes: { 1: "scene-18", 2: "scene-18", 3: "scene-18", 4: "scene-18", 5: "scene-18", 6: "scene-18" } } },
+      { text: "Publish widely", dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-17-source-burned", 3: "scene-17-source-burned", 4: "scene-18", 5: "scene-18", 6: "scene-18" } } },
       { text: "Hold the intel as blackmail", nextSceneId: "scene-18" }
     ]
   },
@@ -413,7 +414,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Assume it was surveillance tech", nextSceneId: "scene-19", effects: { means: -100 } },
-      { text: "Suspect Alex Mercer", dieRoll: { outcomes: { 1: "scene-19", 2: "scene-19", 3: "scene-19", 4: "scene-19", 5: "scene-19", 6: "scene-19" } }, effects: { addFlags: ["suspect_alex"] } },
+      { text: "Suspect Alex Mercer", dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
       { text: "Suspect Ghost", nextSceneId: "scene-19" }
     ]
   },
@@ -823,5 +824,201 @@ export const SCENES: Record<string, Scene> = {
     ],
     unlocksEnding: "e5",
     choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+  },
+
+  // ============================================================
+  // NEW SCENES — die-roll fail/success outcomes + party fixes
+  // ============================================================
+
+  "scene-3-gregor-walks": {
+    id: "scene-3-gregor-walks",
+    act: 1,
+    title: "Contact Lost",
+    text: [
+      "You push back. You demand credentials—a dead drop, a verifiable asset, a name that can be checked against something real.",
+      "The terminal sits idle for four minutes. Then a single line appears: 'You've mistaken caution for paranoia. I no longer trust this line.' The session drops.",
+      "You will not hear from Comrade Gregor again. Whatever resources he was offering vanish with the encrypted connection. You're going in with what you have."
+    ],
+    choices: [{ text: "Move forward without him", nextSceneId: "scene-4", effects: { addFlags: ["declined_gregor"] } }]
+  },
+
+  "scene-4-mike-success": {
+    id: "scene-4-mike-success",
+    act: 2,
+    title: "Big Mike",
+    text: [
+      "Mike Kowalski listens to the full pitch over two cups of diner coffee. He doesn't say anything for a long time. He stares at the table.",
+      "'I did thirty years at Bethlehem Steel,' he finally says. 'I watched them break every union they touched. I've been waiting for someone to ask me this.' He extends a calloused hand.",
+      "He is with you. His logistics contacts and his institutional knowledge of the labor movement are worth more than anything in the supply network."
+    ],
+    autoEffects: { addFlags: ["has_mike"] },
+    choices: [{ text: "Welcome him in", nextSceneId: "scene-5" }]
+  },
+
+  "scene-4-fatima-success": {
+    id: "scene-4-fatima-success",
+    act: 2,
+    title: "Off the Record",
+    text: [
+      "Fatima Al-Rashid reads the encrypted message twice, then slides her phone face-down on the table.",
+      "'I have three stories my editor killed for national security reasons,' she says quietly. 'You just described every single one of them.'",
+      "She's in. More than in—she's been looking for exactly this. Her access to state media feeds and her source network are now yours."
+    ],
+    autoEffects: { addFlags: ["has_fatima"] },
+    choices: [{ text: "Bring her into the fold", nextSceneId: "scene-5" }]
+  },
+
+  "scene-5-farm-success": {
+    id: "scene-5-farm-success",
+    act: 2,
+    title: "The Farmhouse",
+    text: [
+      "The farmhouse is exactly as Elena described it. Isolated, unregistered, surrounded by empty fields on three sides. No neighbors. No sight lines.",
+      "It takes two days to sweep it, wire it, and make it livable. By the third day it is your headquarters—a place you can breathe without one eye on the door.",
+      "It's not glamorous. It is enough."
+    ],
+    autoEffects: { addFlags: ["farm_safehouse"] },
+    choices: [{ text: "Set up operations", nextSceneId: "scene-6" }]
+  },
+
+  "scene-5-farm-blown": {
+    id: "scene-5-farm-blown",
+    act: 2,
+    title: "Already Burned",
+    text: [
+      "The access road to the farmhouse is not empty. A vehicle you don't recognize has been parked at the far end of the property for at least three days, judging by the tire tracks.",
+      "Someone got there first. Whether it was a tip, cell data triangulation, or a loose word spoken in the wrong place is impossible to say. The farmhouse is burned.",
+      "You pull back to a church basement two towns over. You are behind, and the state is closer than you thought."
+    ],
+    choices: [{ text: "Find another way", nextSceneId: "scene-6", effects: { surveillance: 15 } }]
+  },
+
+  "scene-7-heist-fail": {
+    id: "scene-7-heist-fail",
+    act: 2,
+    title: "Ambush",
+    text: [
+      "Someone knew. The truck route was bait, or you were followed, or a scanner picked up the radio traffic. The moment your vehicle blocks the road, there are already sirens.",
+      "You scatter. One comrade takes a graze wound to the shoulder. You lose the vehicle and half your equipment. You don't get within fifty feet of the payroll.",
+      "The cell is shaken. You have nothing to show for the risk except exposure and a narrowing window."
+    ],
+    autoEffects: { surveillance: 40 },
+    choices: [{ text: "Regroup", nextSceneId: "scene-8", effects: { means: -50 } }]
+  },
+
+  "scene-7-heist-success": {
+    id: "scene-7-heist-success",
+    act: 2,
+    title: "The Haul",
+    text: [
+      "Textbook. The truck is boxed in at the warehouse loading dock before the guards can radio for support. They're contractors, not soldiers. Nobody gets hurt.",
+      "You are in and out in four minutes. Six hundred thousand in untraceable corporate payroll, seized and redistributed.",
+      "You immediately send a third of it to workers' families in the neighborhood. The rest is operational. It's the most money the cell has ever held. You are deeply, irrevocably in this now."
+    ],
+    autoEffects: { means: 600 },
+    choices: [{ text: "Count the money", nextSceneId: "scene-8" }]
+  },
+
+  "scene-9-mediate-fail": {
+    id: "scene-9-mediate-fail",
+    act: 2,
+    title: "Fracture",
+    text: [
+      "Your measured attempt to find middle ground is read by both of them as weakness—or worse, as a failure to understand what is actually at stake.",
+      "Elena walks out. Darius goes silent for three days. When he returns, he is colder and more calculating, reassessing what kind of leader you are.",
+      "You have lost ground with both of them. You will need to work twice as hard to rebuild what just cracked."
+    ],
+    autoEffects: { surveillance: 5 },
+    choices: [{ text: "Press on", nextSceneId: "scene-10" }]
+  },
+
+  "scene-10-infil-fail": {
+    id: "scene-10-infil-fail",
+    act: 3,
+    title: "Burned at the Door",
+    text: [
+      "The security rotation was different from the reconnaissance reports. Updated—or expected.",
+      "The team is spotted at the loading dock before the drive reaches the server room. You scatter in three directions. The servers survive intact. The eviction records stay on those drives.",
+      "You are on camera now. Grainy footage, but real. The state has your profile and a documented reason to escalate."
+    ],
+    autoEffects: { surveillance: 35 },
+    choices: [{ text: "Disappear", nextSceneId: "scene-11" }]
+  },
+
+  "scene-10-infil-success": {
+    id: "scene-10-infil-success",
+    act: 3,
+    title: "Drive Planted",
+    text: [
+      "Three minutes inside. The server room hums with cold air and the sound of something ending.",
+      "You slot the drive, execute the wipe command, and exit through the loading dock before the rotation completes. Eight thousand eviction orders vanish from the system.",
+      "You are four blocks away when the first alarm triggers. No one saw a face."
+    ],
+    autoEffects: { means: 50 },
+    choices: [{ text: "Move fast", nextSceneId: "scene-11" }]
+  },
+
+  "scene-12-alex-rejected": {
+    id: "scene-12-alex-rejected",
+    act: 3,
+    title: "Turned Away",
+    text: [
+      "You tell him no. You do it quietly, in the parking lot, before he even steps inside.",
+      "He takes it well. Too well. He shakes your hand and tells you he understands. He says he respects the caution. He drives away in a clean, late-model sedan.",
+      "Ghost sends you a message that night: 'Good call.' That's all."
+    ],
+    choices: [{ text: "Move on", nextSceneId: "scene-13" }]
+  },
+
+  "scene-13-trap-backfire": {
+    id: "scene-13-trap-backfire",
+    act: 3,
+    title: "They Figured It Out",
+    text: [
+      "The false intel circulates for less than eighteen hours before it disappears from all feeds without a trace. They identified it as disinformation before acting on it.",
+      "Worse: the specificity of what you planted revealed that you know about the surveillance operation. They now know you know. The tail doubles.",
+      "You tipped your hand, and they didn't blink."
+    ],
+    autoEffects: { surveillance: 20 },
+    choices: [{ text: "Adjust", nextSceneId: "scene-14" }]
+  },
+
+  "scene-17-source-burned": {
+    id: "scene-17-source-burned",
+    act: 3,
+    title: "Source Burned",
+    text: [
+      "The documents hit the internet for eleven minutes before three platforms pull them simultaneously under emergency court orders.",
+      "By midnight, the Department of Homeland Security announces a leak investigation. Your source inside the department is identified and arrested before morning.",
+      "The story dies in the noise. The senators escape accountability. And a person who trusted you is now in federal custody."
+    ],
+    autoEffects: { surveillance: 25 },
+    choices: [{ text: "Carry on", nextSceneId: "scene-18", effects: { means: -75 } }]
+  },
+
+  "scene-18-wrong-move": {
+    id: "scene-18-wrong-move",
+    act: 3,
+    title: "Too Obvious",
+    text: [
+      "You move too fast, or with too little subtlety. Alex notices the shift in temperature before you have anything concrete on him.",
+      "He becomes careful. Deliberately, professionally careful. He stops making mistakes. He starts watching you watch him.",
+      "If he is an agent, you have just made him more dangerous. If he isn't, you have made an enemy inside your own cell."
+    ],
+    autoEffects: { surveillance: 15 },
+    choices: [{ text: "Pull back", nextSceneId: "scene-19" }]
+  },
+
+  "scene-18-alex-confirmed": {
+    id: "scene-18-alex-confirmed",
+    act: 3,
+    title: "The Evidence",
+    text: [
+      "You say nothing and watch everything. Within a week, you have what you need. A timestamp discrepancy. A location ping that shouldn't exist. A phrase in his last report that appears—verbatim—in a leaked federal memo three days later.",
+      "He's reporting. He has been from the beginning.",
+      "The cell doesn't know yet. You know. You hold this information carefully, like a weapon you haven't decided whether to use."
+    ],
+    autoEffects: { addFlags: ["suspect_alex"] },
+    choices: [{ text: "Sit on it", nextSceneId: "scene-19" }]
   }
 };
