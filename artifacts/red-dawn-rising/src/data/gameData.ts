@@ -355,20 +355,26 @@ export const SCENES: Record<string, Scene> = {
   "scene-12": {
     id: "scene-12",
     act: 3,
-    title: "The New Recruit",
+    title: "Vetted Member Suggestions",
     text: [
-      "A new person wants to join the inner circle: Alex Mercer. Former military. Discharged under murky circumstances. He says he's disillusioned with the empire he served.",
-      "He's very capable. Very smooth. He knows counter-surveillance and weapons tactics.",
-      "But Ghost is inexplicably quiet about him. Ghost's background checks found nothing—which, in Ghost's world, means the file was professionally scrubbed."
+      "Darius slides a card across the table: three vetted member suggestions for one open inner-circle seat.",
+      "Alex Mercer — former military, disciplined, and excellent at counter-surveillance. His paperwork is sparse, but every reference checks out.",
+      "Nadia Kline — Cleveland transit union organizer trusted by two partner cells, with a talent for moving people and supplies quietly.",
+      "Luis Ortega — Phoenix community medic with deep tenant-network ties, known for keeping teams steady under pressure.",
+      "You can only elevate one candidate now. Whoever you choose will shape the core team going into the federal crackdown."
     ],
     choices: [
-      { text: "Welcome him to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
-      { text: "Keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
-      { text: "Reject him entirely", nextSceneId: "scene-12-alex-rejected" }
+      { text: "Elevate Alex Mercer to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
+      { text: "Elevate Alex, but keep him compartmentalized", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
+      { text: "Elevate Nadia Kline instead", nextSceneId: "scene-13", effects: { addFlags: ["has_nadia"] } },
+      { text: "Elevate Luis Ortega instead", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } }
     ],
     autoDrawCards: 3,
     autoEffects: {
-      addJournalEntries: ["Alex Mercer — former military, discharged under murky circumstances. Counter-surveillance expertise. Background scrubbed."]
+      addJournalEntries: [
+        "Recruitment card reviewed: Alex Mercer (counter-surveillance), Nadia Kline (union logistics), Luis Ortega (field medic).",
+        "Inner-circle seat filled from vetted shortlist under heightened federal pressure."
+      ]
     }
   },
   "scene-13": {
