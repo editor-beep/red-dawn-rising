@@ -96,6 +96,9 @@ export default function GameScreen() {
       if (nextScene.autoEffects.addJournalEntries) nextScene.autoEffects.addJournalEntries.forEach(e => dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: e }));
     }
     dispatch({ type: 'SET_SCENE', payload: sceneId });
+    if (state.protectedScenesRemaining > 0) {
+      dispatch({ type: 'DECREMENT_PROTECTED_SCENES' });
+    }
 
     if (nextScene?.autoDrawCards) {
       dispatch({ type: 'SET_DRAWING', payload: true });
@@ -117,10 +120,14 @@ export default function GameScreen() {
 
   const handleDieResult = (roll: number) => {
     dispatch({ type: 'SET_ROLLING', payload: false });
-    if (dieConfig && dieConfig.outcomes[roll]) {
-      goToScene(dieConfig.outcomes[roll]);
+    dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: -state.nextDieRollModifier });
+    const isProtected = state.protectedScenesRemaining > 0;
+    const protectedRoll = isProtected ? Math.max(4, roll) : roll;
+
+    if (dieConfig && dieConfig.outcomes[protectedRoll]) {
+      goToScene(dieConfig.outcomes[protectedRoll]);
     } else if (dieConfig) {
-      let fallbackRoll = roll;
+      let fallbackRoll = protectedRoll;
       while (fallbackRoll > 0 && !dieConfig.outcomes[fallbackRoll]) fallbackRoll--;
       if (fallbackRoll > 0) goToScene(dieConfig.outcomes[fallbackRoll]);
     }
@@ -130,6 +137,12 @@ export default function GameScreen() {
   const handleSkillCheckResult = (success: boolean, partial: boolean) => {
     if (!skillCheckConfig) return;
     setSkillCheckConfig(null);
+
+    if (state.protectedScenesRemaining > 0 && !success) {
+      goToScene(partial && skillCheckConfig.partialScene ? skillCheckConfig.partialScene : skillCheckConfig.successScene);
+      return;
+    }
+
     if (success) goToScene(skillCheckConfig.successScene);
     else if (partial && skillCheckConfig.partialScene) goToScene(skillCheckConfig.partialScene);
     else goToScene(skillCheckConfig.failureScene);
@@ -375,7 +388,7 @@ export default function GameScreen() {
       </div>
 
       {showStore && <StoreModal onClose={() => setShowStore(false)} />}
-      {state.isRolling && <DieRollModal onComplete={handleDieResult} />}
+      {state.isRolling && <DieRollModal onComplete={handleDieResult} modifier={state.nextDieRollModifier} />}
       {state.isDrawingCards && (
         <CardDrawModal
           onComplete={() => dispatch({ type: 'SET_DRAWING', payload: false })}
