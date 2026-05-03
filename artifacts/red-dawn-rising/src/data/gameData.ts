@@ -465,7 +465,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Assume it was surveillance tech", nextSceneId: "scene-19", effects: { means: -100 } },
-      { text: "Suspect Alex Mercer", dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
+      { text: "Suspect Alex Mercer", condition: { flag: "has_alex" }, dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
       { text: "Suspect Ghost", nextSceneId: "scene-19" }
     ],
     falloutCards: 1
@@ -476,8 +476,13 @@ export const SCENES: Record<string, Scene> = {
     title: "The Crisis Meeting",
     text: [
       "The safehouse feels like a tomb. You gather the remaining inner circle.",
-      "Alex stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
-      "Except you. You notice how carefully he chose his words. It was too perfect. Like it was rehearsed in front of a mirror. Or a handler."
+      "Your newest inner-circle recruit stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
+      "Except you. You notice how carefully each phrase is chosen. It feels polished. Maybe sincere. Maybe rehearsed."
+    ],
+    conditionalText: [
+      { flag: "has_alex", paragraph: "Alex never breaks eye contact while he speaks. Every sentence lands too perfectly, like it was drafted for two audiences." },
+      { flag: "has_nadia", paragraph: "Nadia redirects grief into logistics within minutes—safe routes, fallback apartments, dead drops. It is competent enough to be reassuring and unsettling at once." },
+      { flag: "has_luis", paragraph: "Luis organizes medical contingencies before anyone asks. The room calms, but you can't tell whether his composure is discipline or distance." }
     ],
     choices: [{ text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }],
     autoDrawCards: 5,
@@ -1100,9 +1105,9 @@ export const SCENES: Record<string, Scene> = {
     act: 3,
     title: "Too Obvious",
     text: [
-      "You move too fast, or with too little subtlety. Alex notices the shift in temperature before you have anything concrete on him.",
-      "He becomes careful. Deliberately, professionally careful. He stops making mistakes. He starts watching you watch him.",
-      "If he is an agent, you have just made him more dangerous. If he isn't, you have made an enemy inside your own cell."
+      "You move too fast, or with too little subtlety. The person you pressure notices the shift before you have anything concrete.",
+      "They become careful. Deliberately, professionally careful. The mistakes stop. The counter-questions begin.",
+      "If they are compromised, you just made them harder to catch. If they are loyal, you have wounded trust inside your own cell."
     ],
     autoEffects: { surveillance: 15 },
     choices: [{ text: "Pull back", nextSceneId: "scene-19" }]
