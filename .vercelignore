@@ -4,7 +4,6 @@ replit.nix
 .replit-artifact/
 artifacts/api-server/
 artifacts/mockup-sandbox/
-**/dist/
 **/node_modules/
 **/.cache/
 **/*.log
