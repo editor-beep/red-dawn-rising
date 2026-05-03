@@ -63,9 +63,18 @@ export type SceneChoice = {
     removeFlags?: string[];
     addItems?: string[];
     removeItems?: string[];
+    addJournalEntries?: string[];
   };
   dieRoll?: {
     outcomes: Record<number, string>;
+  };
+  skillCheck?: {
+    target: number;
+    itemBonuses?: Record<string, number>;
+    successScene: string;
+    failureScene: string;
+    partialScene?: string;
+    partialTarget?: number;
   };
 };
 
@@ -95,11 +104,14 @@ export type Scene = {
   choices: SceneChoice[];
   unlocksEnding?: string;
   autoDrawCards?: number;
+  falloutCards?: number;
   autoEffects?: {
     means?: number;
     surveillance?: number;
     addFlags?: string[];
+    addJournalEntries?: string[];
   };
+  conditionalText?: Array<{ flag: string; paragraph: string }>;
 };
 
 export const SCENES: Record<string, Scene> = {
@@ -144,7 +156,13 @@ export const SCENES: Record<string, Scene> = {
       { text: "Name it 'Liberation Front' — focus on direct action", nextSceneId: "scene-3", effects: { means: 30, addFlags: ["focus_action"] } },
       { text: "Name it 'The People's Network' — focus on info warfare", nextSceneId: "scene-3", effects: { means: 40, addFlags: ["focus_info"] } }
     ],
-    autoDrawCards: 2
+    autoDrawCards: 2,
+    autoEffects: {
+      addJournalEntries: [
+        "Elena Vasquez — trauma nurse and union organizer, founding cell member.",
+        "Darius King — whistleblower software engineer, founding cell member."
+      ]
+    }
   },
   "scene-3": {
     id: "scene-3",
@@ -161,7 +179,10 @@ export const SCENES: Record<string, Scene> = {
       { text: "Decline. Stay isolated.", nextSceneId: "scene-4", effects: { addFlags: ["declined_gregor"] } },
       { text: "Who are you, really? (Demand proof)", dieRoll: { outcomes: { 1: "scene-4", 2: "scene-4", 3: "scene-4", 4: "scene-4", 5: "scene-4", 6: "scene-4" } } }
     ],
-    autoEffects: { means: 50 } 
+    autoEffects: {
+      means: 50,
+      addJournalEntries: ["Comrade Gregor — anonymous benefactor, identity unknown. Provides untraceable funding."]
+    }
   },
   "scene-4": {
     id: "scene-4",
@@ -173,9 +194,9 @@ export const SCENES: Record<string, Scene> = {
       "There's 'Big Mike' Kowalski, a 58-year-old union veteran with deep ties to the logistics network. Fatima Al-Rashid, a 26-year-old independent journalist with access to state media feeds. And 'Ghost', an anonymous hacker who approached Darius directly. Ghost's background is entirely scrubbed."
     ],
     choices: [
-      { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-5", 5: "scene-5", 6: "scene-5" } }, effects: { addFlags: ["has_mike"] } },
-      { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-5", 4: "scene-5", 5: "scene-5", 6: "scene-5" } }, effects: { addFlags: ["has_fatima"] } },
-      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5", effects: { addFlags: ["has_ghost"] } }
+      { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-5", 5: "scene-5", 6: "scene-5" } }, effects: { addFlags: ["has_mike"], addJournalEntries: ["Big Mike Kowalski — veteran union organizer, logistics network connections."] } },
+      { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-5", 4: "scene-5", 5: "scene-5", 6: "scene-5" } }, effects: { addFlags: ["has_fatima"], addJournalEntries: ["Fatima Al-Rashid — independent journalist, access to state media feeds."] } },
+      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5", effects: { addFlags: ["has_ghost"], addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."] } }
     ]
   },
   "scene-4-fail": {
@@ -225,7 +246,8 @@ export const SCENES: Record<string, Scene> = {
       "The state was waiting. Someone slipped up, or algorithms flagged the chatter.",
       "Police intercepted three of the delivery vans. Elena barely escaped a kettle maneuver. Surveillance is dramatically increased, and paranoia is setting in."
     ],
-    choices: [{ text: "Regroup", nextSceneId: "scene-7", effects: { surveillance: 20 } }]
+    choices: [{ text: "Regroup", nextSceneId: "scene-7", effects: { surveillance: 20 } }],
+    falloutCards: 1
   },
   "scene-6-partial": {
     id: "scene-6-partial",
@@ -273,7 +295,10 @@ export const SCENES: Record<string, Scene> = {
       "As you review the incoming traffic, the reality sets in: you are becoming a leader. This is no longer just your fight."
     ],
     choices: [{ text: "Review the intel", nextSceneId: "scene-9" }],
-    autoDrawCards: 3
+    autoDrawCards: 3,
+    autoEffects: {
+      addJournalEntries: ["Underground frequency network established. Multiple regional cells confirmed active."]
+    }
   },
   "scene-9": {
     id: "scene-9",
@@ -302,9 +327,19 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Hack in remotely", condition: { item: "encrypted_comms" }, nextSceneId: "scene-11", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
-      { text: "Physical infiltration", dieRoll: { outcomes: { 1: "scene-11", 2: "scene-11", 3: "scene-11", 4: "scene-11", 5: "scene-11", 6: "scene-11" } }, effects: { means: 50, surveillance: 20 } }
+      { text: "Physical infiltration (Skill Check)", skillCheck: { target: 9, itemBonuses: { "safe_house_upgrade": 1, "encrypted_comms": 2 }, successScene: "scene-11", partialScene: "scene-11", partialTarget: 7, failureScene: "scene-10-fail" }, effects: { means: 50, surveillance: 20 } }
     ],
     autoEffects: { means: 150 }
+  },
+  "scene-10-fail": {
+    id: "scene-10-fail",
+    act: 2,
+    title: "Infiltration Compromised",
+    text: [
+      "The security system triggered before you reached the server room. You barely escaped through a maintenance shaft.",
+      "The operation is blown. Darius is furious. The datacenter remains online, and now they know someone tried."
+    ],
+    choices: [{ text: "Regroup", nextSceneId: "scene-11", effects: { surveillance: 25 } }]
   },
   "scene-11": {
     id: "scene-11",
@@ -330,7 +365,10 @@ export const SCENES: Record<string, Scene> = {
       { text: "Welcome him to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
       { text: "Keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } }
     ],
-    autoDrawCards: 3
+    autoDrawCards: 3,
+    autoEffects: {
+      addJournalEntries: ["Alex Mercer — former military, discharged under murky circumstances. Counter-surveillance expertise. Background scrubbed."]
+    }
   },
   "scene-13": {
     id: "scene-13",
@@ -345,7 +383,8 @@ export const SCENES: Record<string, Scene> = {
       { text: "Go dark for 2 weeks", nextSceneId: "scene-14", effects: { surveillance: -30, means: -100, addFlags: ["went_dark"] } },
       { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-14", 2: "scene-14", 3: "scene-14", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
       { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
-    ]
+    ],
+    falloutCards: 1
   },
   "scene-14": {
     id: "scene-14",
@@ -387,7 +426,10 @@ export const SCENES: Record<string, Scene> = {
       "Your blood runs cold. The document profile matches the exact tactics used by someone in your own ranks."
     ],
     choices: [{ text: "Analyze the data in silence", nextSceneId: "scene-17" }],
-    autoDrawCards: 4
+    autoDrawCards: 4,
+    autoEffects: {
+      addJournalEntries: ["Operation BLACKVEIL — multi-agency infiltration program using deep-cover instigators. Active within leftist movements."]
+    }
   },
   "scene-17": {
     id: "scene-17",
@@ -400,7 +442,10 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Publish widely", dieRoll: { outcomes: { 1: "scene-18", 2: "scene-18", 3: "scene-18", 4: "scene-18", 5: "scene-18", 6: "scene-18" } } },
       { text: "Hold the intel as blackmail", nextSceneId: "scene-18" }
-    ]
+    ],
+    autoEffects: {
+      addJournalEntries: ["Leaked: Senators trading stocks on classified strike-breaking legislation."]
+    }
   },
   "scene-18": {
     id: "scene-18",
@@ -415,7 +460,8 @@ export const SCENES: Record<string, Scene> = {
       { text: "Assume it was surveillance tech", nextSceneId: "scene-19", effects: { means: -100 } },
       { text: "Suspect Alex Mercer", dieRoll: { outcomes: { 1: "scene-19", 2: "scene-19", 3: "scene-19", 4: "scene-19", 5: "scene-19", 6: "scene-19" } }, effects: { addFlags: ["suspect_alex"] } },
       { text: "Suspect Ghost", nextSceneId: "scene-19" }
-    ]
+    ],
+    falloutCards: 1
   },
   "scene-19": {
     id: "scene-19",
@@ -427,7 +473,8 @@ export const SCENES: Record<string, Scene> = {
       "Except you. You notice how carefully he chose his words. It was too perfect. Like it was rehearsed in front of a mirror. Or a handler."
     ],
     choices: [{ text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }],
-    autoDrawCards: 5
+    autoDrawCards: 5,
+    falloutCards: 1
   },
   "scene-20": {
     id: "scene-20",
@@ -479,7 +526,8 @@ export const SCENES: Record<string, Scene> = {
       "The plan fell apart. You are on the run."
     ],
     choices: [{ text: "Brace for impact", nextSceneId: "scene-24", effects: { addFlags: ["op_failed"] } }],
-    autoDrawCards: 5
+    autoDrawCards: 5,
+    falloutCards: 1
   },
   "scene-23-partial": {
     id: "scene-23-partial",
@@ -584,7 +632,12 @@ export const SCENES: Record<string, Scene> = {
       "ACHIEVEMENT UNLOCKED: The Long March Complete."
     ],
     unlocksEnding: "e1",
-    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }],
+    conditionalText: [
+      { flag: "elena_trust", paragraph: "Elena stands beside you at the podium, refusing the microphone when it's offered — she's never been interested in the spotlight. You understand, now, why that matters." },
+      { flag: "op1_success", paragraph: "The pamphlet workers who blanketed those five factories attend the ceremony. They're steel workers, teachers, cashiers — they look stunned, as if they can't quite believe what they started." },
+      { flag: "peaceful_movement", paragraph: "The transition is strikingly bloodless. Later, historians will credit the movement's discipline. You think of Elena's early warnings and allow yourself a quiet, private moment of gratitude." }
+    ]
   },
 
   // ENDING 2
@@ -641,7 +694,12 @@ export const SCENES: Record<string, Scene> = {
       "ACHIEVEMENT UNLOCKED: The State Cannot Silence an Idea."
     ],
     unlocksEnding: "e2",
-    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }],
+    conditionalText: [
+      { flag: "elena_trust", paragraph: "Elena's face appears on the cover of Time magazine. She gives no interview. The caption reads: 'The Nurse Who Wouldn't Stop.'" },
+      { flag: "has_fatima", paragraph: "Fatima's dispatches from outside the courtroom reach forty million readers. They couldn't silence the story, even if they silenced the storyteller." },
+      { flag: "suspect_alex", paragraph: "You knew. You knew before it happened. The knowing didn't save anyone, but it means the next movement will be harder to infiltrate." }
+    ]
   },
 
   // ENDING 3
@@ -697,7 +755,12 @@ export const SCENES: Record<string, Scene> = {
       "ACHIEVEMENT UNLOCKED: The Exile's Flame."
     ],
     unlocksEnding: "e3",
-    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }],
+    conditionalText: [
+      { flag: "elena_trust", paragraph: "Elena's last encrypted message reached you six weeks ago: 'The clinic is still open. We're fine. Come home when you can.'" },
+      { flag: "has_ghost", paragraph: "Ghost routes your manifesto through seventeen proxies and posts it simultaneously to 400 servers. Even from exile, the words reach the right hands." },
+      { flag: "darius_trust", paragraph: "Darius was released on bail, the charges quietly reduced. He is teaching computer science at a community college. His students don't know who he is. He prefers it that way." }
+    ]
   },
 
   // ENDING 4
@@ -721,7 +784,10 @@ export const SCENES: Record<string, Scene> = {
       "Alex Mercer. Real name: Special Agent Daniel Holt. Three years deep undercover for a black-ops federal task force.",
       "He didn't just report on you. He was ordered to execute a silent purge."
     ],
-    choices: [{ text: "Watch it fall apart", nextSceneId: "e4-3" }]
+    choices: [{ text: "Watch it fall apart", nextSceneId: "e4-3" }],
+    autoEffects: {
+      addJournalEntries: ["Alex Mercer — real name Special Agent Daniel Holt. 3-year deep-cover federal operative."]
+    }
   },
   "e4-3": {
     id: "e4-3",
@@ -754,7 +820,12 @@ export const SCENES: Record<string, Scene> = {
       "ACHIEVEMENT UNLOCKED: They Can't Kill What They Can't Find."
     ],
     unlocksEnding: "e4",
-    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }],
+    conditionalText: [
+      { flag: "elena_trust", paragraph: "Elena survived. Barely. She'll never fully forgive you for trusting him, and you understand. You don't forgive yourself either." },
+      { flag: "alex_suspected", paragraph: "You suspected. You said nothing. The weight of that silence is heavier than everything else." },
+      { flag: "has_ghost", paragraph: "Ghost vanished the night of the poisoning. No trace. You don't know if Ghost was also compromised, or if Ghost is the only one who escaped clean. You will never know." }
+    ]
   },
 
   // ============================================================
@@ -822,6 +893,11 @@ export const SCENES: Record<string, Scene> = {
       "ACHIEVEMENT UNLOCKED: The Means Was the Movement. // [ALL PATHS WALKED]"
     ],
     unlocksEnding: "e5",
-    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }],
+    conditionalText: [
+      { flag: "elena_trust", paragraph: "Elena runs the free clinic three blocks from Marco's porch. She never ran for office. She never needed to." },
+      { flag: "peaceful_movement", paragraph: "The choice not to arm the movement turned out to be the right one — not for moral reasons, but practical ones. An armed vanguard can be isolated and crushed. Ten thousand kitchens cannot." },
+      { flag: "has_fatima", paragraph: "Fatima's archives are now housed at seven universities. The full story of the early years has been told — accurately, with all the failures intact." }
+    ]
   }
 };
