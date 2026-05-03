@@ -364,6 +364,18 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Welcome him to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
       { text: "Keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
+      {
+        text: "Use the Manifesto backchannel: ask Ghost what Alex's scrubbed file is hiding (Secret Dialogue)",
+        condition: { flag: "manifesto_secret_dialogue" },
+        nextSceneId: "scene-13",
+        effects: {
+          addFlags: ["has_alex", "alex_suspected", "suspect_alex"],
+          removeFlags: ["manifesto_secret_dialogue"],
+          addJournalEntries: [
+            "Secret Dialogue — Ghost confirms Alex's scrub pattern matches federal counterintelligence sanitization. No hard proof, but enough to treat him as an active risk."
+          ]
+        }
+      },
       { text: "Reject him entirely", nextSceneId: "scene-12-alex-rejected" }
     ],
     autoDrawCards: 3,
@@ -383,6 +395,19 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Go dark for 2 weeks", nextSceneId: "scene-14", effects: { surveillance: -30, means: -100, addFlags: ["went_dark"] } },
       { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
+      {
+        text: "Follow the Cipher clue: track 'the smiling one' instead of the car (Foreshadowing)",
+        condition: { flag: "cipher_foreshadowing" },
+        nextSceneId: "scene-14",
+        effects: {
+          surveillance: -10,
+          addFlags: ["suspect_alex"],
+          removeFlags: ["cipher_foreshadowing"],
+          addJournalEntries: [
+            "Foreshadowing Paid Off — The Cipher points to an insider profile, not external surveillance. You begin actively screening Alex for provocation patterns."
+          ]
+        }
+      },
       { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
     ],
     falloutCards: 1
