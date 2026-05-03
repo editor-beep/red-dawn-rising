@@ -25,7 +25,8 @@ export function CardDrawModal({ onComplete, count }: { onComplete: () => void, c
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-md">
+      <div className="flex flex-col items-center min-h-full py-12 px-4">
       <h2 className="text-2xl font-mono text-primary uppercase mb-12">Intercepted Intel</h2>
       
       <div className="flex gap-4 flex-wrap justify-center max-w-3xl">
@@ -64,6 +65,7 @@ export function CardDrawModal({ onComplete, count }: { onComplete: () => void, c
       >
         {revealed < count ? 'Decrypt Next' : 'Acknowledge'}
       </button>
+      </div>
     </div>
   );
 }
