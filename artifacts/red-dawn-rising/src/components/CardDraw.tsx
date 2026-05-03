@@ -32,6 +32,14 @@ export function CardDrawModal({
       if (card.id === 'c3') dispatch({ type: 'ADD_MEANS', payload: 80 });
       if (card.id === 'c5') dispatch({ type: 'ADD_MEANS', payload: 100 });
       if (card.id === 'c8') dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
+      if (card.id === 'c4') {
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'manifesto_secret_dialogue', value: true } });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Manifesto Signal — A one-time covert line is open. You can ask one off-script question in a critical conversation." });
+      }
+      if (card.id === 'c9') {
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'cipher_foreshadowing', value: true } });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Cipher Fragment — Foreshadowing recovered: 'One soldier joins. One ledger burns. The smiling one opens the door from inside.'" });
+      }
       setRevealed(r => r + 1);
     } else {
       onComplete();
