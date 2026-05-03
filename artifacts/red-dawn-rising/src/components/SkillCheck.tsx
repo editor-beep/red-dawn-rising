@@ -52,6 +52,13 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
   const success = done && (finalDie1 + finalDie2 + modifier) >= target;
   const partial = done && !success && partialTarget !== undefined && (finalDie1 + finalDie2 + modifier) >= partialTarget;
 
+  const dieBorderClass = (isRolling: boolean, isDone: boolean, isSuccess: boolean) => {
+    if (isRolling) return 'border-primary/50';
+    if (isDone && isSuccess) return 'border-primary bg-primary/20';
+    if (isDone) return 'border-destructive bg-destructive/10';
+    return 'border-primary';
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md">
       <div className="text-primary font-mono mb-2 uppercase tracking-widest text-sm">Skill Check</div>
@@ -63,7 +70,7 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
             key={i}
             animate={rolling ? { rotate: [0, 90, 180, 270, 360] } : { scale: [1, 1.15, 1] }}
             transition={rolling ? { repeat: Infinity, duration: 0.4, ease: 'linear' } : { duration: 0.4 }}
-            className={`w-24 h-24 flex items-center justify-center border-4 ${rolling ? 'border-primary/50' : done && success ? 'border-primary bg-primary/20' : done ? 'border-destructive bg-destructive/10' : 'border-primary'} text-5xl font-bold`}
+            className={`w-24 h-24 flex items-center justify-center border-4 ${dieBorderClass(rolling, done, success)} text-5xl font-bold`}
           >
             {face}
           </motion.div>

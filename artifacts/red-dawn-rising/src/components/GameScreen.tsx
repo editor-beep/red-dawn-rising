@@ -105,6 +105,10 @@ export default function GameScreen() {
       setFalloutPending(true);
     }
 
+    // Trigger stealth phase when crossing into a new act under high surveillance.
+    // nextScene.act > scene.act: we're moving to a higher act.
+    // state.lastActSeen < nextScene.act: guards against re-triggering if the player
+    // visits multiple scenes within the same act transition (e.g. die-roll outcomes).
     if (nextScene && nextScene.act > scene.act && state.surveillanceLevel > 60 && state.lastActSeen < nextScene.act) {
       setStealthPhaseActive(true);
       dispatch({ type: 'SET_LAST_ACT_SEEN', payload: nextScene.act });

@@ -5,7 +5,7 @@ import { Save, FolderOpen, Trash2 } from 'lucide-react';
 
 function formatSavedAt(savedAt: string): string {
   const d = new Date(savedAt);
-  return isNaN(d.getTime()) ? savedAt : d.toLocaleDateString();
+  return isNaN(d.getTime()) ? 'Unknown date' : d.toLocaleDateString();
 }
 
 export function SaveSlotsModal({ onClose, mode }: { onClose: () => void; mode: 'save' | 'load' }) {
