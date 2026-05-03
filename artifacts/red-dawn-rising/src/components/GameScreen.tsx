@@ -30,6 +30,9 @@ export default function GameScreen() {
 
   const scene = SCENES[state.currentSceneId];
 
+  const formatModifier = (value: number) =>
+    `${value > 0 ? '▲ +' : '▼ '}${value}`;
+
   useEffect(() => {
     setAnimationSkipped(false);
   }, [state.currentSceneId]);
@@ -101,14 +104,17 @@ export default function GameScreen() {
       dispatch({ type: 'SET_DRAWING', payload: true });
     }
 
+    // Barricade protection: skip negative fallout while barricadeScenes > 0, then decrement
+    const barricadeActive = state.pendingCardEffects.barricadeScenes > 0;
     if (nextScene?.falloutCards && state.surveillanceLevel > 40) {
-      setFalloutPending(true);
+      if (barricadeActive) {
+        dispatch({ type: 'SET_PENDING_CARD_EFFECTS', payload: { barricadeScenes: state.pendingCardEffects.barricadeScenes - 1 } });
+      } else {
+        setFalloutPending(true);
+      }
     }
 
     // Trigger stealth phase when crossing into a new act under high surveillance.
-    // nextScene.act > scene.act: we're moving to a higher act.
-    // state.lastActSeen < nextScene.act: guards against re-triggering if the player
-    // visits multiple scenes within the same act transition (e.g. die-roll outcomes).
     if (nextScene && nextScene.act > scene.act && state.surveillanceLevel > 60 && state.lastActSeen < nextScene.act) {
       setStealthPhaseActive(true);
       dispatch({ type: 'SET_LAST_ACT_SEEN', payload: nextScene.act });
@@ -117,6 +123,7 @@ export default function GameScreen() {
 
   const handleDieResult = (roll: number) => {
     dispatch({ type: 'SET_ROLLING', payload: false });
+    dispatch({ type: 'CONSUME_CARD_EFFECT', payload: ['dieModifier'] });
     if (dieConfig && dieConfig.outcomes[roll]) {
       goToScene(dieConfig.outcomes[roll]);
     } else if (dieConfig) {
@@ -129,6 +136,7 @@ export default function GameScreen() {
 
   const handleSkillCheckResult = (success: boolean, partial: boolean) => {
     if (!skillCheckConfig) return;
+    dispatch({ type: 'CONSUME_CARD_EFFECT', payload: ['skillModifier'] });
     setSkillCheckConfig(null);
     if (success) goToScene(skillCheckConfig.successScene);
     else if (partial && skillCheckConfig.partialScene) goToScene(skillCheckConfig.partialScene);
@@ -258,6 +266,34 @@ export default function GameScreen() {
                     </ul>
                   )}
                 </section>
+
+                {/* Active Card Effects */}
+                {(state.pendingCardEffects.dieModifier !== 0 ||
+                  state.pendingCardEffects.skillModifier !== 0 ||
+                  state.pendingCardEffects.secretDialogueUnlocked ||
+                  state.pendingCardEffects.barricadeScenes > 0) && (
+                  <section>
+                    <h4 className="text-muted-foreground text-xs mb-3 uppercase tracking-wider">Active Card Effects</h4>
+                    <ul className="space-y-1 text-xs font-mono">
+                      {state.pendingCardEffects.dieModifier !== 0 && (
+                        <li className="text-primary">
+                          {formatModifier(state.pendingCardEffects.dieModifier)} die roll pending
+                        </li>
+                      )}
+                      {state.pendingCardEffects.skillModifier !== 0 && (
+                        <li className="text-primary">
+                          {formatModifier(state.pendingCardEffects.skillModifier)} skill check pending
+                        </li>
+                      )}
+                      {state.pendingCardEffects.secretDialogueUnlocked && (
+                        <li className="text-primary">◆ Secret dialogue unlocked</li>
+                      )}
+                      {state.pendingCardEffects.barricadeScenes > 0 && (
+                        <li className="text-primary">🛡 Barricade: {state.pendingCardEffects.barricadeScenes} scene{state.pendingCardEffects.barricadeScenes !== 1 ? 's' : ''} protected</li>
+                      )}
+                    </ul>
+                  </section>
+                )}
               </div>
             </motion.aside>
           </>
@@ -375,7 +411,7 @@ export default function GameScreen() {
       </div>
 
       {showStore && <StoreModal onClose={() => setShowStore(false)} />}
-      {state.isRolling && <DieRollModal onComplete={handleDieResult} />}
+      {state.isRolling && <DieRollModal onComplete={handleDieResult} modifier={state.pendingCardEffects.dieModifier} />}
       {state.isDrawingCards && (
         <CardDrawModal
           onComplete={() => dispatch({ type: 'SET_DRAWING', payload: false })}
@@ -396,6 +432,7 @@ export default function GameScreen() {
           itemBonuses={skillCheckConfig.itemBonuses || {}}
           inventory={state.inventory}
           partialTarget={skillCheckConfig.partialTarget}
+          cardModifier={state.pendingCardEffects.skillModifier}
           onComplete={handleSkillCheckResult}
         />
       )}

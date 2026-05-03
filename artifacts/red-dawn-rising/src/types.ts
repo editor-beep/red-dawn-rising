@@ -14,6 +14,13 @@ export type Card = {
 export type Flags = Record<string, boolean>;
 export type Allies = Record<string, number>;
 
+export type PendingCardEffects = {
+  dieModifier: number;
+  skillModifier: number;
+  secretDialogueUnlocked: boolean;
+  barricadeScenes: number;
+};
+
 export type GameState = {
   currentSceneId: string;
   means: number;
@@ -28,6 +35,7 @@ export type GameState = {
   unlockedEndings: string[];
   journal: string[];
   lastActSeen: number;
+  pendingCardEffects: PendingCardEffects;
 };
 
 export type ActionType =
@@ -46,6 +54,8 @@ export type ActionType =
   | { type: 'UNLOCK_ENDING'; payload: string }
   | { type: 'ADD_JOURNAL_ENTRY'; payload: string }
   | { type: 'SET_LAST_ACT_SEEN'; payload: number }
+  | { type: 'SET_PENDING_CARD_EFFECTS'; payload: Partial<PendingCardEffects> }
+  | { type: 'CONSUME_CARD_EFFECT'; payload: (keyof PendingCardEffects)[] }
   | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
@@ -69,6 +79,12 @@ export const initialState: GameState = {
   unlockedEndings: [],
   journal: [],
   lastActSeen: 1,
+  pendingCardEffects: {
+    dieModifier: 0,
+    skillModifier: 0,
+    secretDialogueUnlocked: false,
+    barricadeScenes: 0,
+  },
 };
 
 export function gameReducer(state: GameState, action: ActionType): GameState {
@@ -106,12 +122,24 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       return { ...state, journal: [...state.journal, action.payload] };
     case 'SET_LAST_ACT_SEEN':
       return { ...state, lastActSeen: action.payload };
+    case 'SET_PENDING_CARD_EFFECTS':
+      return {
+        ...state,
+        pendingCardEffects: { ...state.pendingCardEffects, ...action.payload },
+      };
+    case 'CONSUME_CARD_EFFECT': {
+      const defaults: PendingCardEffects = { dieModifier: 0, skillModifier: 0, secretDialogueUnlocked: false, barricadeScenes: 0 };
+      const updated: PendingCardEffects = { ...state.pendingCardEffects };
+      action.payload.forEach(key => { updated[key] = defaults[key] as never; });
+      return { ...state, pendingCardEffects: updated };
+    }
     case 'LOAD_STATE':
       return {
         ...action.payload,
         unlockedEndings: action.payload.unlockedEndings ?? [],
         journal: action.payload.journal ?? [],
         lastActSeen: action.payload.lastActSeen ?? 1,
+        pendingCardEffects: action.payload.pendingCardEffects ?? initialState.pendingCardEffects,
       };
     case 'UNLOCK_ENDING':
       if (state.unlockedEndings.includes(action.payload)) return state;

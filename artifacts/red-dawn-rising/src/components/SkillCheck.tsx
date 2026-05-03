@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplete, partialTarget }: {
+export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplete, partialTarget, cardModifier = 0 }: {
   target: number;
   itemBonuses?: Record<string, number>;
   inventory: string[];
   onComplete: (success: boolean, partial: boolean) => void;
   partialTarget?: number;
+  cardModifier?: number;
 }) {
   const [rolling, setRolling] = useState(true);
   const [die1, setDie1] = useState(1);
@@ -15,9 +16,11 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
   const [finalDie2, setFinalDie2] = useState(0);
   const [done, setDone] = useState(false);
 
-  const modifier = Object.entries(itemBonuses)
+  const itemModifier = Object.entries(itemBonuses)
     .filter(([id]) => inventory.includes(id))
     .reduce((sum, [, bonus]) => sum + bonus, 0);
+
+  const modifier = itemModifier + cardModifier;
 
   useEffect(() => {
     let rollInterval: ReturnType<typeof setInterval>;

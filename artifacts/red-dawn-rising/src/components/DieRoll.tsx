@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export function DieRollModal({ onComplete }: { onComplete: (result: number) => void }) {
+export function DieRollModal({ onComplete, modifier = 0 }: { onComplete: (result: number) => void; modifier?: number }) {
   const [rolling, setRolling] = useState(true);
   const [face, setFace] = useState(1);
+  const [rawRoll, setRawRoll] = useState(0);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -14,13 +15,17 @@ export function DieRollModal({ onComplete }: { onComplete: (result: number) => v
 
       setTimeout(() => {
         setRolling(false);
-        const finalRoll = Math.floor(Math.random() * 6) + 1;
+        const rolled = Math.floor(Math.random() * 6) + 1;
+        const finalRoll = Math.min(6, Math.max(1, rolled + modifier));
+        setRawRoll(rolled);
         setFace(finalRoll);
         setTimeout(() => onComplete(finalRoll), 1500);
       }, 2000);
     }
     return () => clearInterval(interval);
   }, [rolling, onComplete]);
+
+  const clamped = !rolling && modifier !== 0 && rawRoll + modifier !== face;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md">
@@ -34,6 +39,12 @@ export function DieRollModal({ onComplete }: { onComplete: (result: number) => v
         {face}
       </motion.div>
       
+      {!rolling && modifier !== 0 && (
+        <div className="mt-4 text-sm font-mono text-muted-foreground">
+          Roll {rawRoll} {modifier > 0 ? `+${modifier}` : modifier}{clamped ? ` (clamped to ${face})` : ` = ${face}`}
+        </div>
+      )}
+
       {!rolling && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

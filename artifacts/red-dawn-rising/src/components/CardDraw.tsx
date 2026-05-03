@@ -14,7 +14,7 @@ export function CardDrawModal({
   title?: string;
   subtitle?: string;
 }) {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
   const [drawn, setDrawn] = useState<typeof DECK>([]);
   const [revealed, setRevealed] = useState<number>(0);
 
@@ -27,6 +27,38 @@ export function CardDrawModal({
     if (revealed < count) {
       const card = drawn[revealed];
       dispatch({ type: 'ADD_DRAWN_CARD', payload: card.id });
+
+      // Fire instant effects on reveal
+      switch (card.id) {
+        case 'c3':
+          dispatch({ type: 'ADD_MEANS', payload: 80 });
+          break;
+        case 'c5':
+          dispatch({ type: 'ADD_MEANS', payload: 100 });
+          break;
+        case 'c7':
+          // Lose the first item in inventory, if any
+          if (state.inventory.length > 0) {
+            dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[0] });
+          }
+          break;
+        case 'c1':
+          dispatch({ type: 'SET_PENDING_CARD_EFFECTS', payload: { dieModifier: 1 } });
+          break;
+        case 'c6':
+          dispatch({ type: 'SET_PENDING_CARD_EFFECTS', payload: { dieModifier: -1 } });
+          break;
+        case 'c4':
+          dispatch({ type: 'SET_PENDING_CARD_EFFECTS', payload: { secretDialogueUnlocked: true } });
+          dispatch({ type: 'SET_FLAG', payload: { flag: 'secretDialogueUnlocked', value: true } });
+          break;
+        case 'c8':
+          dispatch({ type: 'SET_PENDING_CARD_EFFECTS', payload: { barricadeScenes: 2 } });
+          break;
+        default:
+          break;
+      }
+
       setRevealed(r => r + 1);
     } else {
       onComplete();
