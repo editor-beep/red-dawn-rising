@@ -26,6 +26,8 @@ export type GameState = {
   isRolling: boolean;
   isDrawingCards: boolean;
   unlockedEndings: string[];
+  journal: string[];
+  lastActSeen: number;
 };
 
 export type ActionType =
@@ -42,6 +44,8 @@ export type ActionType =
   | { type: 'SET_DRAWING'; payload: boolean }
   | { type: 'LOAD_STATE'; payload: GameState }
   | { type: 'UNLOCK_ENDING'; payload: string }
+  | { type: 'ADD_JOURNAL_ENTRY'; payload: string }
+  | { type: 'SET_LAST_ACT_SEEN'; payload: number }
   | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
@@ -63,6 +67,8 @@ export const initialState: GameState = {
   isRolling: false,
   isDrawingCards: false,
   unlockedEndings: [],
+  journal: [],
+  lastActSeen: 1,
 };
 
 export function gameReducer(state: GameState, action: ActionType): GameState {
@@ -95,8 +101,18 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       return { ...state, isRolling: action.payload };
     case 'SET_DRAWING':
       return { ...state, isDrawingCards: action.payload };
+    case 'ADD_JOURNAL_ENTRY':
+      if (state.journal.includes(action.payload)) return state;
+      return { ...state, journal: [...state.journal, action.payload] };
+    case 'SET_LAST_ACT_SEEN':
+      return { ...state, lastActSeen: action.payload };
     case 'LOAD_STATE':
-      return { ...action.payload, unlockedEndings: action.payload.unlockedEndings ?? [] };
+      return {
+        ...action.payload,
+        unlockedEndings: action.payload.unlockedEndings ?? [],
+        journal: action.payload.journal ?? [],
+        lastActSeen: action.payload.lastActSeen ?? 1,
+      };
     case 'UNLOCK_ENDING':
       if (state.unlockedEndings.includes(action.payload)) return state;
       return { ...state, unlockedEndings: [...state.unlockedEndings, action.payload] };

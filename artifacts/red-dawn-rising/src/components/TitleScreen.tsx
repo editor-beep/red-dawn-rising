@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGame } from '../hooks/useGame';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { ENDINGS, SECRET_ENDING_ID, SECRET_START_SCENE } from '../data/gameData';
+import { useAudio } from '../hooks/useAudio';
+import { SettingsModal } from './Settings';
+import { SaveSlotsModal } from './SaveSlots';
+import { Settings as SettingsIcon } from 'lucide-react';
 
 export default function TitleScreen() {
   const { state, dispatch } = useGame();
   const [, setLocation] = useLocation();
+  const { startVinylStatic, stopVinylStatic } = useAudio();
+  const [showSettings, setShowSettings] = useState(false);
+  const [showLoadSlots, setShowLoadSlots] = useState(false);
+
+  useEffect(() => {
+    startVinylStatic();
+    return () => stopVinylStatic();
+  }, []);
 
   const standardEndings = ENDINGS.filter(e => e.id !== SECRET_ENDING_ID);
   const allStandardUnlocked = standardEndings.every(e => state.unlockedEndings.includes(e.id));
-  const secretUnlocked = state.unlockedEndings.includes(SECRET_ENDING_ID);
 
   const handleNewGame = () => {
     dispatch({ type: 'RESET' });
@@ -27,6 +38,16 @@ export default function TitleScreen() {
       <div className="noise" />
       <div className="scanline" />
 
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={() => setShowSettings(true)}
+          className="text-muted-foreground hover:text-primary transition-colors p-2"
+          title="Settings"
+        >
+          <SettingsIcon size={20} />
+        </button>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -34,7 +55,7 @@ export default function TitleScreen() {
         className="max-w-2xl w-full text-center z-10"
       >
         <h1 className="text-6xl md:text-8xl font-black text-destructive tracking-tighter mb-4 uppercase">
-          RED DAWN<br/>RISING
+          RED DAWN<br />RISING
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground font-mono mb-12 uppercase tracking-widest">
           A Text Adventure of Revolution
@@ -56,6 +77,13 @@ export default function TitleScreen() {
             Continue
           </button>
 
+          <button
+            onClick={() => setShowLoadSlots(true)}
+            className="w-full py-4 px-8 border border-border text-muted-foreground font-mono text-xl uppercase hover:bg-border/50 hover:text-foreground transition-colors duration-300"
+          >
+            Load Game
+          </button>
+
           {allStandardUnlocked && (
             <motion.button
               initial={{ opacity: 0, scale: 0.95 }}
@@ -64,7 +92,7 @@ export default function TitleScreen() {
               onClick={handleSecretPath}
               className="w-full py-4 px-8 border border-primary text-primary font-mono text-xl uppercase hover:bg-primary hover:text-primary-foreground transition-all duration-300 relative group shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_25px_rgba(220,38,38,0.4)]"
             >
-              <span className="relative z-10">▸ The Fifth Path</span>
+              <span className="relative z-10">&#9656; The Fifth Path</span>
               <div className="absolute inset-0 bg-primary/10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
             </motion.button>
           )}
@@ -94,7 +122,7 @@ export default function TitleScreen() {
                 >
                   <span className="opacity-60 w-6 shrink-0">{ending.codename}</span>
                   <span className="flex-1 truncate">
-                    {unlocked ? ending.title : '████████████████████'}
+                    {unlocked ? ending.title : '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588'}
                   </span>
                   <span className="text-[10px] opacity-60 shrink-0">
                     {unlocked ? '[UNLOCKED]' : '[LOCKED]'}
@@ -121,13 +149,16 @@ export default function TitleScreen() {
           themeansofproduction.press
         </a>
         <div className="opacity-50 text-center">
-          © The Means of Production 2026
+          &copy; The Means of Production 2026
         </div>
       </div>
 
       <div className="absolute bottom-8 right-8 text-muted-foreground font-mono text-xs opacity-30 hidden md:block">
-        v1.1.0
+        v1.2.0
       </div>
+
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showLoadSlots && <SaveSlotsModal onClose={() => setShowLoadSlots(false)} mode="load" />}
     </div>
   );
 }
