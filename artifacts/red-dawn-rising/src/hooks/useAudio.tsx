@@ -70,13 +70,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
       const data = buf.getChannelData(0);
       // Paul Kellett pink noise algorithm coefficients
-      let pinkF0=0,pinkF1=0,pinkF2=0,pinkF3=0,pinkF4=0,pinkF5=0;
+      let pinkF0 = 0, pinkF1 = 0, pinkF2 = 0, pinkF3 = 0, pinkF4 = 0, pinkF5 = 0;
       for (let i = 0; i < bufLen; i++) {
         const white = Math.random() * 2 - 1;
-        pinkF0=0.99886*pinkF0+white*0.0555179; pinkF1=0.99332*pinkF1+white*0.0750759;
-        pinkF2=0.96900*pinkF2+white*0.1538520; pinkF3=0.86650*pinkF3+white*0.3104856;
-        pinkF4=0.55000*pinkF4+white*0.5329522; pinkF5=-0.7616*pinkF5-white*0.0168980;
-        data[i] = (pinkF0+pinkF1+pinkF2+pinkF3+pinkF4+pinkF5+white*0.5362) * 0.04;
+        pinkF0 = 0.99886 * pinkF0 + white * 0.0555179;
+        pinkF1 = 0.99332 * pinkF1 + white * 0.0750759;
+        pinkF2 = 0.96900 * pinkF2 + white * 0.1538520;
+        pinkF3 = 0.86650 * pinkF3 + white * 0.3104856;
+        pinkF4 = 0.55000 * pinkF4 + white * 0.5329522;
+        pinkF5 = -0.7616 * pinkF5 - white * 0.0168980;
+        data[i] = (pinkF0 + pinkF1 + pinkF2 + pinkF3 + pinkF4 + pinkF5 + white * 0.5362) * 0.04;
       }
       const src = ac.createBufferSource();
       src.buffer = buf;

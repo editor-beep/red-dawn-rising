@@ -20,14 +20,14 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
     .reduce((sum, [, bonus]) => sum + bonus, 0);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let rollInterval: ReturnType<typeof setInterval>;
     if (rolling) {
-      interval = setInterval(() => {
+      rollInterval = setInterval(() => {
         setDie1(Math.floor(Math.random() * 6) + 1);
         setDie2(Math.floor(Math.random() * 6) + 1);
       }, 80);
       const stopTimer = setTimeout(() => {
-        clearInterval(interval);
+        clearInterval(rollInterval);
         setRolling(false);
         const d1 = Math.floor(Math.random() * 6) + 1;
         const d2 = Math.floor(Math.random() * 6) + 1;
@@ -43,9 +43,9 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
           setTimeout(() => onComplete(success, partial), 1200);
         }, 600);
       }, 2000);
-      return () => { clearInterval(interval); clearTimeout(stopTimer); };
+      return () => { clearInterval(rollInterval); clearTimeout(stopTimer); };
     }
-    return () => clearInterval(interval);
+    return () => clearInterval(rollInterval);
   }, []);
 
   const total = (done ? finalDie1 + finalDie2 : die1 + die2) + modifier;

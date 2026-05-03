@@ -3,6 +3,11 @@ import { motion } from 'framer-motion';
 import { useGame } from '../hooks/useGame';
 import { Save, FolderOpen, Trash2 } from 'lucide-react';
 
+function formatSavedAt(savedAt: string): string {
+  const d = new Date(savedAt);
+  return isNaN(d.getTime()) ? savedAt : d.toLocaleDateString();
+}
+
 export function SaveSlotsModal({ onClose, mode }: { onClose: () => void; mode: 'save' | 'load' }) {
   const { saveToSlot, loadFromSlot, deleteSlot, listSlots } = useGame();
   const [slots, setSlots] = useState(() => listSlots());
@@ -60,10 +65,7 @@ export function SaveSlotsModal({ onClose, mode }: { onClose: () => void; mode: '
                 <div className="font-mono text-xs text-muted-foreground truncate">{slot.sceneTitle}</div>
                 {slot.savedAt && (
                   <div className="font-mono text-xs text-muted-foreground/50">
-                    {slot.savedAt ? (() => {
-                      const d = new Date(slot.savedAt);
-                      return isNaN(d.getTime()) ? slot.savedAt : d.toLocaleDateString();
-                    })() : null}
+                    {formatSavedAt(slot.savedAt)}
                   </div>
                 )}
               </div>

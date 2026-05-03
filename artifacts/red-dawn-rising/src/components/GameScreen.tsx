@@ -151,6 +151,8 @@ export default function GameScreen() {
     return true;
   });
 
+  const activeAllies = Object.entries(state.allies).filter(([, trust]) => trust > 0);
+
   const getAnimStyle = (idx: number) =>
     animationSkipped
       ? { animationDuration: '0s', animationDelay: '0s' }
@@ -224,7 +226,7 @@ export default function GameScreen() {
                 <section>
                   <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><Users size={14} /> Network</h4>
                   <ul className="space-y-3 text-sm">
-                    {Object.entries(state.allies).filter(([, trust]) => trust > 0).map(([ally, trust]) => (
+                    {activeAllies.map(([ally, trust]) => (
                       <li key={ally} className="flex justify-between items-center">
                         <span className="capitalize">{ally}</span>
                         <div className="flex w-16 bg-border h-1 ml-2">
@@ -232,7 +234,7 @@ export default function GameScreen() {
                         </div>
                       </li>
                     ))}
-                    {Object.entries(state.allies).filter(([, trust]) => trust > 0).length === 0 && (
+                    {activeAllies.length === 0 && (
                       <li className="text-muted-foreground/50 italic text-sm">No active contacts.</li>
                     )}
                   </ul>
