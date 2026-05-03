@@ -4,6 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 
+import { SettingsProvider } from "./hooks/useSettings";
+import { AudioProvider } from "./hooks/useAudio";
 import { GameProvider } from "./hooks/useGame";
 import TitleScreen from "./components/TitleScreen";
 import GameScreen from "./components/GameScreen";
@@ -24,12 +26,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <GameProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </GameProvider>
+        <SettingsProvider>
+          <AudioProvider>
+            <GameProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+              <Toaster />
+            </GameProvider>
+          </AudioProvider>
+        </SettingsProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

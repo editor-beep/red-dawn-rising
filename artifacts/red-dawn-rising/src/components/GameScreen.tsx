@@ -1,25 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../hooks/useGame';
-import { SCENES, SceneChoice, DECK, STORE_ITEMS } from '../data/gameData';
+import { SCENES, SceneChoice, STORE_ITEMS } from '../data/gameData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { StoreModal } from './Store';
 import { DieRollModal } from './DieRoll';
 import { CardDrawModal } from './CardDraw';
-import { Menu, X, ShieldAlert, Pocket, Users } from 'lucide-react';
+import { SkillCheckModal } from './SkillCheck';
+import { StealthPhaseModal } from './StealthPhase';
+import { SettingsModal } from './Settings';
+import { SaveSlotsModal } from './SaveSlots';
+import { useAudio } from '../hooks/useAudio';
+import { Menu, X, ShieldAlert, Pocket, Users, BookOpen, Settings as SettingsIcon, Save } from 'lucide-react';
 
 export default function GameScreen() {
   const { state, dispatch } = useGame();
+  const { playTypewriterClack, playGeigerTick } = useAudio();
   const [, setLocation] = useLocation();
   const [showStore, setShowStore] = useState(false);
   const [dieConfig, setDieConfig] = useState<{ outcomes: Record<number, string> } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [falloutPending, setFalloutPending] = useState(false);
+  const [skillCheckConfig, setSkillCheckConfig] = useState<SceneChoice['skillCheck'] | null>(null);
+  const [stealthPhaseActive, setStealthPhaseActive] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showSaveSlots, setShowSaveSlots] = useState(false);
+  const [saveSlotsMode, setSaveSlotsMode] = useState<'save' | 'load'>('save');
+  const [animationSkipped, setAnimationSkipped] = useState(false);
 
   const scene = SCENES[state.currentSceneId];
+
+  useEffect(() => {
+    setAnimationSkipped(false);
+  }, [state.currentSceneId]);
+
+  useEffect(() => {
+    if (!scene) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    scene.text.forEach((_, idx) => {
+      timers.push(setTimeout(() => playTypewriterClack(), idx * 400));
+    });
+    return () => timers.forEach(clearTimeout);
+  }, [scene?.id]);
 
   if (!scene) {
     return <div className="p-8 text-destructive font-mono">CRITICAL ERROR: SCENE_NOT_FOUND [{state.currentSceneId}]</div>;
   }
+
+  const handleSkipAnimation = () => {
+    setAnimationSkipped(true);
+  };
 
   const handleChoice = (choice: SceneChoice) => {
     if (choice.effects) {
@@ -27,14 +57,20 @@ export default function GameScreen() {
         if (choice.effects.means > 0) dispatch({ type: 'ADD_MEANS', payload: choice.effects.means });
         else dispatch({ type: 'SUBTRACT_MEANS', payload: Math.abs(choice.effects.means) });
       }
-      if (choice.effects.surveillance) dispatch({ type: 'MODIFY_SURVEILLANCE', payload: choice.effects.surveillance });
+      if (choice.effects.surveillance) {
+        dispatch({ type: 'MODIFY_SURVEILLANCE', payload: choice.effects.surveillance });
+        if (choice.effects.surveillance > 0) playGeigerTick();
+      }
       if (choice.effects.addFlags) choice.effects.addFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: true } }));
       if (choice.effects.removeFlags) choice.effects.removeFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: false } }));
       if (choice.effects.addItems) choice.effects.addItems.forEach(i => dispatch({ type: 'ADD_ITEM', payload: i }));
       if (choice.effects.removeItems) choice.effects.removeItems.forEach(i => dispatch({ type: 'REMOVE_ITEM', payload: i }));
+      if (choice.effects.addJournalEntries) choice.effects.addJournalEntries.forEach(e => dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: e }));
     }
 
-    if (choice.dieRoll) {
+    if (choice.skillCheck) {
+      setSkillCheckConfig(choice.skillCheck);
+    } else if (choice.dieRoll) {
       setDieConfig(choice.dieRoll);
       dispatch({ type: 'SET_ROLLING', payload: true });
     } else if (choice.nextSceneId) {
@@ -48,17 +84,34 @@ export default function GameScreen() {
       dispatch({ type: 'UNLOCK_ENDING', payload: nextScene.unlocksEnding });
     }
     if (nextScene?.autoEffects) {
-        if (nextScene.autoEffects.means) {
-            if (nextScene.autoEffects.means > 0) dispatch({ type: 'ADD_MEANS', payload: nextScene.autoEffects.means });
-            else dispatch({ type: 'SUBTRACT_MEANS', payload: Math.abs(nextScene.autoEffects.means) });
-        }
-        if (nextScene.autoEffects.surveillance) dispatch({ type: 'MODIFY_SURVEILLANCE', payload: nextScene.autoEffects.surveillance });
-        if (nextScene.autoEffects.addFlags) nextScene.autoEffects.addFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: true } }));
+      if (nextScene.autoEffects.means) {
+        if (nextScene.autoEffects.means > 0) dispatch({ type: 'ADD_MEANS', payload: nextScene.autoEffects.means });
+        else dispatch({ type: 'SUBTRACT_MEANS', payload: Math.abs(nextScene.autoEffects.means) });
+      }
+      if (nextScene.autoEffects.surveillance) {
+        dispatch({ type: 'MODIFY_SURVEILLANCE', payload: nextScene.autoEffects.surveillance });
+        if (nextScene.autoEffects.surveillance > 0) playGeigerTick();
+      }
+      if (nextScene.autoEffects.addFlags) nextScene.autoEffects.addFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: true } }));
+      if (nextScene.autoEffects.addJournalEntries) nextScene.autoEffects.addJournalEntries.forEach(e => dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: e }));
     }
     dispatch({ type: 'SET_SCENE', payload: sceneId });
-    
+
     if (nextScene?.autoDrawCards) {
       dispatch({ type: 'SET_DRAWING', payload: true });
+    }
+
+    if (nextScene?.falloutCards && state.surveillanceLevel > 40) {
+      setFalloutPending(true);
+    }
+
+    // Trigger stealth phase when crossing into a new act under high surveillance.
+    // nextScene.act > scene.act: we're moving to a higher act.
+    // state.lastActSeen < nextScene.act: guards against re-triggering if the player
+    // visits multiple scenes within the same act transition (e.g. die-roll outcomes).
+    if (nextScene && nextScene.act > scene.act && state.surveillanceLevel > 60 && state.lastActSeen < nextScene.act) {
+      setStealthPhaseActive(true);
+      dispatch({ type: 'SET_LAST_ACT_SEEN', payload: nextScene.act });
     }
   };
 
@@ -67,12 +120,29 @@ export default function GameScreen() {
     if (dieConfig && dieConfig.outcomes[roll]) {
       goToScene(dieConfig.outcomes[roll]);
     } else if (dieConfig) {
-      // Fallback if specific roll isn't mapped, try to find closest lower roll mapped
       let fallbackRoll = roll;
-      while(fallbackRoll > 0 && !dieConfig.outcomes[fallbackRoll]) fallbackRoll--;
+      while (fallbackRoll > 0 && !dieConfig.outcomes[fallbackRoll]) fallbackRoll--;
       if (fallbackRoll > 0) goToScene(dieConfig.outcomes[fallbackRoll]);
     }
     setDieConfig(null);
+  };
+
+  const handleSkillCheckResult = (success: boolean, partial: boolean) => {
+    if (!skillCheckConfig) return;
+    setSkillCheckConfig(null);
+    if (success) goToScene(skillCheckConfig.successScene);
+    else if (partial && skillCheckConfig.partialScene) goToScene(skillCheckConfig.partialScene);
+    else goToScene(skillCheckConfig.failureScene);
+  };
+
+  const handleStealthResolve = (action: 'burn_item' | 'accept', itemId?: string) => {
+    setStealthPhaseActive(false);
+    if (action === 'burn_item' && itemId) {
+      dispatch({ type: 'REMOVE_ITEM', payload: itemId });
+      dispatch({ type: 'MODIFY_SURVEILLANCE', payload: -20 });
+    } else {
+      dispatch({ type: 'MODIFY_SURVEILLANCE', payload: 15 });
+    }
   };
 
   const availableChoices = scene.choices.filter(choice => {
@@ -86,6 +156,13 @@ export default function GameScreen() {
     return true;
   });
 
+  const activeAllies = Object.entries(state.allies).filter(([, trust]) => trust > 0);
+
+  const getAnimStyle = (idx: number) =>
+    animationSkipped
+      ? { animationDuration: '0s', animationDelay: '0s' }
+      : { animationDelay: `${idx * 0.4}s`, animationDuration: 'var(--text-anim-duration, 1.5s)' };
+
   return (
     <div className="min-h-screen bg-background flex text-foreground overflow-hidden">
       <div className="noise" />
@@ -95,14 +172,14 @@ export default function GameScreen() {
       <AnimatePresence>
         {sidebarOpen && (
           <>
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setSidebarOpen(false)}
               className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
             />
-            <motion.aside 
+            <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
@@ -115,11 +192,11 @@ export default function GameScreen() {
                   <X size={20} />
                 </button>
               </div>
-              
+
               <div className="flex-1 overflow-y-auto p-4 space-y-8 font-mono">
                 {/* Status */}
                 <section>
-                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><ShieldAlert size={14}/> Current Status</h4>
+                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><ShieldAlert size={14} /> Current Status</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Surveillance</span>
@@ -133,7 +210,7 @@ export default function GameScreen() {
 
                 {/* Inventory */}
                 <section>
-                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><Pocket size={14}/> Assets</h4>
+                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><Pocket size={14} /> Assets</h4>
                   {state.inventory.length === 0 ? (
                     <div className="text-sm text-muted-foreground/50 italic">No assets acquired.</div>
                   ) : (
@@ -152,20 +229,34 @@ export default function GameScreen() {
 
                 {/* Allies */}
                 <section>
-                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><Users size={14}/> Network</h4>
+                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><Users size={14} /> Network</h4>
                   <ul className="space-y-3 text-sm">
-                    {Object.entries(state.allies).filter(([_, trust]) => trust > 0).map(([ally, trust]) => (
+                    {activeAllies.map(([ally, trust]) => (
                       <li key={ally} className="flex justify-between items-center">
                         <span className="capitalize">{ally}</span>
                         <div className="flex w-16 bg-border h-1 ml-2">
-                           <div className="h-full bg-primary/70" style={{ width: `${trust}%` }} />
+                          <div className="h-full bg-primary/70" style={{ width: `${trust}%` }} />
                         </div>
                       </li>
                     ))}
-                    {Object.entries(state.allies).filter(([_, trust]) => trust > 0).length === 0 && (
-                       <li className="text-muted-foreground/50 italic text-sm">No active contacts.</li>
+                    {activeAllies.length === 0 && (
+                      <li className="text-muted-foreground/50 italic text-sm">No active contacts.</li>
                     )}
                   </ul>
+                </section>
+
+                {/* Field Notes / Journal */}
+                <section>
+                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><BookOpen size={14} /> Field Notes</h4>
+                  {state.journal.length === 0 ? (
+                    <div className="text-sm text-muted-foreground/50 italic">No intel recorded.</div>
+                  ) : (
+                    <ul className="space-y-3">
+                      {[...state.journal].reverse().map((entry, idx) => (
+                        <li key={idx} className="text-xs border-l-2 border-muted pl-2 text-foreground/70 leading-relaxed">{entry}</li>
+                      ))}
+                    </ul>
+                  )}
                 </section>
               </div>
             </motion.aside>
@@ -186,14 +277,21 @@ export default function GameScreen() {
               <div className="text-xs text-muted-foreground font-mono">ACT {scene.act} // SCENE {scene.id.replace('scene-', '').toUpperCase()}</div>
             </div>
           </div>
-          <div className="flex gap-4 md:gap-6 items-center">
+          <div className="flex gap-2 md:gap-4 items-center">
             <div className="text-lg md:text-xl font-mono text-primary border border-primary/30 px-3 py-1 bg-primary/5 shadow-[0_0_10px_rgba(220,38,38,0.1)]">
               ⊘ {state.means}
             </div>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="text-muted-foreground hover:text-primary transition-colors p-1"
+              title="Settings"
+            >
+              <SettingsIcon size={18} />
+            </button>
           </div>
         </header>
 
-        {/* Narrative + Choices — single scrollable column */}
+        {/* Narrative + Choices */}
         <main className="flex-1 overflow-y-auto w-full">
           <div className="p-4 md:p-8 lg:p-12 w-full max-w-4xl mx-auto">
             <AnimatePresence mode="wait">
@@ -209,10 +307,23 @@ export default function GameScreen() {
                   // {scene.title}
                 </h3>
 
-                <div className="space-y-6 text-base md:text-lg leading-relaxed text-foreground/90 font-serif">
+                <div
+                  className="space-y-6 text-base md:text-lg leading-relaxed text-foreground/90 font-serif cursor-pointer"
+                  onClick={handleSkipAnimation}
+                  title="Click to skip animation"
+                >
                   {scene.text.map((paragraph, idx) => (
-                    <p key={idx} className="typewriter" style={{ animationDelay: `${idx * 0.4}s`, animationDuration: '2s' }}>
+                    <p key={idx} className="typewriter" style={getAnimStyle(idx)}>
                       {paragraph}
+                    </p>
+                  ))}
+                  {scene.conditionalText?.filter(ct => state.flags[ct.flag]).map((ct, idx) => (
+                    <p
+                      key={`ct-${idx}`}
+                      className="typewriter italic text-foreground/70 border-l-2 border-primary/40 pl-4"
+                      style={animationSkipped ? { animationDuration: '0s', animationDelay: '0s' } : { animationDelay: `${(scene.text.length + idx) * 0.4}s`, animationDuration: '2s' }}
+                    >
+                      {ct.paragraph}
                     </p>
                   ))}
                 </div>
@@ -236,12 +347,22 @@ export default function GameScreen() {
 
             {/* Bottom actions */}
             <div className="mt-6 flex justify-between items-center pt-4 border-t border-border/30 pb-8">
-              <button
-                onClick={() => setShowStore(true)}
-                className="text-xs md:text-sm font-mono uppercase text-primary hover:text-primary-foreground hover:bg-primary border border-primary/30 px-4 py-2 transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.05)] hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
-              >
-                Access Supply Network
-              </button>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setShowStore(true)}
+                  className="text-xs md:text-sm font-mono uppercase text-primary hover:text-primary-foreground hover:bg-primary border border-primary/30 px-4 py-2 transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.05)] hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
+                >
+                  Access Supply Network
+                </button>
+                <button
+                  onClick={() => { setSaveSlotsMode('save'); setShowSaveSlots(true); }}
+                  className="text-xs md:text-sm font-mono uppercase text-muted-foreground hover:text-foreground border border-border/40 px-3 py-2 transition-colors flex items-center gap-1"
+                  title="Save game"
+                >
+                  <Save size={14} />
+                  Save
+                </button>
+              </div>
               <button
                 onClick={() => setLocation('/')}
                 className="text-xs md:text-sm font-mono uppercase text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
@@ -255,7 +376,38 @@ export default function GameScreen() {
 
       {showStore && <StoreModal onClose={() => setShowStore(false)} />}
       {state.isRolling && <DieRollModal onComplete={handleDieResult} />}
-      {state.isDrawingCards && <CardDrawModal onComplete={() => dispatch({ type: 'SET_DRAWING', payload: false })} count={scene.autoDrawCards || 1} />}
+      {state.isDrawingCards && (
+        <CardDrawModal
+          onComplete={() => dispatch({ type: 'SET_DRAWING', payload: false })}
+          count={scene.autoDrawCards || 1}
+        />
+      )}
+      {falloutPending && (
+        <CardDrawModal
+          onComplete={() => setFalloutPending(false)}
+          count={scene.falloutCards || 1}
+          title="FALLOUT"
+          subtitle="Events beyond your control..."
+        />
+      )}
+      {skillCheckConfig && (
+        <SkillCheckModal
+          target={skillCheckConfig.target}
+          itemBonuses={skillCheckConfig.itemBonuses || {}}
+          inventory={state.inventory}
+          partialTarget={skillCheckConfig.partialTarget}
+          onComplete={handleSkillCheckResult}
+        />
+      )}
+      {stealthPhaseActive && (
+        <StealthPhaseModal
+          surveillanceLevel={state.surveillanceLevel}
+          inventory={state.inventory}
+          onResolve={handleStealthResolve}
+        />
+      )}
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showSaveSlots && <SaveSlotsModal onClose={() => setShowSaveSlots(false)} mode={saveSlotsMode} />}
     </div>
   );
 }

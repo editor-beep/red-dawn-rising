@@ -1,9 +1,15 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { GameState, ActionType, gameReducer, initialState } from '../types';
 
+type SaveSlotMeta = { name: string; savedAt: string; sceneTitle: string };
+
 const GameContext = createContext<{
   state: GameState;
   dispatch: React.Dispatch<ActionType>;
+  saveToSlot: (name: string) => void;
+  loadFromSlot: (name: string) => void;
+  deleteSlot: (name: string) => void;
+  listSlots: () => SaveSlotMeta[];
 } | null>(null);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -12,7 +18,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem('red-dawn-save');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { ...initial, ...parsed, unlockedEndings: parsed.unlockedEndings ?? [] };
+        return {
+          ...initial,
+          ...parsed,
+          unlockedEndings: parsed.unlockedEndings ?? [],
+          journal: parsed.journal ?? [],
+          lastActSeen: parsed.lastActSeen ?? 1,
+        };
       }
     } catch (e) {
       console.error("Failed to load save", e);
@@ -24,8 +36,47 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('red-dawn-save', JSON.stringify(state));
   }, [state]);
 
+  const saveToSlot = (name: string) => {
+    try {
+      const slots = JSON.parse(localStorage.getItem('red-dawn-slots') || '{}');
+      slots[name] = { ...state, _savedAt: new Date().toISOString() };
+      localStorage.setItem('red-dawn-slots', JSON.stringify(slots));
+    } catch {}
+  };
+
+  const loadFromSlot = (name: string) => {
+    try {
+      const slots = JSON.parse(localStorage.getItem('red-dawn-slots') || '{}');
+      if (slots[name]) {
+        dispatch({ type: 'LOAD_STATE', payload: slots[name] });
+      }
+    } catch {}
+  };
+
+  const deleteSlot = (name: string) => {
+    try {
+      const slots = JSON.parse(localStorage.getItem('red-dawn-slots') || '{}');
+      delete slots[name];
+      localStorage.setItem('red-dawn-slots', JSON.stringify(slots));
+    } catch {}
+  };
+
+  const listSlots = (): SaveSlotMeta[] => {
+    try {
+      const slots = JSON.parse(localStorage.getItem('red-dawn-slots') || '{}');
+      return Object.entries(slots).map(([name, data]: [string, unknown]) => {
+        const slot = data as { _savedAt?: string; currentSceneId?: string };
+        return {
+          name,
+          savedAt: slot._savedAt || '',
+          sceneTitle: slot.currentSceneId || '',
+        };
+      });
+    } catch { return []; }
+  };
+
   return (
-    <GameContext.Provider value={{ state, dispatch }}>
+    <GameContext.Provider value={{ state, dispatch, saveToSlot, loadFromSlot, deleteSlot, listSlots }}>
       {children}
     </GameContext.Provider>
   );
