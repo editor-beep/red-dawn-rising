@@ -362,16 +362,17 @@ export const SCENES: Record<string, Scene> = {
     act: 3,
     title: "Vetted Member Suggestions",
     text: [
-      "Darius brings a card with three vetted member suggestions for the inner circle. You only have room to elevate one right now.",
-      "Alex Mercer: former military, disciplined, exceptional in counter-surveillance. Background is thin but not overtly contradictory.",
-      "Nadia Kline: transit union organizer from Cleveland, trusted by two partner cells, excellent logistics coordinator.",
-      "Luis Ortega: community medic from Phoenix, calm under pressure, deeply connected to local tenant networks."
+      "Darius slides a card across the table: three vetted member suggestions for one open inner-circle seat.",
+      "Alex Mercer — former military, disciplined, and excellent at counter-surveillance. His paperwork is sparse, but every reference checks out.",
+      "Nadia Kline — Cleveland transit union organizer trusted by two partner cells, with a talent for moving people and supplies quietly.",
+      "Luis Ortega — Phoenix community medic with deep tenant-network ties, known for keeping teams steady under pressure.",
+      "You can only elevate one candidate now. Whoever you choose will shape the core team going into the federal crackdown."
     ],
     choices: [
-      { text: "Elevate Alex Mercer", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
-      { text: "Elevate Alex — but keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
-      { text: "Elevate Nadia Kline", nextSceneId: "scene-13", effects: { addFlags: ["has_nadia"] } },
-      { text: "Elevate Luis Ortega", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } },
+      { text: "Elevate Alex Mercer to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
+      { text: "Elevate Alex, but keep him compartmentalized", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
+      { text: "Elevate Nadia Kline instead", nextSceneId: "scene-13", effects: { addFlags: ["has_nadia"] } },
+      { text: "Elevate Luis Ortega instead", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } },
       {
         text: "Use the Manifesto backchannel: ask Ghost what Alex's scrubbed file is hiding (Secret Dialogue)",
         condition: { flag: "manifesto_secret_dialogue" },
@@ -389,8 +390,8 @@ export const SCENES: Record<string, Scene> = {
     autoDrawCards: 3,
     autoEffects: {
       addJournalEntries: [
-        "Recruitment shortlist: Alex Mercer (counter-surveillance), Nadia Kline (union logistics), Luis Ortega (field medic).",
-        "Alex Mercer — former military, disciplined and effective. Background file remains unusually sparse."
+        "Recruitment card reviewed: Alex Mercer (counter-surveillance), Nadia Kline (union logistics), Luis Ortega (field medic).",
+        "Inner-circle seat filled from vetted shortlist under heightened federal pressure."
       ]
     }
   },
@@ -506,8 +507,13 @@ export const SCENES: Record<string, Scene> = {
     title: "The Crisis Meeting",
     text: [
       "The safehouse feels like a tomb. You gather the remaining inner circle.",
-      "Someone stands and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
+      "Your newest inner-circle recruit stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
       "Except you. You notice how carefully every word lands. It is too perfect—like it was rehearsed in front of a mirror. Or a handler."
+    ],
+    conditionalText: [
+      { flag: "has_alex", paragraph: "Alex never breaks eye contact while he speaks. Every sentence lands too perfectly, like it was drafted for two audiences." },
+      { flag: "has_nadia", paragraph: "Nadia redirects grief into logistics within minutes—safe routes, fallback apartments, dead drops. It is competent enough to be reassuring and unsettling at once." },
+      { flag: "has_luis", paragraph: "Luis organizes medical contingencies before anyone asks. The room calms, but you can't tell whether his composure is discipline or distance." }
     ],
     choices: [{ text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }],
     autoDrawCards: 5,
@@ -1130,9 +1136,9 @@ export const SCENES: Record<string, Scene> = {
     act: 3,
     title: "Too Obvious",
     text: [
-      "You move too fast, or with too little subtlety. Alex notices the shift in temperature before you have anything concrete on him.",
-      "He becomes careful. Deliberately, professionally careful. He stops making mistakes. He starts watching you watch him.",
-      "If he is an agent, you have just made him more dangerous. If he isn't, you have made an enemy inside your own cell."
+      "You move too fast, or with too little subtlety. The person you pressure notices the shift before you have anything concrete.",
+      "They become careful. Deliberately, professionally careful. The mistakes stop. The counter-questions begin.",
+      "If they are compromised, you just made them harder to catch. If they are loyal, you have wounded trust inside your own cell."
     ],
     autoEffects: { surveillance: 15 },
     choices: [{ text: "Pull back", nextSceneId: "scene-19" }]
