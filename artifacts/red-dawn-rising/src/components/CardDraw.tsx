@@ -27,6 +27,11 @@ export function CardDrawModal({
     if (revealed < count) {
       const card = drawn[revealed];
       dispatch({ type: 'ADD_DRAWN_CARD', payload: card.id });
+      if (card.id === 'c1') dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
+      if (card.id === 'c6') dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: -1 });
+      if (card.id === 'c3') dispatch({ type: 'ADD_MEANS', payload: 80 });
+      if (card.id === 'c5') dispatch({ type: 'ADD_MEANS', payload: 100 });
+      if (card.id === 'c8') dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
       setRevealed(r => r + 1);
     } else {
       onComplete();

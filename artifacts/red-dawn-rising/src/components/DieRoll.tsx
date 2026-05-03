@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export function DieRollModal({ onComplete }: { onComplete: (result: number) => void }) {
+export function DieRollModal({ onComplete, modifier = 0 }: { onComplete: (result: number) => void; modifier?: number }) {
   const [rolling, setRolling] = useState(true);
   const [face, setFace] = useState(1);
 
@@ -14,9 +14,10 @@ export function DieRollModal({ onComplete }: { onComplete: (result: number) => v
 
       setTimeout(() => {
         setRolling(false);
-        const finalRoll = Math.floor(Math.random() * 6) + 1;
-        setFace(finalRoll);
-        setTimeout(() => onComplete(finalRoll), 1500);
+        const naturalRoll = Math.floor(Math.random() * 6) + 1;
+        const modifiedRoll = Math.max(1, Math.min(6, naturalRoll + modifier));
+        setFace(modifiedRoll);
+        setTimeout(() => onComplete(modifiedRoll), 1500);
       }, 2000);
     }
     return () => clearInterval(interval);

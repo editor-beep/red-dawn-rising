@@ -28,6 +28,8 @@ export type GameState = {
   unlockedEndings: string[];
   journal: string[];
   lastActSeen: number;
+  nextDieRollModifier: number;
+  protectedScenesRemaining: number;
 };
 
 export type ActionType =
@@ -46,6 +48,9 @@ export type ActionType =
   | { type: 'UNLOCK_ENDING'; payload: string }
   | { type: 'ADD_JOURNAL_ENTRY'; payload: string }
   | { type: 'SET_LAST_ACT_SEEN'; payload: number }
+  | { type: 'MODIFY_NEXT_DIE_ROLL'; payload: number }
+  | { type: 'SET_PROTECTED_SCENES'; payload: number }
+  | { type: 'DECREMENT_PROTECTED_SCENES' }
   | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
@@ -69,6 +74,8 @@ export const initialState: GameState = {
   unlockedEndings: [],
   journal: [],
   lastActSeen: 1,
+  nextDieRollModifier: 0,
+  protectedScenesRemaining: 0,
 };
 
 export function gameReducer(state: GameState, action: ActionType): GameState {
@@ -106,12 +113,20 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       return { ...state, journal: [...state.journal, action.payload] };
     case 'SET_LAST_ACT_SEEN':
       return { ...state, lastActSeen: action.payload };
+    case 'MODIFY_NEXT_DIE_ROLL':
+      return { ...state, nextDieRollModifier: state.nextDieRollModifier + action.payload };
+    case 'SET_PROTECTED_SCENES':
+      return { ...state, protectedScenesRemaining: Math.max(0, action.payload) };
+    case 'DECREMENT_PROTECTED_SCENES':
+      return { ...state, protectedScenesRemaining: Math.max(0, state.protectedScenesRemaining - 1) };
     case 'LOAD_STATE':
       return {
         ...action.payload,
         unlockedEndings: action.payload.unlockedEndings ?? [],
         journal: action.payload.journal ?? [],
         lastActSeen: action.payload.lastActSeen ?? 1,
+        nextDieRollModifier: action.payload.nextDieRollModifier ?? 0,
+        protectedScenesRemaining: action.payload.protectedScenesRemaining ?? 0,
       };
     case 'UNLOCK_ENDING':
       if (state.unlockedEndings.includes(action.payload)) return state;
