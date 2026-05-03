@@ -264,8 +264,13 @@ export const SCENES: Record<string, Scene> = {
     act: 2,
     title: "Full Success",
     text: [
-      "Flawless execution. All five factories were blanketed. The morning shift arrived to find revolutionary literature taped to every locker, machine press, and supervisor door.",
+      "Flawless execution. Staged out of your safehouse, the teams moved in sync and all five factories were blanketed. The morning shift arrived to find revolutionary literature taped to every locker, machine press, and supervisor door.",
       "The workers are talking. The corporate owners are panicked. The cell gains massive credibility."
+    ],
+    conditionalText: [
+      { flag: "warehouse_safehouse", paragraph: "The Gary warehouse proved its worth immediately: space for vehicles, pallets of pamphlets, and enough room to coordinate launch timing without attracting attention." },
+      { flag: "farm_safehouse", paragraph: "The farmhouse's isolation bought you the setup window you needed; by dawn, every route map and drop packet had been staged and dispatched." },
+      { flag: "forged_safehouse", paragraph: "The forged commercial lease let you hide in plain sight, turning a legitimate-looking office into a covert dispatch hub for the drop." }
     ],
     choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 100, addFlags: ["op1_success"] } }]
   },
@@ -367,7 +372,20 @@ export const SCENES: Record<string, Scene> = {
       { text: "Elevate Alex Mercer to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
       { text: "Elevate Alex, but keep him compartmentalized", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
       { text: "Elevate Nadia Kline instead", nextSceneId: "scene-13", effects: { addFlags: ["has_nadia"] } },
-      { text: "Elevate Luis Ortega instead", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } }
+      { text: "Elevate Luis Ortega instead", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } },
+      {
+        text: "Use the Manifesto backchannel: ask Ghost what Alex's scrubbed file is hiding (Secret Dialogue)",
+        condition: { flag: "manifesto_secret_dialogue" },
+        nextSceneId: "scene-13",
+        effects: {
+          addFlags: ["has_alex", "alex_suspected", "suspect_alex"],
+          removeFlags: ["manifesto_secret_dialogue"],
+          addJournalEntries: [
+            "Secret Dialogue — Ghost confirms Alex's scrub pattern matches federal counterintelligence sanitization. No hard proof, but enough to treat him as an active risk."
+          ]
+        }
+      },
+      { text: "Reject Alex for now and keep all three on probation", nextSceneId: "scene-12-alex-rejected", effects: { addFlags: ["alex_suspected"] } }
     ],
     autoDrawCards: 3,
     autoEffects: {
@@ -389,6 +407,19 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Go dark for 2 weeks", nextSceneId: "scene-14", effects: { surveillance: -30, means: -100, addFlags: ["went_dark"] } },
       { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
+      {
+        text: "Follow the Cipher clue: track 'the smiling one' instead of the car (Foreshadowing)",
+        condition: { flag: "cipher_foreshadowing" },
+        nextSceneId: "scene-14",
+        effects: {
+          surveillance: -10,
+          addFlags: ["suspect_alex"],
+          removeFlags: ["cipher_foreshadowing"],
+          addJournalEntries: [
+            "Foreshadowing Paid Off — The Cipher points to an insider profile, not external surveillance. You begin actively screening Alex for provocation patterns."
+          ]
+        }
+      },
       { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
     ],
     falloutCards: 1
@@ -477,7 +508,7 @@ export const SCENES: Record<string, Scene> = {
     text: [
       "The safehouse feels like a tomb. You gather the remaining inner circle.",
       "Your newest inner-circle recruit stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
-      "Except you. You notice how carefully each phrase is chosen. It feels polished. Maybe sincere. Maybe rehearsed."
+      "Except you. You notice how carefully every word lands. It is too perfect—like it was rehearsed in front of a mirror. Or a handler."
     ],
     conditionalText: [
       { flag: "has_alex", paragraph: "Alex never breaks eye contact while he speaks. Every sentence lands too perfectly, like it was drafted for two audiences." },
