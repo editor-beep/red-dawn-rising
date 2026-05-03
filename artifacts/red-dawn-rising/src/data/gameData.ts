@@ -364,8 +364,21 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Elevate Alex Mercer", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
+      { text: "Elevate Alex — but keep him at arm's length", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
       { text: "Elevate Nadia Kline", nextSceneId: "scene-13", effects: { addFlags: ["has_nadia"] } },
       { text: "Elevate Luis Ortega", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } },
+      {
+        text: "Use the Manifesto backchannel: ask Ghost what Alex's scrubbed file is hiding (Secret Dialogue)",
+        condition: { flag: "manifesto_secret_dialogue" },
+        nextSceneId: "scene-13",
+        effects: {
+          addFlags: ["has_alex", "alex_suspected", "suspect_alex"],
+          removeFlags: ["manifesto_secret_dialogue"],
+          addJournalEntries: [
+            "Secret Dialogue — Ghost confirms Alex's scrub pattern matches federal counterintelligence sanitization. No hard proof, but enough to treat him as an active risk."
+          ]
+        }
+      },
       { text: "Reject Alex for now and keep all three on probation", nextSceneId: "scene-12-alex-rejected", effects: { addFlags: ["alex_suspected"] } }
     ],
     autoDrawCards: 3,
@@ -388,6 +401,19 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Go dark for 2 weeks", nextSceneId: "scene-14", effects: { surveillance: -30, means: -100, addFlags: ["went_dark"] } },
       { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
+      {
+        text: "Follow the Cipher clue: track 'the smiling one' instead of the car (Foreshadowing)",
+        condition: { flag: "cipher_foreshadowing" },
+        nextSceneId: "scene-14",
+        effects: {
+          surveillance: -10,
+          addFlags: ["suspect_alex"],
+          removeFlags: ["cipher_foreshadowing"],
+          addJournalEntries: [
+            "Foreshadowing Paid Off — The Cipher points to an insider profile, not external surveillance. You begin actively screening Alex for provocation patterns."
+          ]
+        }
+      },
       { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
     ],
     falloutCards: 1
@@ -464,7 +490,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Assume it was surveillance tech", nextSceneId: "scene-19", effects: { means: -100 } },
-      { text: "Suspect Alex Mercer", dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
+      { text: "Suspect Alex Mercer", condition: { flag: "has_alex" }, dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
       { text: "Suspect Ghost", nextSceneId: "scene-19" }
     ],
     falloutCards: 1
@@ -475,8 +501,8 @@ export const SCENES: Record<string, Scene> = {
     title: "The Crisis Meeting",
     text: [
       "The safehouse feels like a tomb. You gather the remaining inner circle.",
-      "Alex stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
-      "Except you. You notice how carefully he chose his words. It was too perfect. Like it was rehearsed in front of a mirror. Or a handler."
+      "Someone stands and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
+      "Except you. You notice how carefully every word lands. It is too perfect—like it was rehearsed in front of a mirror. Or a handler."
     ],
     choices: [{ text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }],
     autoDrawCards: 5,
