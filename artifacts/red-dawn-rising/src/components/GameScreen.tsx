@@ -147,11 +147,12 @@ export default function GameScreen() {
 
   const availableChoices = scene.choices.filter(choice => {
     if (!choice.condition) return true;
-    const { flag, item, missingFlag, missingItem } = choice.condition;
+    const { flag, item, missingFlag, missingItem, minMeans } = choice.condition;
     if (flag && !state.flags[flag]) return false;
     if (missingFlag && state.flags[missingFlag]) return false;
     if (item && !state.inventory.includes(item)) return false;
     if (missingItem && state.inventory.includes(missingItem)) return false;
+    if (minMeans !== undefined && state.means < minMeans) return false;
     return true;
   });
 
