@@ -484,7 +484,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Assume it was surveillance tech", nextSceneId: "scene-19", effects: { means: -100 } },
-      { text: "Suspect Alex Mercer", dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
+      { text: "Suspect Alex Mercer", condition: { flag: "has_alex" }, dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
       { text: "Suspect Ghost", nextSceneId: "scene-19" }
     ],
     falloutCards: 1
@@ -495,8 +495,8 @@ export const SCENES: Record<string, Scene> = {
     title: "The Crisis Meeting",
     text: [
       "The safehouse feels like a tomb. You gather the remaining inner circle.",
-      "Alex stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
-      "Except you. You notice how carefully he chose his words. It was too perfect. Like it was rehearsed in front of a mirror. Or a handler."
+      "Someone stands and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
+      "Except you. You notice how carefully every word lands. It is too perfect—like it was rehearsed in front of a mirror. Or a handler."
     ],
     choices: [{ text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }],
     autoDrawCards: 5,
