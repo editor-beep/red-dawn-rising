@@ -264,8 +264,13 @@ export const SCENES: Record<string, Scene> = {
     act: 2,
     title: "Full Success",
     text: [
-      "Flawless execution. All five factories were blanketed. The morning shift arrived to find revolutionary literature taped to every locker, machine press, and supervisor door.",
+      "Flawless execution. Staged out of your safehouse, the teams moved in sync and all five factories were blanketed. The morning shift arrived to find revolutionary literature taped to every locker, machine press, and supervisor door.",
       "The workers are talking. The corporate owners are panicked. The cell gains massive credibility."
+    ],
+    conditionalText: [
+      { flag: "warehouse_safehouse", paragraph: "The Gary warehouse proved its worth immediately: space for vehicles, pallets of pamphlets, and enough room to coordinate launch timing without attracting attention." },
+      { flag: "farm_safehouse", paragraph: "The farmhouse's isolation bought you the setup window you needed; by dawn, every route map and drop packet had been staged and dispatched." },
+      { flag: "forged_safehouse", paragraph: "The forged commercial lease let you hide in plain sight, turning a legitimate-looking office into a covert dispatch hub for the drop." }
     ],
     choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 100, addFlags: ["op1_success"] } }]
   },
