@@ -14,7 +14,7 @@ export function CardDrawModal({
   title?: string;
   subtitle?: string;
 }) {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
   const [drawn, setDrawn] = useState<typeof DECK>([]);
   const [revealed, setRevealed] = useState<number>(0);
 
@@ -32,6 +32,17 @@ export function CardDrawModal({
       if (card.id === 'c3') dispatch({ type: 'ADD_MEANS', payload: 80 });
       if (card.id === 'c5') dispatch({ type: 'ADD_MEANS', payload: 100 });
       if (card.id === 'c8') dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
+      if (card.id === 'c2') {
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'suspect_alex', value: true } });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Informant Intel — Encrypted intercept reveals a familiar pattern: controlled cadence, rehearsed emotion, communication style matching federal handler training. Someone near you is performing." });
+      }
+      if (card.id === 'c7' && state.inventory.length > 0) {
+        const randomIndex = Math.floor(Math.random() * state.inventory.length);
+        dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[randomIndex] });
+      }
+      if (card.id === 'c10') {
+        dispatch({ type: 'SET_RED_DAWN', payload: true });
+      }
       if (card.id === 'c4') {
         dispatch({ type: 'SET_FLAG', payload: { flag: 'manifesto_secret_dialogue', value: true } });
         dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Manifesto Signal — A one-time covert line is open. You can ask one off-script question in a critical conversation." });
