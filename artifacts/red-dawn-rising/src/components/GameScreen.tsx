@@ -189,63 +189,64 @@ export default function GameScreen() {
           </div>
         </header>
 
-        {/* Narrative Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 pb-32 w-full max-w-4xl mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={scene.id}
-              initial={{ opacity: 0, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, filter: 'blur(4px)' }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="space-y-6"
-            >
-              <h3 className="text-xl md:text-2xl font-bold uppercase border-b border-border/50 pb-4 mb-8 text-primary/90 tracking-widest font-mono">
-                // {scene.title}
-              </h3>
-              
-              <div className="space-y-6 text-base md:text-lg leading-relaxed text-foreground/90 font-serif pb-12">
-                {scene.text.map((paragraph, idx) => (
-                  <p key={idx} className="typewriter" style={{ animationDelay: `${idx * 0.4}s`, animationDuration: '2s' }}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </main>
-
-        {/* Choices Area */}
-        <footer className="shrink-0 p-4 md:p-6 border-t border-border bg-card/80 backdrop-blur w-full max-w-4xl mx-auto relative z-20">
-          <div className="grid gap-3">
-            {availableChoices.map((choice, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleChoice(choice)}
-                className="text-left p-3 md:p-4 border border-border/60 hover:border-primary hover:bg-primary/5 transition-all duration-300 group relative overflow-hidden bg-background/50"
+        {/* Narrative + Choices — single scrollable column */}
+        <main className="flex-1 overflow-y-auto w-full">
+          <div className="p-4 md:p-8 lg:p-12 w-full max-w-4xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={scene.id}
+                initial={{ opacity: 0, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, filter: 'blur(4px)' }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                className="space-y-6"
               >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom" />
-                <span className="font-mono text-primary/60 mr-4 text-sm md:text-base">[{String.fromCharCode(65 + idx)}]</span>
-                <span className="font-sans text-sm md:text-base text-foreground/90 group-hover:text-foreground transition-colors">{choice.text}</span>
+                <h3 className="text-xl md:text-2xl font-bold uppercase border-b border-border/50 pb-4 mb-8 text-primary/90 tracking-widest font-mono">
+                  // {scene.title}
+                </h3>
+
+                <div className="space-y-6 text-base md:text-lg leading-relaxed text-foreground/90 font-serif">
+                  {scene.text.map((paragraph, idx) => (
+                    <p key={idx} className="typewriter" style={{ animationDelay: `${idx * 0.4}s`, animationDuration: '2s' }}>
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Choices */}
+            <div className="mt-10 border-t border-border pt-6 grid gap-3">
+              {availableChoices.map((choice, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleChoice(choice)}
+                  className="text-left p-3 md:p-4 border border-border/60 hover:border-primary hover:bg-primary/5 transition-all duration-300 group relative overflow-hidden bg-background/50"
+                >
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom" />
+                  <span className="font-mono text-primary/60 mr-4 text-sm md:text-base">[{String.fromCharCode(65 + idx)}]</span>
+                  <span className="font-sans text-sm md:text-base text-foreground/90 group-hover:text-foreground transition-colors">{choice.text}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Bottom actions */}
+            <div className="mt-6 flex justify-between items-center pt-4 border-t border-border/30 pb-8">
+              <button
+                onClick={() => setShowStore(true)}
+                className="text-xs md:text-sm font-mono uppercase text-primary hover:text-primary-foreground hover:bg-primary border border-primary/30 px-4 py-2 transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.05)] hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
+              >
+                Access Supply Network
               </button>
-            ))}
+              <button
+                onClick={() => setLocation('/')}
+                className="text-xs md:text-sm font-mono uppercase text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
+              >
+                Terminate Link
+              </button>
+            </div>
           </div>
-          
-          <div className="mt-6 flex justify-between items-center pt-4 border-t border-border/30">
-            <button 
-              onClick={() => setShowStore(true)}
-              className="text-xs md:text-sm font-mono uppercase text-primary hover:text-primary-foreground hover:bg-primary border border-primary/30 px-4 py-2 transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.05)] hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
-            >
-              Access Supply Network
-            </button>
-            <button 
-              onClick={() => setLocation('/')}
-              className="text-xs md:text-sm font-mono uppercase text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
-            >
-              Terminate Link
-            </button>
-          </div>
-        </footer>
+        </main>
       </div>
 
       {showStore && <StoreModal onClose={() => setShowStore(false)} />}
