@@ -60,7 +60,10 @@ export function SaveSlotsModal({ onClose, mode }: { onClose: () => void; mode: '
                 <div className="font-mono text-xs text-muted-foreground truncate">{slot.sceneTitle}</div>
                 {slot.savedAt && (
                   <div className="font-mono text-xs text-muted-foreground/50">
-                    {new Date(slot.savedAt).toLocaleDateString()}
+                    {slot.savedAt ? (() => {
+                      const d = new Date(slot.savedAt);
+                      return isNaN(d.getTime()) ? slot.savedAt : d.toLocaleDateString();
+                    })() : null}
                   </div>
                 )}
               </div>

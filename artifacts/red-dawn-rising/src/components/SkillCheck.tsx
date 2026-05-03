@@ -48,7 +48,7 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
     return () => clearInterval(interval);
   }, []);
 
-  const total = done ? finalDie1 + finalDie2 + modifier : die1 + die2;
+  const total = (done ? finalDie1 + finalDie2 : die1 + die2) + modifier;
   const success = done && (finalDie1 + finalDie2 + modifier) >= target;
   const partial = done && !success && partialTarget !== undefined && (finalDie1 + finalDie2 + modifier) >= partialTarget;
 
@@ -73,7 +73,7 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
       {done && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
           <div className="font-mono text-lg">
-            {finalDie1} + {finalDie2}{modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''} = <span className="text-2xl font-bold">{finalDie1 + finalDie2 + modifier}</span>
+            {finalDie1} + {finalDie2}{modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''} = <span className="text-2xl font-bold">{total}</span>
           </div>
           <div className={`text-xl font-mono uppercase mt-4 ${success ? 'text-primary' : partial ? 'text-foreground' : 'text-destructive'}`}>
             {success ? 'Success' : partial ? 'Partial Success' : 'Failure'}
@@ -81,7 +81,7 @@ export function SkillCheckModal({ target, itemBonuses = {}, inventory, onComplet
         </motion.div>
       )}
 
-      <div className="sr-only">{total}</div>
+      <div className="sr-only" aria-live="polite">{done ? `Roll result: ${total}` : 'Rolling…'}</div>
     </div>
   );
 }

@@ -64,11 +64,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const listSlots = (): SaveSlotMeta[] => {
     try {
       const slots = JSON.parse(localStorage.getItem('red-dawn-slots') || '{}');
-      return Object.entries(slots).map(([name, data]: [string, any]) => ({
-        name,
-        savedAt: data._savedAt || '',
-        sceneTitle: data.currentSceneId || '',
-      }));
+      return Object.entries(slots).map(([name, data]: [string, unknown]) => {
+        const slot = data as { _savedAt?: string; currentSceneId?: string };
+        return {
+          name,
+          savedAt: slot._savedAt || '',
+          sceneTitle: slot.currentSceneId || '',
+        };
+      });
     } catch { return []; }
   };
 
