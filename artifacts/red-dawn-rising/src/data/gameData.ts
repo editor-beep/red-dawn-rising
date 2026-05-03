@@ -69,12 +69,31 @@ export type SceneChoice = {
   };
 };
 
+export type Ending = {
+  id: string;
+  codename: string;
+  title: string;
+  description: string;
+};
+
+export const ENDINGS: Ending[] = [
+  { id: 'e1', codename: 'I.', title: 'The Long March', description: 'A new dawn. The state falls; the workers win.' },
+  { id: 'e2', codename: 'II.', title: 'The Cage', description: 'Captured. The man is silenced; the idea is not.' },
+  { id: 'e3', codename: 'III.', title: 'The Exile', description: 'A flame carried across the ocean.' },
+  { id: 'e4', codename: 'IV.', title: 'The Poison', description: 'Betrayed from within. Survival, not victory.' },
+  { id: 'e5', codename: 'V.', title: 'The Means Was the Movement', description: '[CLASSIFIED]' },
+];
+
+export const SECRET_ENDING_ID = 'e5';
+export const SECRET_START_SCENE = 'secret-1';
+
 export type Scene = {
   id: string;
   act: number;
   title: string;
   text: string[];
   choices: SceneChoice[];
+  unlocksEnding?: string;
   autoDrawCards?: number;
   autoEffects?: {
     means?: number;
@@ -564,7 +583,8 @@ export const SCENES: Record<string, Scene> = {
       "It's bittersweet. You've lost friends. You've lost your innocence. The work of maintaining this fragile utopia is just beginning. But today, against impossible odds, the workers won.",
       "ACHIEVEMENT UNLOCKED: The Long March Complete."
     ],
-    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }] 
+    unlocksEnding: "e1",
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
   },
 
   // ENDING 2
@@ -620,6 +640,7 @@ export const SCENES: Record<string, Scene> = {
       "They locked away the man, but they broadcast the martyr to the entire world. The State cannot silence an idea. As you close your eyes, you hear the distant, muffled sound of a prison strike beginning.",
       "ACHIEVEMENT UNLOCKED: The State Cannot Silence an Idea."
     ],
+    unlocksEnding: "e2",
     choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
   },
 
@@ -675,6 +696,7 @@ export const SCENES: Record<string, Scene> = {
       "The revolution is delayed. Not defeated.",
       "ACHIEVEMENT UNLOCKED: The Exile's Flame."
     ],
+    unlocksEnding: "e3",
     choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
   },
 
@@ -731,6 +753,75 @@ export const SCENES: Record<string, Scene> = {
       "They can't kill what they can't find. It is a dark, haunting text, devoid of hope, filled only with survival mechanics. It is ambiguous if the movement will ever recover, but if it does, it will be ruthless.",
       "ACHIEVEMENT UNLOCKED: They Can't Kill What They Can't Find."
     ],
+    unlocksEnding: "e4",
+    choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
+  },
+
+  // ============================================================
+  // SECRET PATH — unlocked only after all four endings are reached
+  // ============================================================
+  "secret-1": {
+    id: "secret-1",
+    act: 0,
+    title: "The Recurring Dream",
+    text: [
+      "You wake in the same cramped Pittsburgh apartment. The radiator hisses. Snow against the window. The clock reads 4:47 AM. It is the morning of the layoff. Again.",
+      "But this time, you remember. You remember the chandeliers in the empty Capitol. You remember the concrete cell in Colorado. You remember the cargo container, the lamplit desk in Beijing. You remember the empty vials in the trash and the friends who never woke up.",
+      "Four lifetimes pressed into one skull. Four endings. Four lessons. The dream — or curse — of having walked every path.",
+      "You sit up. Your hands are not shaking. For the first time in any life, you are not afraid. You know exactly what does not work."
+    ],
+    choices: [{ text: "Get out of bed", nextSceneId: "secret-2" }]
+  },
+  "secret-2": {
+    id: "secret-2",
+    act: 0,
+    title: "The Synthesis",
+    text: [
+      "You meet Elena and Darius at the same diner where, in another life, the cell was first formed. You order coffee. You do not order anything else.",
+      "'I'm not building a vanguard,' you tell them. 'I'm not storming a Capitol. I'm not picking up a gun. I'm not running from anyone, and I'm not waiting for permission.'",
+      "Elena tilts her head. Darius sets down his fork. They have known you a long time. They have never heard you sound like this.",
+      "'Then what are you doing, Marco?'",
+      "'We are going to make the state irrelevant,' you say. 'Quietly. Patiently. Without ever asking it for anything.'"
+    ],
+    choices: [{ text: "Lay out the plan", nextSceneId: "secret-3" }]
+  },
+  "secret-3": {
+    id: "secret-3",
+    act: 0,
+    title: "Dual Power",
+    text: [
+      "It does not look like a revolution. That is the entire point.",
+      "A free clinic in the back of a barbershop. A childcare cooperative run out of a rec center. A grocery network that bypasses three layers of middlemen. A worker-owned print shop. A neighborhood mediation council that resolves disputes the police would only escalate. A mesh radio network that does not touch a corporate tower.",
+      "You build none of it alone. You teach. You connect. You step back. There is no charismatic leader to arrest, because there is no leader. There is no headquarters to raid, because there are ten thousand kitchens.",
+      "Surveillance becomes meaningless when the thing being watched is just people taking care of each other."
+    ],
+    choices: [{ text: "Years pass", nextSceneId: "secret-4" }]
+  },
+  "secret-4": {
+    id: "secret-4",
+    act: 0,
+    title: "The Tipping Point",
+    text: [
+      "A decade later, the parallel society has eclipsed the official one. More Americans get their healthcare from cooperatives than from insurers. More children are educated in community schools than in the underfunded public ones. More disputes are resolved by neighborhood councils than by courts.",
+      "When the next financial crash comes, no one panics. The systems that mattered were never on Wall Street to begin with.",
+      "The federal government, hollowed out and increasingly absurd, tries one last crackdown. It deploys troops to a city where the troops' own families now depend on the cooperatives. The orders are quietly ignored. Officers begin defecting in groups, not as traitors, but as neighbors.",
+      "There is no storming. There is no surrender. There is simply a morning when the apparatus of the old state wakes up and discovers no one is listening to it anymore."
+    ],
+    choices: [{ text: "The morning after", nextSceneId: "secret-5" }]
+  },
+  "secret-5": {
+    id: "secret-5",
+    act: 0,
+    title: "The Means Was the Movement",
+    text: [
+      "Marco is old now. He sits on a porch in the same Pittsburgh neighborhood, drinking coffee that was grown by a cooperative in Honduras and roasted three blocks away.",
+      "There is no monument to him. He refused every offer. The history books, written collectively, mention him in a single paragraph: 'one of many organizers in the early networks.' That is exactly what he wanted.",
+      "Children he will never meet attend schools he will never visit. Workers vote on the conditions of their own labor in factories that no longer have owners. The flag did not change. The Constitution did not change. Almost nothing on paper changed. Everything underneath it did.",
+      "He understands now what every other version of him missed. The state was never the prize. The Means — the relationships, the networks, the slow patient work of taking care of one another — was never a tool for the revolution.",
+      "The Means was the revolution.",
+      "ACHIEVEMENT UNLOCKED: The Means Was the Movement. // [ALL PATHS WALKED]"
+    ],
+    unlocksEnding: "e5",
     choices: [{ text: "Return to Title", nextSceneId: "scene-1" }]
   }
 };

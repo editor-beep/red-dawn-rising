@@ -11,7 +11,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const saved = localStorage.getItem('red-dawn-save');
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return { ...initial, ...parsed, unlockedEndings: parsed.unlockedEndings ?? [] };
       }
     } catch (e) {
       console.error("Failed to load save", e);

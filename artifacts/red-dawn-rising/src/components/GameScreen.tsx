@@ -44,6 +44,9 @@ export default function GameScreen() {
 
   const goToScene = (sceneId: string) => {
     const nextScene = SCENES[sceneId];
+    if (nextScene?.unlocksEnding) {
+      dispatch({ type: 'UNLOCK_ENDING', payload: nextScene.unlocksEnding });
+    }
     if (nextScene?.autoEffects) {
         if (nextScene.autoEffects.means) {
             if (nextScene.autoEffects.means > 0) dispatch({ type: 'ADD_MEANS', payload: nextScene.autoEffects.means });

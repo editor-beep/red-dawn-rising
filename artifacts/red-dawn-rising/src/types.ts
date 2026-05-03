@@ -25,9 +25,10 @@ export type GameState = {
   cardsDrawn: string[];
   isRolling: boolean;
   isDrawingCards: boolean;
+  unlockedEndings: string[];
 };
 
-export type ActionType = 
+export type ActionType =
   | { type: 'SET_SCENE'; payload: string }
   | { type: 'ADD_MEANS'; payload: number }
   | { type: 'SUBTRACT_MEANS'; payload: number }
@@ -40,7 +41,8 @@ export type ActionType =
   | { type: 'SET_ROLLING'; payload: boolean }
   | { type: 'SET_DRAWING'; payload: boolean }
   | { type: 'LOAD_STATE'; payload: GameState }
-  | { type: 'RESET' };
+  | { type: 'UNLOCK_ENDING'; payload: string }
+  | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
   currentSceneId: 'scene-1',
@@ -60,6 +62,7 @@ export const initialState: GameState = {
   cardsDrawn: [],
   isRolling: false,
   isDrawingCards: false,
+  unlockedEndings: [],
 };
 
 export function gameReducer(state: GameState, action: ActionType): GameState {
@@ -77,12 +80,12 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
     case 'SET_FLAG':
       return { ...state, flags: { ...state.flags, [action.payload.flag]: action.payload.value } };
     case 'MODIFY_ALLY_TRUST':
-      return { 
-        ...state, 
-        allies: { 
-          ...state.allies, 
+      return {
+        ...state,
+        allies: {
+          ...state.allies,
           [action.payload.ally]: Math.max(0, Math.min(100, (state.allies[action.payload.ally] || 0) + action.payload.amount))
-        } 
+        }
       };
     case 'MODIFY_SURVEILLANCE':
       return { ...state, surveillanceLevel: Math.max(0, Math.min(100, state.surveillanceLevel + action.payload)) };
@@ -93,9 +96,14 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
     case 'SET_DRAWING':
       return { ...state, isDrawingCards: action.payload };
     case 'LOAD_STATE':
-      return action.payload;
-    case 'RESET':
-      return initialState;
+      return { ...action.payload, unlockedEndings: action.payload.unlockedEndings ?? [] };
+    case 'UNLOCK_ENDING':
+      if (state.unlockedEndings.includes(action.payload)) return state;
+      return { ...state, unlockedEndings: [...state.unlockedEndings, action.payload] };
+    case 'RESET': {
+      const startSceneId = action.payload?.startSceneId ?? 'scene-1';
+      return { ...initialState, currentSceneId: startSceneId, unlockedEndings: state.unlockedEndings };
+    }
     default:
       return state;
   }
