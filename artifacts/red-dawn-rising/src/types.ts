@@ -30,6 +30,7 @@ export type GameState = {
   lastActSeen: number;
   nextDieRollModifier: number;
   protectedScenesRemaining: number;
+  redDawnActive: boolean;
 };
 
 export type ActionType =
@@ -51,6 +52,7 @@ export type ActionType =
   | { type: 'MODIFY_NEXT_DIE_ROLL'; payload: number }
   | { type: 'SET_PROTECTED_SCENES'; payload: number }
   | { type: 'DECREMENT_PROTECTED_SCENES' }
+  | { type: 'SET_RED_DAWN'; payload: boolean }
   | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
@@ -76,6 +78,7 @@ export const initialState: GameState = {
   lastActSeen: 1,
   nextDieRollModifier: 0,
   protectedScenesRemaining: 0,
+  redDawnActive: false,
 };
 
 export function gameReducer(state: GameState, action: ActionType): GameState {
@@ -119,6 +122,8 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       return { ...state, protectedScenesRemaining: Math.max(0, action.payload) };
     case 'DECREMENT_PROTECTED_SCENES':
       return { ...state, protectedScenesRemaining: Math.max(0, state.protectedScenesRemaining - 1) };
+    case 'SET_RED_DAWN':
+      return { ...state, redDawnActive: action.payload };
     case 'LOAD_STATE':
       return {
         ...action.payload,
@@ -127,6 +132,7 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
         lastActSeen: action.payload.lastActSeen ?? 1,
         nextDieRollModifier: action.payload.nextDieRollModifier ?? 0,
         protectedScenesRemaining: action.payload.protectedScenesRemaining ?? 0,
+        redDawnActive: action.payload.redDawnActive ?? false,
       };
     case 'UNLOCK_ENDING':
       if (state.unlockedEndings.includes(action.payload)) return state;

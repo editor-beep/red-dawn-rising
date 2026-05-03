@@ -7,8 +7,9 @@ export function StoreModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useGame();
 
   const handleBuy = (item: typeof STORE_ITEMS[0]) => {
-    if (state.means >= item.cost && !state.inventory.includes(item.id)) {
-      dispatch({ type: 'SUBTRACT_MEANS', payload: item.cost });
+    const effectiveCost = state.redDawnActive ? Math.floor(item.cost / 2) : item.cost;
+    if (state.means >= effectiveCost && !state.inventory.includes(item.id)) {
+      dispatch({ type: 'SUBTRACT_MEANS', payload: effectiveCost });
       dispatch({ type: 'ADD_ITEM', payload: item.id });
     }
   };
@@ -28,7 +29,8 @@ export function StoreModal({ onClose }: { onClose: () => void }) {
         <div className="grid gap-4">
           {STORE_ITEMS.map(item => {
             const owned = state.inventory.includes(item.id);
-            const canAfford = state.means >= item.cost;
+            const effectiveCost = state.redDawnActive ? Math.floor(item.cost / 2) : item.cost;
+            const canAfford = state.means >= effectiveCost;
             return (
               <div key={item.id} className={`flex justify-between items-center p-4 border ${owned ? 'border-border bg-border/20' : 'border-border hover:border-primary/50'} transition-colors`}>
                 <div>
@@ -46,7 +48,7 @@ export function StoreModal({ onClose }: { onClose: () => void }) {
                         : 'border border-destructive/50 text-destructive/50'
                   }`}
                 >
-                  {owned ? 'Acquired' : `⊘ ${item.cost}`}
+                  {owned ? 'Acquired' : state.redDawnActive ? `⊘ ${effectiveCost} (50% off)` : `⊘ ${item.cost}`}
                 </button>
               </div>
             );

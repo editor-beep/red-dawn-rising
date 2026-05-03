@@ -54,8 +54,12 @@ export default function GameScreen() {
   const handleChoice = (choice: SceneChoice) => {
     if (choice.effects) {
       if (choice.effects.means) {
-        if (choice.effects.means > 0) dispatch({ type: 'ADD_MEANS', payload: choice.effects.means });
-        else dispatch({ type: 'SUBTRACT_MEANS', payload: Math.abs(choice.effects.means) });
+        if (choice.effects.means > 0) {
+          dispatch({ type: 'ADD_MEANS', payload: choice.effects.means });
+        } else {
+          const cost = Math.abs(choice.effects.means);
+          dispatch({ type: 'SUBTRACT_MEANS', payload: state.redDawnActive ? Math.floor(cost / 2) : cost });
+        }
       }
       if (choice.effects.surveillance) {
         dispatch({ type: 'MODIFY_SURVEILLANCE', payload: choice.effects.surveillance });
@@ -96,6 +100,7 @@ export default function GameScreen() {
       if (nextScene.autoEffects.addJournalEntries) nextScene.autoEffects.addJournalEntries.forEach(e => dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: e }));
     }
     dispatch({ type: 'SET_SCENE', payload: sceneId });
+    if (state.redDawnActive) dispatch({ type: 'SET_RED_DAWN', payload: false });
     if (state.protectedScenesRemaining > 0) {
       dispatch({ type: 'DECREMENT_PROTECTED_SCENES' });
     }
