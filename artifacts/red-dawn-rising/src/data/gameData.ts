@@ -378,16 +378,6 @@ export const SCENES: Record<string, Scene> = {
     ],
     autoEffects: { means: 150 }
   },
-  "scene-10-fail": {
-    id: "scene-10-fail",
-    act: 2,
-    title: "Infiltration Compromised",
-    text: [
-      "The security system triggered before you reached the server room. You barely escaped through a maintenance shaft.",
-      "The operation is blown. Darius is furious. The datacenter remains online, and now they know someone tried."
-    ],
-    choices: [{ text: "Regroup", nextSceneId: "scene-11", effects: { surveillance: 25 } }]
-  },
   "scene-11": {
     id: "scene-11",
     act: 3,
