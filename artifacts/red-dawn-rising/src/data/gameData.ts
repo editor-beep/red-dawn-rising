@@ -260,6 +260,13 @@ export const SCENES: Record<string, Scene> = {
       "Elena suggests her cousin's abandoned farmhouse downstate—remote, free, but easily surrounded if compromised. Darius found a massive, structurally sound warehouse in Gary, Indiana, but the landlord wants 200 Means upfront.",
       "Alternatively, with the right documents, you could forge a corporate lease in the commercial district. Hiding in plain sight."
     ],
+    conditionalText: [
+      { flag: "has_mike", paragraph: "Mike's contacts have already quietly checked ownership chains on three local properties before anyone asks. He doesn't explain how. He just hands you a list with two names crossed out." },
+      { flag: "has_fatima", paragraph: "Fatima has a heat map of patrol density across the metro area — gleaned from police scanner data and a contact at the zoning board. She knows which blocks the task forces visit and which they don't." },
+      { flag: "ghost_protocols", paragraph: "Ghost has already flagged two of the candidate locations as compromised — one from an IP registration anomaly, one from a pattern in utility-account filings. Their criteria are stricter than anyone else's. That is the point." },
+      { flag: "accepted_gregor", paragraph: "Gregor's funding changes the calculus. For the first time, cost isn't the deciding factor. That freedom sits uneasily in the back of your mind." },
+      { flag: "careful_approach", paragraph: "Thirty days of silence sharpened your instincts. You've spent the time studying patrol routes and property records. Whatever you choose today, you're choosing it with open eyes." }
+    ],
     choices: [
       { text: "Rent a warehouse in Gary (200 Means)", condition: { minMeans: 200 }, nextSceneId: "scene-5-warehouse-route", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
       { text: "Use Elena's cousin's farmhouse (Free)", dieRoll: { outcomes: { 1: "scene-5-farm-blown", 2: "scene-5-farm-blown", 3: "scene-5-farm-success", 4: "scene-5-farm-success", 5: "scene-5-farm-success", 6: "scene-5-farm-success" } } },
@@ -295,6 +302,12 @@ export const SCENES: Record<string, Scene> = {
       "The theory is solid, but the practice is what counts. It's time for the first coordinated operation.",
       "The plan is simple but highly illegal under the new sedition acts. Distribute 50,000 manifestos across five major manufacturing centers in the Midwest simultaneously. A show of strength.",
       "You've mobilized dozens of sympathizers. If this works, the movement shifts from a grievance to a genuine threat. If it fails, the FBI rolls you up."
+    ],
+    conditionalText: [
+      { flag: "has_mike", paragraph: "Big Mike has already staged two of the delivery vans through his freight contacts. The drivers are union — they don't know the details, but they know who they're doing this for." },
+      { flag: "has_fatima", paragraph: "Fatima has embedded herself on the monitoring side. She'll track state media frequencies in real time during the drop and relay any sign of interception before the teams get boxed in." },
+      { flag: "ghost_protocols", paragraph: "The discipline Ghost demanded when they joined is paying off: every comms link is hardened, every team running signal-dark. The state will be listening to silence." },
+      { flag: "logistics_pipeline", paragraph: "Mike's logistics contacts have staged this with the precision of a supply chain operation. Timing windows are tight, handoffs are clean, and every driver has a clean excuse for being on that road." }
     ],
     choices: [
       { text: "Execute Operation", dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-fail", 3: "scene-6-partial", 4: "scene-6-partial", 5: "scene-6-success", 6: "scene-6-success" } } }
@@ -392,6 +405,12 @@ export const SCENES: Record<string, Scene> = {
       "The chatter is deafening. There are more cells out there than you thought. They are angry, disorganized, and waiting for a spark.",
       "As you review the incoming traffic, the reality sets in: you are becoming a leader. This is no longer just your fight."
     ],
+    conditionalText: [
+      { flag: "has_ghost", paragraph: "This is Ghost's world. You watch them navigate the underground frequencies with the ease of someone who was already living here before you arrived. They don't look up. They just start tagging cells by threat level." },
+      { flag: "grassroots_backing", paragraph: "The small donors who funded you are part of this network. You can see their burner wallets in the traffic logs — tiny heartbeats in the noise. They believe in this." },
+      { flag: "donor_dependency", paragraph: "Somewhere in this traffic, you can't help wondering if your large donor's name leaves a trace — a signature too clean, too deliberate. The paranoia is already starting." },
+      { flag: "accepted_gregor", paragraph: "Gregor never appears in the frequencies. Whoever he is, he operates at a layer below even this. That should comfort you. It doesn't." }
+    ],
     choices: [{ text: "Review the intel", nextSceneId: "scene-9" }],
     autoDrawCards: 3,
     autoEffects: {
@@ -407,6 +426,12 @@ export const SCENES: Record<string, Scene> = {
       "Elena thinks you're moving too fast. 'We are risking the lives of working people. We need to build mutual aid networks first.'",
       "Darius violently disagrees. 'Mutual aid won't stop a police baton. We need kinetic action. We need to cripple their infrastructure.'",
       "They both look to you. The leader."
+    ],
+    conditionalText: [
+      { flag: "has_mike", paragraph: "Big Mike listens without speaking, arms folded, studying both Elena and Darius like they're two halves of the same failed negotiation he's watched a dozen times before. He doesn't weigh in. He's waiting to see what kind of leader you are." },
+      { flag: "has_fatima", paragraph: "Fatima is already sketching the public optics of each approach on a notepad — which narrative the state can exploit, which one strengthens the story. She keeps the notepad to herself." },
+      { flag: "op1_success", paragraph: "After the pamphlet drop, both Elena and Darius are emboldened. Elena cites it as proof that organized, disciplined action works. Darius cites it as proof you need to escalate immediately. Same victory. Two completely different lessons." },
+      { flag: "nadia_recruited", paragraph: "Nadia says nothing during the argument — she's restocking the supply cabinet with quiet precision. But when the shouting peaks, she pauses: 'You two are going to hurt someone before the state gets the chance.' No one has a good answer for that." }
     ],
     choices: [
       { text: "Side with Elena (Slower, Safer)", nextSceneId: "scene-9-elena-route", effects: { surveillance: -10, addFlags: ["elena_trust"] } },
@@ -547,6 +572,13 @@ export const SCENES: Record<string, Scene> = {
       "They are getting close. The federal net is tightening.",
       "You can go completely dark and halt operations, lay a trap to burn the surveillance, or, if you're armed, confront them directly to send a message."
     ],
+    conditionalText: [
+      { flag: "has_alex", paragraph: "Alex is the first one to flag the sedan — smooth, casual, framing the observation so perfectly that it takes you a beat to register how unsettling that composure is. A man that attuned to surveillance has either trained to spot it, or trained to avoid being caught by it." },
+      { flag: "suspect_alex", paragraph: "You're watching the sedan. You're also watching the person who pointed it out. The duality of it is exhausting — and necessary." },
+      { flag: "has_ghost", paragraph: "Ghost's traffic anomaly alerts have been flickering for two days. They flagged it as noise. Staring at the sedan and the familiar face on the subway now, it wasn't noise." },
+      { flag: "unified_movement", paragraph: "A unified movement is visible in ways a cell isn't. The growth that gave you reach also gave them a target large enough to track. You are paying the price for both at once." },
+      { flag: "went_dark", paragraph: "You went dark once. You know exactly how it feels, what it costs, and how long it buys you. The question is whether you can afford another silence at this stage." }
+    ],
     choices: [
       { text: "Go dark for 2 weeks", nextSceneId: "scene-14", effects: { surveillance: -30, means: -100, addFlags: ["went_dark"] } },
       { text: "Lay a trap with false intel", dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } } },
@@ -592,6 +624,13 @@ export const SCENES: Record<string, Scene> = {
       "Three other regional cells have reached out. They want to coordinate. They respect your success.",
       "Do you merge into one unified command structure? It offers exponential growth, but massive exposure if one link breaks.",
       "Or do you stay decentralized, coordinating only loosely?"
+    ],
+    conditionalText: [
+      { flag: "op1_success", paragraph: "Your credibility was built on that pamphlet drop. Every cell reaching out knows your name because of it — because you showed them it was possible." },
+      { flag: "major_leak", paragraph: "The cells that contacted you have all read the leak. The BLACKVEIL revelation changed the conversation — every regional organizer now understands the full scope of what the state is running against movements like yours." },
+      { flag: "has_mike", paragraph: "Mike knows two of the cell leaders by name — decades of shared union history. He vouches for them. Not enthusiastically, but with the quiet weight of someone who has spent thirty years learning who holds under pressure." },
+      { flag: "has_fatima", paragraph: "Fatima is already thinking about the media story a coalition tells: the visibility it creates, the target it paints. She says nothing, but you can see her doing the math." },
+      { flag: "went_dark", paragraph: "Coming back out of the dark is a vulnerability. The moment you re-engage with other cells, your network footprint expands again. You weigh that against the resources on the table." }
     ],
     choices: [
       { text: "Merge — one unified movement", nextSceneId: "scene-15", effects: { means: 300, surveillance: 30, followers: 3, addFlags: ["unified_movement"] } },
@@ -656,6 +695,13 @@ export const SCENES: Record<string, Scene> = {
       "An anonymous source inside the Department of Homeland Security drops a massive encrypted cache into your servers.",
       "It details Operation BLACKVEIL—a multi-agency program designed to infiltrate leftist movements using deep-cover operatives who act as instigators.",
       "Your blood runs cold. The document profile matches the exact tactics used by someone in your own ranks."
+    ],
+    conditionalText: [
+      { flag: "has_ghost", paragraph: "Ghost went silent for six hours after opening the cache. When they finally speak, their voice is flat: 'This isn't a leak. This is a warning. Someone inside is taking a one-way risk to tell us something.' They pause. 'Section 7. Read Section 7.'" },
+      { flag: "has_fatima", paragraph: "Fatima has already printed three copies and distributed them to dead drops before the briefing ends. 'I've been waiting for a document like this my entire career,' she says. 'Now I need to figure out how to use it without getting everyone killed.'" },
+      { flag: "unified_movement", paragraph: "A unified movement isn't just a bigger target — it's a coherent one. The BLACKVEIL profile wasn't designed for scattered cells. It was designed for exactly what you've become." },
+      { flag: "armed_movement", paragraph: "The document profile describes an instigator: someone who escalates, who pushes toward kinetic action, who validates the use of force. You think about the weapons in the safehouse and don't say anything." },
+      { flag: "peaceful_movement", paragraph: "The BLACKVEIL profile describes tactics used against movements that escalate. You chose not to escalate. Whether that's why the profile doesn't quite fit anyone in your ranks — or whether that's exactly what an infiltrator would want you to believe — you can't tell." }
     ],
     choices: [{ text: "Analyze the data in silence", nextSceneId: "scene-17" }],
     autoDrawCards: 4,
@@ -781,7 +827,13 @@ export const SCENES: Record<string, Scene> = {
     conditionalText: [
       { flag: "has_alex", paragraph: "Alex never breaks eye contact while he speaks. Every sentence lands too perfectly, like it was drafted for two audiences." },
       { flag: "has_nadia", paragraph: "Nadia redirects grief into logistics within minutes—safe routes, fallback apartments, dead drops. It is competent enough to be reassuring and unsettling at once." },
-      { flag: "has_luis", paragraph: "Luis organizes medical contingencies before anyone asks. The room calms, but you can't tell whether his composure is discipline or distance." }
+      { flag: "has_luis", paragraph: "Luis organizes medical contingencies before anyone asks. The room calms, but you can't tell whether his composure is discipline or distance." },
+      { flag: "has_mike", paragraph: "Mike sits at the far end of the table and says nothing. He's absorbed losses before — different kind, different decade. He's not falling apart. He's calculating what's left." },
+      { flag: "has_fatima", paragraph: "Fatima has her notebook out. She's already framing how this moment gets told — to the outside world, to history, to whoever comes after. It's how she holds herself together." },
+      { flag: "has_ghost", paragraph: "Ghost patches in remotely and says nothing for a long time. Then, in their flat, distorted voice: 'Darius's arrest wasn't a random stop. I've been in their traffic. They knew.' The room goes quiet." },
+      { flag: "suspect_alex", paragraph: "You know something the room doesn't. You hold it the way you'd hold a weapon you haven't decided to use yet — carefully, with both hands, pointed at the floor." },
+      { flag: "comrade_saved", paragraph: "The fact that you still have everyone in this room is not luck. It's the result of decisions made quietly, correctly, under pressure. You let yourself register that for exactly one second." },
+      { flag: "elena_trust", paragraph: "Elena's grief is not loud. It sits in her jaw and her stillness. She trusted your leadership to get here. She's trusting it to get you out." }
     ],
     choices: [
       {
@@ -815,6 +867,15 @@ export const SCENES: Record<string, Scene> = {
       "You are planning 'Operation Red Dawn'—a simultaneous, nationwide strike that will force the government to its knees.",
       "This is the last moment before the storm breaks. Take a breath."
     ],
+    conditionalText: [
+      { flag: "op_success", paragraph: "There is an electricity in the room that wasn't there before — a shared recognition that you actually pulled it off. It sits alongside the weight of what comes next." },
+      { flag: "op_partial", paragraph: "The room is subdued. Proud of what held, quietly grieving what didn't. No one mentions it directly. That restraint is its own kind of courage." },
+      { flag: "op_failed", paragraph: "The air is heavier than it should be. You can see people calculating what they have left, what they're willing to give, whether this next plan can cover what was lost." },
+      { flag: "alex_burned", paragraph: "The seat where Alex used to sit is empty. No one fills it. Everyone notices. No one says anything." },
+      { flag: "vengeance_resolved", paragraph: "The room is smaller than it was before the truth came out. That's the math of betrayal. You count the remaining faces and find the balance between grief and necessity." },
+      { flag: "has_mike", paragraph: "Mike sits at the far end of the table, watching everyone else. He's lived through failed operations before — not at this scale, but at this cost. He carries it differently than the younger ones." },
+      { flag: "nadia_recruited", paragraph: "Nadia is reviewing medical supply inventories in the corner. She does this whenever the planning turns abstract — grounds herself in the immediate, the concrete, the things she can actually fix." }
+    ],
     choices: [{ text: "Escalate to final planning", nextSceneId: "scene-21" }],
     autoEffects: { means: 200 }
   },
@@ -826,6 +887,14 @@ export const SCENES: Record<string, Scene> = {
       "Act 4: The Storm.",
       "You lay out synchronized actions across 12 major cities: logistics hubs blocked, servers crashed, and coordinated mass civil disobedience.",
       "No one can step off this path now. Every ally in the room knows what comes next."
+    ],
+    conditionalText: [
+      { flag: "unified_movement", paragraph: "The operation you're describing coordinates twelve cities. That isn't a cell — it isn't even a movement anymore. It's an army, organized differently, but an army. You feel the weight of that word and don't use it out loud." },
+      { flag: "decentralized", paragraph: "The decentralized structure you chose means no single failure cascades into total collapse. The coordination is harder. So is dismantling it." },
+      { flag: "elena_trust", paragraph: "Elena speaks last. 'Make sure we know *why* we're doing this. Not just *that* we're doing it. If we forget the why — even for one hour — we become what we're fighting.' No one disagrees." },
+      { flag: "darius_trust", paragraph: "Darius isn't here, but his voice has lived in your head long enough to be useful. 'Don't hesitate at the edge,' he used to say. 'The edge is just another place to stand.'" },
+      { flag: "has_luis", paragraph: "Luis says nothing during the briefing. As the others leave, he pauses at the door. 'I've seen plans like this go right. I've seen them go wrong. The difference is usually one decision in the moment. Make the right one.'" },
+      { flag: "has_ghost", paragraph: "Ghost patches in remotely — static, then their distorted voice: 'I've already mapped the digital cordon they'll try. There's a gap. There's always a gap. I'll find it.'" }
     ],
     choices: [
       { text: "Lead from the front in DC", nextSceneId: "scene-22", effects: { addFlags: ["lead_front"] } },
@@ -956,6 +1025,14 @@ export const SCENES: Record<string, Scene> = {
       "Martial law is declared in 7 major cities. Emergency powers are activated. The military is deployed domestically for the first time in a century.",
       "The climax is here."
     ],
+    conditionalText: [
+      { flag: "op_success", paragraph: "The president looks frightened. Not performing fear — genuinely, visibly afraid. You've never seen a president look like that before. You feel something complicated about it." },
+      { flag: "op_partial", paragraph: "The speech is all practiced confidence. The kind that knows half the country isn't listening anymore — they're in the streets." },
+      { flag: "op_failed", paragraph: "The president sounds like someone who has already won. Maybe they have. You watch the screen and start running contingencies." },
+      { flag: "public_support", paragraph: "The broadcast cuts away from the president twice in sixty seconds to show crowd footage. The editors aren't supposed to do that. Someone in the control room made a choice." },
+      { flag: "has_fatima", paragraph: "Fatima is already filing copy. She's been pre-writing five versions of this story since yesterday — each one contingent on what the government says first. She's typing the right one now." },
+      { flag: "has_ghost", paragraph: "Ghost cuts the signal once, mid-address, and restores it two seconds later. Long enough to embed a brief message in the broadcast feed — nothing traceable, just a flicker of proof that someone else owns the airwaves tonight." }
+    ],
     choices: [{ text: "Make the final call", nextSceneId: "scene-25" }]
   },
   "scene-25": {
@@ -965,6 +1042,18 @@ export const SCENES: Record<string, Scene> = {
     text: [
       "The walls are closing in. Your allies look to you. The sirens wail in the distance.",
       "Your next action determines how history remembers you, and what becomes of this revolution."
+    ],
+    conditionalText: [
+      { flag: "op_success", paragraph: "You didn't just survive to this moment. You drove here. Every choice, every sacrifice, every sleepless decision crystallized into the streets outside. History is watching. So are your people." },
+      { flag: "op_failed", paragraph: "You're holding together something that took real damage. The sirens are close. What you decide next will determine whether all of it means something, or is just the first chapter of someone else's story." },
+      { flag: "has_mike", paragraph: "Mike stands near the back wall, arms crossed, saying nothing. He's been in rooms with this feeling before. He gives you a single slow nod." },
+      { flag: "has_fatima", paragraph: "Fatima has her hand on her phone. Whatever you decide, she'll broadcast it to the world before anyone else gets to name it." },
+      { flag: "has_ghost", paragraph: "Ghost's channel is open and silent. They're listening. Whatever you say next will not disappear — Ghost makes sure of that." },
+      { flag: "nadia_recruited", paragraph: "Nadia has her bag packed. She's not going anywhere — but she's ready for whatever comes through the door in the next few minutes." },
+      { flag: "has_luis", paragraph: "Luis is already standing between you and the exit. Not blocking it. Just there — the last line, willing, without being asked." },
+      { flag: "alex_burned", paragraph: "The room is smaller than it should be. The traitor's absence leaves a shape in the air. You count who remains. It's enough. It has to be." },
+      { flag: "elena_trust", paragraph: "Elena's eyes find yours across the room. She doesn't speak. She doesn't need to. You've been building toward this moment since the kitchen table." },
+      { flag: "darius_trust", paragraph: "Even from a cell, Darius found a way to get one last message through: 'Finish it.' Two words. You know exactly what they mean." }
     ],
     choices: [
       { text: "Stand your ground at the Capitol", condition: { flag: "op_success" }, nextSceneId: "e1-1" },
