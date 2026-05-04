@@ -114,11 +114,15 @@ Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts` (scene graph),
      - success → `scene-16-luis-success` → `scene-17`
    - Armed route → `scene-16-armed` → `scene-17`
 
-17. `scene-17` Leak decision
-   - Publish leak (die)
+17. `scene-17` Leak decision (diverse outcomes)
+   - Mass print via Propaganda Press → `scene-17-press-fallout` → `scene-18`
+   - Secure release via Encrypted Comms (die)
      - fail/sacrifice → `scene-17-source-burned` → `scene-18`
-     - otherwise → `scene-18`
-   - Keep leak as blackmail → `scene-18`
+     - otherwise → `scene-17-secure-drop` → `scene-18`
+   - Publish widely (die)
+     - low roll → `scene-17-source-burned` → `scene-18`
+     - high roll → `scene-17-public-backlash` → `scene-18`
+   - Keep leak as blackmail → `scene-17-blackmail` → `scene-18`
 
 ### Act 4
 18. `scene-18` A Comrade Falls
