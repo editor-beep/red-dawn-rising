@@ -15,6 +15,7 @@ export type Flags = Record<string, boolean>;
 export type Allies = Record<string, number>;
 
 export const MAX_COMBAT_BONUS = 3;
+export const MAX_FOLLOWERS = 10;
 
 export type GameState = {
   currentSceneId: string;
@@ -114,7 +115,7 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
     case 'MODIFY_SURVEILLANCE':
       return { ...state, surveillanceLevel: Math.max(0, Math.min(100, state.surveillanceLevel + action.payload)) };
     case 'MODIFY_FOLLOWERS':
-      return { ...state, followers: Math.max(0, state.followers + action.payload) };
+      return { ...state, followers: Math.max(0, Math.min(MAX_FOLLOWERS, state.followers + action.payload)) };
     case 'ADD_DRAWN_CARD':
       return { ...state, cardsDrawn: [...state.cardsDrawn, action.payload] };
     case 'SET_ROLLING':

@@ -126,6 +126,7 @@ export type Scene = {
   autoEffects?: {
     means?: number;
     surveillance?: number;
+    followers?: number;
     addFlags?: string[];
     addJournalEntries?: string[];
   };
@@ -318,7 +319,7 @@ export const SCENES: Record<string, Scene> = {
       "Two factories were reached before corporate security locked down the premises.",
       "The message is out there, circulating in break rooms and union halls, but it lacks the shock-and-awe impact you wanted."
     ],
-    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 30 } }]
+    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 30, followers: 1 } }]
   },
   "scene-6-success": {
     id: "scene-6-success",
@@ -333,7 +334,7 @@ export const SCENES: Record<string, Scene> = {
       { flag: "farm_safehouse", paragraph: "The farmhouse's isolation bought you the setup window you needed; by dawn, every route map and drop packet had been staged and dispatched." },
       { flag: "forged_safehouse", paragraph: "The forged commercial lease let you hide in plain sight, turning a legitimate-looking office into a covert dispatch hub for the drop." }
     ],
-    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 100, addFlags: ["op1_success"] } }]
+    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 100, followers: 2, addFlags: ["op1_success"] } }]
   },
   "scene-7": {
     id: "scene-7",
@@ -360,7 +361,7 @@ export const SCENES: Record<string, Scene> = {
       "Small donations drip in from burner wallets and union mutual-aid circles.",
       "It isn't glamorous, but the funding is hard to trace and builds legitimacy with ordinary supporters."
     ],
-    choices: [{ text: "Plan next phase", nextSceneId: "scene-8", effects: { addFlags: ["grassroots_backing"] } }]
+    choices: [{ text: "Plan next phase", nextSceneId: "scene-8", effects: { followers: 1, addFlags: ["grassroots_backing"] } }]
   },
   "scene-7-donor-route": {
     id: "scene-7-donor-route",
@@ -370,7 +371,7 @@ export const SCENES: Record<string, Scene> = {
       "Fatima brokers a private meeting and the transfer lands overnight in layered accounts.",
       "The budget problem vanishes, but now someone with resources knows exactly what you're trying to become."
     ],
-    choices: [{ text: "Accept the tradeoff", nextSceneId: "scene-8", effects: { addFlags: ["donor_dependency"] } }]
+    choices: [{ text: "Accept the tradeoff", nextSceneId: "scene-8", effects: { followers: 1, addFlags: ["donor_dependency"] } }]
   },
   "scene-7-skip-route": {
     id: "scene-7-skip-route",
@@ -593,9 +594,9 @@ export const SCENES: Record<string, Scene> = {
       "Or do you stay decentralized, coordinating only loosely?"
     ],
     choices: [
-      { text: "Merge — one unified movement", nextSceneId: "scene-15", effects: { means: 300, surveillance: 30, addFlags: ["unified_movement"] } },
-      { text: "Stay decentralized", nextSceneId: "scene-15", effects: { surveillance: -10, addFlags: ["decentralized"] } },
-      { text: "Absorb them completely under your sole command", condition: { item: "propaganda_press" }, nextSceneId: "scene-15", effects: { means: 500, addFlags: ["unified_movement"] } }
+      { text: "Merge — one unified movement", nextSceneId: "scene-15", effects: { means: 300, surveillance: 30, followers: 3, addFlags: ["unified_movement"] } },
+      { text: "Stay decentralized", nextSceneId: "scene-15", effects: { surveillance: -10, followers: 1, addFlags: ["decentralized"] } },
+      { text: "Absorb them completely under your sole command", condition: { item: "propaganda_press" }, nextSceneId: "scene-15", effects: { means: 500, followers: 3, addFlags: ["unified_movement"] } }
     ]
   },
   "scene-15": {
@@ -1359,7 +1360,7 @@ export const SCENES: Record<string, Scene> = {
       "'I did thirty years at Bethlehem Steel,' he finally says. 'I watched them break every union they touched. I've been waiting for someone to ask me this.' He extends a calloused hand.",
       "He is with you. His logistics contacts and his institutional knowledge of the labor movement are worth more than anything in the supply network."
     ],
-    autoEffects: { addFlags: ["has_mike", "mike_recruited"], addJournalEntries: ["Big Mike Kowalski — veteran union organizer, logistics network connections."] },
+    autoEffects: { addFlags: ["has_mike", "mike_recruited"], followers: 1, addJournalEntries: ["Big Mike Kowalski — veteran union organizer, logistics network connections."] },
     choices: [{ text: "Welcome him in", nextSceneId: "scene-5-mike-route", effects: { means: 100, addFlags: ["logistics_pipeline"] } }]
   },
 
@@ -1372,7 +1373,7 @@ export const SCENES: Record<string, Scene> = {
       "'I have three stories my editor killed for national security reasons,' she says quietly. 'You just described every single one of them.'",
       "She's in. More than in—she's been looking for exactly this. Her access to state media feeds and her source network are now yours."
     ],
-    autoEffects: { addFlags: ["has_fatima", "fatima_recruited"], addJournalEntries: ["Fatima Al-Rashid — independent journalist, access to state media feeds."] },
+    autoEffects: { addFlags: ["has_fatima", "fatima_recruited"], followers: 1, addJournalEntries: ["Fatima Al-Rashid — independent journalist, access to state media feeds."] },
     choices: [{ text: "Bring her into the fold", nextSceneId: "scene-5-fatima-route", effects: { surveillance: -15, addFlags: ["media_cover"] } }]
   },
 
@@ -1704,6 +1705,7 @@ export const SCENES: Record<string, Scene> = {
         nextSceneId: "scene-17",
         effects: {
           means: 150,
+          followers: 1,
           addFlags: ["mike_solidarity"],
           addJournalEntries: ["Mike rallied the old guard. The union networks are waking up — worker morale is surging across the region."]
         }
@@ -1726,6 +1728,7 @@ export const SCENES: Record<string, Scene> = {
         nextSceneId: "scene-17",
         effects: {
           surveillance: -20,
+          followers: 1,
           addFlags: ["fatima_media"],
           addJournalEntries: ["Fatima\'s counter-narrative is gaining traction. Public opinion is shifting. The state\'s story is no longer going uncontested."]
         }
