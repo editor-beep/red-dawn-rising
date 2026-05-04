@@ -257,19 +257,31 @@ export const SCENES: Record<string, Scene> = {
       "Alternatively, with the right documents, you could forge a corporate lease in the commercial district. Hiding in plain sight."
     ],
     choices: [
-      { text: "Rent a warehouse in Gary (200 Means)", condition: { minMeans: 200 }, nextSceneId: "scene-6", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
+      { text: "Rent a warehouse in Gary (200 Means)", condition: { minMeans: 200 }, nextSceneId: "scene-5-warehouse-route", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
       { text: "Use Elena's cousin's farmhouse (Free)", dieRoll: { outcomes: { 1: "scene-5-farm-blown", 2: "scene-5-farm-blown", 3: "scene-5-farm-success", 4: "scene-5-farm-success", 5: "scene-5-farm-success", 6: "scene-5-farm-success" } } },
-      { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-6", effects: { addFlags: ["forged_safehouse"] } },
-      {
-        text: "Set up the farmhouse as a field clinic (Medical Supplies)",
-        condition: { item: "medical_supplies" },
-        nextSceneId: "scene-6",
-        effects: {
-          addFlags: ["medical_stockpiled", "farm_safehouse"],
-          addJournalEntries: ["The farmhouse is now a functioning field clinic. Wounded comrades can recover without hospital exposure."]
-        }
-      }
+      { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-5-forged-route", effects: { addFlags: ["forged_safehouse"] } }
     ]
+  },
+
+  "scene-5-warehouse-route": {
+    id: "scene-5-warehouse-route",
+    act: 2,
+    title: "Warehouse Setup",
+    text: [
+      "The Gary lease closes in cash and no questions. The space is cavernous, cold, and perfect for staging pallets, bikes, and relay equipment.",
+      "By nightfall, the cell has mapped loading docks into sectors and built a schedule that treats operations like shift work."
+    ],
+    choices: [{ text: "Launch first operation", nextSceneId: "scene-6", effects: { means: -25 } }]
+  },
+  "scene-5-forged-route": {
+    id: "scene-5-forged-route",
+    act: 2,
+    title: "Paper Shield",
+    text: [
+      "The forged lease survives first contact: neighbors see a boring consulting office with frosted glass and fake invoices.",
+      "Inside, every desk hides radios and route maps. The cover is fragile, but for now you're invisible in plain sight."
+    ],
+    choices: [{ text: "Move to operational rollout", nextSceneId: "scene-6", effects: { surveillance: -5 } }]
   },
   "scene-6": {
     id: "scene-6",
@@ -281,12 +293,6 @@ export const SCENES: Record<string, Scene> = {
       "You've mobilized dozens of sympathizers. If this works, the movement shifts from a grievance to a genuine threat. If it fails, the FBI rolls you up."
     ],
     choices: [
-      {
-        text: "Execute with Encrypted Comms (Coordinated Strike)",
-        condition: { item: "encrypted_comms" },
-        dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-partial", 3: "scene-6-success", 4: "scene-6-success", 5: "scene-6-success", 6: "scene-6-success" } },
-        effects: { addFlags: ["comms_boost"], addJournalEntries: ["Encrypted Comms kept all five teams synchronized. The state couldn't intercept the signal it couldn't find."] }
-      },
       { text: "Execute Operation", dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-fail", 3: "scene-6-partial", 4: "scene-6-partial", 5: "scene-6-success", 6: "scene-6-success" } } }
     ]
   },
@@ -336,11 +342,42 @@ export const SCENES: Record<string, Scene> = {
       "Or, if you're armed, there's a corporate payroll truck moving untraceable cash across the state line tomorrow. High risk. High reward."
     ],
     choices: [
-      { text: "Crowdfund anonymously", nextSceneId: "scene-8", effects: { means: 150 } },
-      { text: "Approach sympathetic wealthy donor", condition: { flag: "has_fatima" }, nextSceneId: "scene-8", effects: { means: 400, surveillance: 15 } },
+      { text: "Crowdfund anonymously", nextSceneId: "scene-7-crowdfund-route", effects: { means: 150 } },
+      { text: "Approach sympathetic wealthy donor", condition: { flag: "has_fatima" }, nextSceneId: "scene-7-donor-route", effects: { means: 400, surveillance: 15 } },
       { text: "Rob a corporate payroll truck", condition: { item: "weapons_cache" }, dieRoll: { outcomes: { 1: "scene-7-heist-fail", 2: "scene-7-heist-fail", 3: "scene-7-heist-fail", 4: "scene-7-heist-success", 5: "scene-7-heist-success", 6: "scene-7-heist-success" } } },
-      { text: "Skip high-risk funding", nextSceneId: "scene-8" }
+      { text: "Skip high-risk funding", nextSceneId: "scene-7-skip-route" }
     ]
+  },
+
+  "scene-7-crowdfund-route": {
+    id: "scene-7-crowdfund-route",
+    act: 2,
+    title: "Slow Money, Wide Base",
+    text: [
+      "Small donations drip in from burner wallets and union mutual-aid circles.",
+      "It isn't glamorous, but the funding is hard to trace and builds legitimacy with ordinary supporters."
+    ],
+    choices: [{ text: "Plan next phase", nextSceneId: "scene-8", effects: { addFlags: ["grassroots_backing"] } }]
+  },
+  "scene-7-donor-route": {
+    id: "scene-7-donor-route",
+    act: 2,
+    title: "Big Donor, Bigger Shadow",
+    text: [
+      "Fatima brokers a private meeting and the transfer lands overnight in layered accounts.",
+      "The budget problem vanishes, but now someone with resources knows exactly what you're trying to become."
+    ],
+    choices: [{ text: "Accept the tradeoff", nextSceneId: "scene-8", effects: { addFlags: ["donor_dependency"] } }]
+  },
+  "scene-7-skip-route": {
+    id: "scene-7-skip-route",
+    act: 2,
+    title: "Lean Winter",
+    text: [
+      "You choose caution over expansion. No flashy fundraising, no robberies, no new signatures to trace.",
+      "The cell tightens belts and postpones upgrades, betting survival today beats momentum tomorrow."
+    ],
+    choices: [{ text: "Proceed under constraints", nextSceneId: "scene-8", effects: { means: -40, surveillance: -10 } }]
   },
   "scene-8": {
     id: "scene-8",
@@ -368,20 +405,31 @@ export const SCENES: Record<string, Scene> = {
       "They both look to you. The leader."
     ],
     choices: [
-      { text: "Side with Elena (Slower, Safer)", nextSceneId: "scene-10", effects: { surveillance: -10, addFlags: ["elena_trust"] } },
-      { text: "Side with Darius (Faster, Riskier)", nextSceneId: "scene-10", effects: { addFlags: ["darius_trust"] } },
-      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } },
-      {
-        text: "Use the Propaganda Press to reframe the argument as shared purpose",
-        condition: { item: "propaganda_press" },
-        nextSceneId: "scene-10",
-        effects: {
-          means: 30,
-          addFlags: ["unified_cell", "elena_trust", "darius_trust"],
-          addJournalEntries: ["The Propaganda Press helped bridge the divide — both Elena and Darius see their vision in the message. Temporary unity holds."]
-        }
-      }
+      { text: "Side with Elena (Slower, Safer)", nextSceneId: "scene-9-elena-route", effects: { surveillance: -10, addFlags: ["elena_trust"] } },
+      { text: "Side with Darius (Faster, Riskier)", nextSceneId: "scene-9-darius-route", effects: { addFlags: ["darius_trust"] } },
+      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } }
     ]
+  },
+
+  "scene-9-elena-route": {
+    id: "scene-9-elena-route",
+    act: 2,
+    title: "Mutual Aid Priority",
+    text: [
+      "You back Elena and redirect teams toward tenant defense lines and food logistics.",
+      "Trust inside the neighborhoods deepens, but Darius reads the move as hesitation."
+    ],
+    choices: [{ text: "Advance to strike planning", nextSceneId: "scene-10", effects: { addFlags: ["community_cover"] } }]
+  },
+  "scene-9-darius-route": {
+    id: "scene-9-darius-route",
+    act: 2,
+    title: "Escalation Doctrine",
+    text: [
+      "You side with Darius and authorize direct-action prep without another week of debate.",
+      "The cell moves faster and harder; morale spikes among militants while moderates go quiet."
+    ],
+    choices: [{ text: "Commit to the datacenter target", nextSceneId: "scene-10", effects: { surveillance: 10 } }]
   },
   "scene-10": {
     id: "scene-10",
@@ -393,10 +441,21 @@ export const SCENES: Record<string, Scene> = {
       "Ghost says he can wipe it remotely, but only if you have military-grade encrypted comms. Otherwise, you'll have to physically break into the server room to plant a drive."
     ],
     choices: [
-      { text: "Hack in remotely", condition: { item: "encrypted_comms" }, nextSceneId: "scene-11", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
-      { text: "Physical infiltration (Skill Check)", skillCheck: { target: 9, itemBonuses: { "safe_house_upgrade": 1, "encrypted_comms": 2 }, successScene: "scene-10-infil-success", partialScene: "scene-11", partialTarget: 7, failureScene: "scene-10-infil-fail" }, effects: { means: 50, surveillance: 20 } }
+      { text: "Hack in remotely", condition: { item: "encrypted_comms" }, nextSceneId: "scene-10-remote-success", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
+      { text: "Physical infiltration (Skill Check)", skillCheck: { target: 9, itemBonuses: { "safe_house_upgrade": 1, "encrypted_comms": 2 }, successScene: "scene-10-infil-success", failureScene: "scene-10-infil-fail" }, effects: { means: 50, surveillance: 20 } }
     ],
     autoEffects: { means: 150 }
+  },
+
+  "scene-10-remote-success": {
+    id: "scene-10-remote-success",
+    act: 2,
+    title: "Silent Wipe",
+    text: [
+      "Ghost tunnels through the comms stack and deploys the wipe package without tripping physical alarms.",
+      "By dawn, eviction queues error out across three states while the team watches from a darkened safehouse."
+    ],
+    choices: [{ text: "Ride the aftermath", nextSceneId: "scene-11", effects: { addFlags: ["remote_op_clean"] } }]
   },
   "scene-10-fail": {
     id: "scene-10-fail",
