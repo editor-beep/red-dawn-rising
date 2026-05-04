@@ -1,105 +1,164 @@
 # Red Dawn Rising — Complete Story Choice & Path Map
 
-Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts`.
+Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts` (scene graph), plus `artifacts/red-dawn-rising/src/hooks/useGame.tsx` (runtime progression/unlock checks).
 
 ## Global structure
-- **Acts 1–4**: shared trunk with branching outcomes.
-- **Act 5**: 4 major endings (`e1`–`e4`).
-- **Secret ending (`e5`)**: unlocked after all four major endings.
+- **Acts 1–4**: shared trunk with branch spikes that generally reconverge.
+- **Act 5**: four major ending arcs (`e1`–`e4`).
+- **Secret ending (`e5`)**: unlocked after all four major endings are recorded.
 
 ---
 
-## Mainline trunk with branch points
+## Full storyline map (choice → full path)
+
+### Act 1
 1. `scene-1` After the Crackdown
    - Contact Elena → `scene-2`
-   - Disappear 30 days → `scene-2` (+`careful_approach`)
-   - Go to press (die roll):
-     - 1–3 → `scene-1-arrest` (restart)
-     - 4–6 → `scene-2` (+`public_profile`)
+   - Disappear 30 days (+`careful_approach`) → `scene-2`
+   - Go public (die)
+     - 1–3 → `scene-1-arrest` → Restart → `scene-1`
+     - 4–6 (+`public_profile`) → `scene-2`
 
-2. `scene-2` Building the Cell (name/focus choice)
-   - Worker / Action / Info focus → all to `scene-3` with different flags + Means.
+2. `scene-2` Building the Cell
+   - Red Collective (+`focus_worker`) → `scene-3`
+   - Liberation Front (+`focus_action`) → `scene-3`
+   - People's Network (+`focus_info`) → `scene-3`
 
-3. `scene-3` First Contact (Gregor)
-   - Accept → `scene-4` (+Means, `accepted_gregor`)
-   - Decline → `scene-4` (`declined_gregor`)
-   - Demand proof (die roll)
-     - 1–3 → `scene-3-gregor-walks` → `scene-4` (`declined_gregor`)
-     - 4–6 → `scene-3-gregor-reveals` → `scene-4` (+Means, `accepted_gregor`)
+3. `scene-3` First Contact
+   - Accept Gregor (+`accepted_gregor`) → `scene-4`
+   - Decline Gregor (+`declined_gregor`) → `scene-4`
+   - Demand proof (die)
+     - 1–3 → `scene-3-gregor-walks` (+`declined_gregor`) → `scene-4`
+     - 4–6 → `scene-3-gregor-reveals` (+`accepted_gregor`) → `scene-4`
 
-4. `scene-4` Recruitment
+4. `scene-4` Recruitment Drive
    - Recruit Mike (die)
+     - 1–3 → `scene-4-fail` → `scene-5`
+     - 4–6 → `scene-4-mike-success` (+`has_mike`) → `scene-5`
    - Recruit Fatima (die)
-   - Recruit Ghost (direct)
-   - Fail routes pass through `scene-4-fail` then converge to `scene-5`.
-   - Success routes set recruit flags and also converge to `scene-5`.
+     - 1–3 → `scene-4-fail` → `scene-5`
+     - 4–6 → `scene-4-fatima-success` (+`has_fatima`) → `scene-5`
+   - Recruit Ghost → `scene-5` (+`has_ghost`)
 
+### Act 2
 5. `scene-5` Safehouse
-   - Warehouse (requires 200 Means) → `scene-6`
-   - Farmhouse (die): fail/success sub-scenes, both converge to `scene-6`
-   - Forged lease (requires `forged_docs`) → `scene-6`
+   - Warehouse (needs 200 Means) → `scene-6`
+   - Farmhouse (die)
+     - fail → `scene-5-farm-blown` → `scene-6`
+     - success → `scene-5-farm-success` → `scene-6`
+   - Forged lease (needs `forged_docs`) → `scene-6`
 
 6. `scene-6` Pamphlet Drop (die)
-   - Fail → `scene-6-fail` → `scene-7`
-   - Partial → `scene-6-partial` → `scene-7`
-   - Success → `scene-6-success` → `scene-7` (+`op1_success`)
+   - 1–2 → `scene-6-fail` → `scene-7`
+   - 3–4 → `scene-6-partial` → `scene-7`
+   - 5–6 → `scene-6-success` (+`op1_success`) → `scene-7`
 
-7. `scene-7` Funding
+7. `scene-7` Funding Push
    - Crowdfund → `scene-8`
-   - Donor (requires Fatima) → `scene-8`
-   - Payroll heist (requires `weapons_cache`, die) → fail/success scenes then `scene-8`
+   - Court donor (needs `has_fatima`) → `scene-8`
+   - Payroll heist (needs `weapons_cache`, die)
+     - fail → `scene-7-heist-fail` → `scene-8`
+     - success → `scene-7-heist-success` → `scene-8`
    - Skip risk → `scene-8`
 
-8. `scene-8`/`scene-9`/`scene-10`
-   - `scene-9`: Elena vs Darius vs Mediate(die).
-   - `scene-10` datacenter:
-     - Remote hack requires `encrypted_comms`.
-     - Physical infiltration uses skill check (success/partial/fail scenes) then converges to `scene-11`.
+8. `scene-8` Planning Junction
+   - All choices route to ideological split at `scene-9`.
 
-9. `scene-11` to `scene-17`
-   - Mostly linear progression with key branch points:
-   - `scene-12`: inner-circle recruit (Alex/Nadia/Luis/secret Alex dialogue/reject Alex).
-   - `scene-13`: go dark / trap(die) / Cipher clue / armed confrontation.
-   - `scene-14`: unify vs decentralize vs absorb (propaganda press gate).
-   - `scene-15`: arm movement vs nonviolent vs defensive.
-   - `scene-17`: publish leak (die) vs hold as blackmail.
+9. `scene-9` Elena vs Darius
+   - Back Elena → `scene-10`
+   - Back Darius → `scene-10`
+   - Mediate (die)
+     - fail → `scene-9-mediate-fail` → `scene-10`
+     - pass → `scene-10`
 
-10. `scene-18` A Comrade Falls
-   - Assume surveillance tech → `scene-19`
+10. `scene-10` Datacenter Strike
+   - Remote hack (needs `encrypted_comms`) → `scene-11`
+   - Physical infiltration (skill check)
+     - success → `scene-10-infil-success` → `scene-11`
+     - failure → `scene-10-infil-fail` → `scene-11`
+
+### Act 3
+11. `scene-11` Consolidation
+   - All choices converge forward → `scene-12`.
+
+12. `scene-12` Inner-circle recruitment
+   - Recruit Alex (+`has_alex`) → `scene-13`
+   - Recruit Nadia (item/condition gated) → `scene-13`
+   - Recruit Luis (item/condition gated) → `scene-13`
+   - Secret manifesto dialogue (+`manifesto_secret_dialogue`) → `scene-13`
+   - Reject Alex path → `scene-12-alex-rejected` → `scene-13`
+
+13. `scene-13` Counter-intel
+   - Go dark → `scene-14`
+   - Set trap (die)
+     - fail/backfire → `scene-13-trap-backfire` → `scene-14`
+     - success → `scene-13-sabotage-success` → `scene-14`
+   - Follow Cipher clue (+`cipher_foreshadowing`) → `scene-14`
+   - Armed confrontation route → `scene-14`
+
+14. `scene-14` Movement structure
+   - Unify cells → `scene-15`
+   - Decentralize cells → `scene-15`
+   - Absorb rival group (gate can involve `propaganda_press`) → `scene-15`
+
+15. `scene-15` Doctrine vote
+   - Arm movement → `scene-16`
+   - Nonviolent escalation → `scene-16`
+   - Defensive posture → `scene-16`
+
+16. `scene-16` Field operation split
+   - Medical-centered route → `scene-16-medical` → `scene-17`
+   - Luis tactical route (skill outcomes)
+     - fail → `scene-16-luis-ambush` → `scene-17`
+     - partial → `scene-16-luis-partial` → `scene-17`
+     - success → `scene-16-luis-success` → `scene-17`
+   - Armed route → `scene-16-armed` → `scene-17`
+
+17. `scene-17` Leak decision
+   - Publish leak (die)
+     - fail/sacrifice → `scene-17-source-burned` → `scene-18`
+     - otherwise → `scene-18`
+   - Keep leak as blackmail → `scene-18`
+
+### Act 4
+18. `scene-18` A Comrade Falls
+   - Assume surveillance-tech culprit → `scene-19`
    - Suspect Alex (if `has_alex`, die)
-     - wrong move subpath
-     - confirmed subpath (sets stronger anti-Alex trajectory)
+     - wrong move → `scene-18-wrong-move` → `scene-19`
+     - confirmed → `scene-18-alex-confirmed` / confrontation branch `scene-18-alex-confront` → `scene-19`
    - Suspect Ghost → `scene-19`
 
-11. `scene-19` → `scene-24`
-   - Mostly converges through crisis meeting, point of no return, Operation Red Dawn, and operation outcome die roll:
-   - `scene-22` die:
-     - fail → `scene-23-fail`
-     - partial → `scene-23-partial`
-     - success → `scene-23-success` (+`op_success`)
-   - all converge to `scene-24` then `scene-25`.
+19. `scene-19` Retaliation fork
+   - Core strategy options converge toward `scene-20`.
+   - Vengeance side route can pass through `scene-19-vengeance`, then rejoin mainline.
+
+20. `scene-20` Crisis meeting → `scene-21`
+
+21. `scene-21` Point of no return → `scene-22`
+
+22. `scene-22` Operation Red Dawn (die)
+   - fail → `scene-23-fail` → `scene-24`
+   - partial → `scene-23-partial` → `scene-24`
+   - success (+`op_success`) → `scene-23-success` → `scene-24`
+   - armed success variant → `scene-23-armed-success` (+`op_success`) → `scene-24`
+
+23. `scene-24` Final staging → `scene-25`
+
+### Act 5: Ending hub
+24. `scene-25` Final choice gate
+   - Stand your ground (needs `op_success`) → `e1-1 → e1-2 → e1-3 → e1-4 → e1-5` ⇒ **Ending e1: The Long March**
+   - Surrender (needs `lead_front`) OR Fight to the bitter end → `e2-1 → e2-2 → e2-3 → e2-4 → e2-5` ⇒ **Ending e2: The Cage**
+   - Flee the country (needs `forged_docs`) → `e3-1 → e3-2 → e3-3 → e3-4 → e3-5` ⇒ **Ending e3: The Exile**
+   - Purge traitor inside (needs `suspect_alex`) → `e4-1 → e4-2 → e4-3 → e4-4 → e4-5` ⇒ **Ending e4: The Poison**
+
+### Secret post-completion route
+25. Unlocked after all four major endings are completed:
+   - `secret-1 → secret-2 → secret-3 → secret-4 → secret-5` ⇒ **Ending e5: The Means Was the Movement**
 
 ---
 
-## Final branch hub (`scene-25`) → Ending arcs
-- **Victory path**: “Stand your ground at Capitol” (requires `op_success`) → `e1-1`→`e1-5` unlock **Ending e1: The Long March**.
-- **Martyr/Capture path**: “Surrender…” (requires `lead_front`) OR “Fight to the bitter end” → `e2-1`→`e2-5` unlock **Ending e2: The Cage**.
-- **Exile path**: “Flee country” (requires `forged_docs`) → `e3-1`→`e3-5` unlock **Ending e3: The Exile**.
-- **Betrayal/Vengeance path**: “Purge traitor inside” (requires `suspect_alex`) → `e4-1`→`e4-5` unlock **Ending e4: The Poison**.
-
-All ending chains are linear within their own arc.
-
----
-
-## Secret route (post-completion)
-- After unlocking **all four** major endings, secret start becomes available:
-- `secret-1` → `secret-2` → `secret-3` → `secret-4` → `secret-5`
-- Unlocks **Ending e5: The Means Was the Movement**.
-
----
-
-## Choice gates / key requirements checklist
-- **Items that gate major options**: `forged_docs`, `encrypted_comms`, `weapons_cache`, `propaganda_press`.
-- **Flags that gate major options**: `has_fatima`, `has_alex`, `suspect_alex`, `op_success`, `lead_front`, `manifesto_secret_dialogue`, `cipher_foreshadowing`.
-- **RNG-heavy nodes**: scenes 1, 3, 4, 5, 6, 7 (heist), 9 (mediate), 13 (trap), 17 (publish), 18 (suspect Alex), 22 (final op).
-- **Convergence pattern**: many branches alter resources/flags/journal/surveillance, but converge back to a shared spine before `scene-25`.
+## Gate and requirement checklist
+- **Item gates**: `forged_docs`, `encrypted_comms`, `weapons_cache`, `propaganda_press`, plus route-specific item checks in skill scenes.
+- **Flag gates**: `has_fatima`, `has_alex`, `suspect_alex`, `op_success`, `lead_front`, `manifesto_secret_dialogue`, `cipher_foreshadowing`.
+- **RNG-heavy scenes**: 1, 3, 4, 5, 6, 7, 9, 13, 17, 18, 22.
+- **Convergence pattern**: Many side paths alter resources/flags and then merge into the shared spine before `scene-25`.
