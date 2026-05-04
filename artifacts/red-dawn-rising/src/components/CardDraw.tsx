@@ -3,6 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DECK } from '../data/gameData';
 import { useGame } from '../hooks/useGame';
 
+function getDrawWeight(cardId: string, drawnHistory: string[]): number {
+  const drawCount = drawnHistory.filter(id => id === cardId).length;
+  if (drawCount >= 4) return 0.3;
+  if (drawCount === 3) return 0.6;
+  if (drawCount === 2) return 0.85;
+  return 1;
+}
+
 export function CardDrawModal({
   onComplete,
   count,
@@ -19,38 +27,145 @@ export function CardDrawModal({
   const [revealed, setRevealed] = useState<number>(0);
 
   useEffect(() => {
-    const shuffled = [...DECK].sort(() => Math.random() - 0.5);
-    setDrawn(shuffled.slice(0, count));
+    const pool = DECK.map(card => ({ card, weight: getDrawWeight(card.id, state.cardsDrawn) }));
+    const shuffled: typeof DECK = [];
+    const remaining = [...pool];
+    for (let i = 0; i < count && remaining.length > 0; i++) {
+      const totalWeight = remaining.reduce((sum, item) => sum + item.weight, 0);
+      let rand = Math.random() * totalWeight;
+      for (let j = 0; j < remaining.length; j++) {
+        rand -= remaining[j].weight;
+        if (rand <= 0) {
+          shuffled.push(remaining[j].card);
+          remaining.splice(j, 1);
+          break;
+        }
+      }
+    }
+    setDrawn(shuffled);
   }, [count]);
+
+  const handleCardEffect = (card: typeof DECK[0]) => {
+    dispatch({ type: 'ADD_DRAWN_CARD', payload: card.id });
+
+    switch (card.id) {
+      case 'c1': // Vanguard
+        dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
+        break;
+
+      case 'c6': // Apparatus
+        dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: -1 });
+        break;
+
+      case 'c3': // Proletariat
+        dispatch({ type: 'ADD_MEANS', payload: 80 });
+        break;
+
+      case 'c5': // Strike
+        dispatch({ type: 'ADD_MEANS', payload: 100 });
+        break;
+
+      case 'c8': // Barricade
+        dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
+        break;
+
+      case 'c10': // Red Dawn
+        dispatch({ type: 'SET_RED_DAWN', payload: true });
+        break;
+
+      case 'c2': { // Informant — escalating intel on repeat draws
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'suspect_alex', value: true } });
+        const informantCount = state.journal.filter(j => j.startsWith('Informant Intel')).length + 1;
+        const informantMessages = [
+          "Encrypted intercept reveals a familiar pattern: controlled cadence, rehearsed emotion, communication style matching federal handler training. Someone near you is performing.",
+          "Follow-up: Alex met with a handler near the riverfront at 02:00. Payment confirmed.",
+          "Critical: Bank records link Alex to off-books federal accounts. High confidence.",
+          "URGENT — Alex is burned. Recommend immediate extraction or elimination protocol.",
+        ];
+        dispatch({
+          type: 'ADD_JOURNAL_ENTRY',
+          payload: `Informant Intel #${informantCount} — ${informantMessages[Math.min(informantCount - 1, informantMessages.length - 1)]}`,
+        });
+        break;
+      }
+
+      case 'c4': { // Manifesto — escalating reach on repeat draws
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'manifesto_secret_dialogue', value: true } });
+        const manifestoCount = state.journal.filter(j => j.startsWith('Manifesto Signal')).length + 1;
+        dispatch({
+          type: 'ADD_JOURNAL_ENTRY',
+          payload: manifestoCount === 1
+            ? 'Manifesto Signal #1 — A one-time covert line is open. You can ask one off-script question in a critical conversation.'
+            : `Manifesto Signal #${manifestoCount} — The words spread further. New sympathizers are listening; the movement gains momentum.`,
+        });
+        break;
+      }
+
+      case 'c7': // Martyr
+        if (state.inventory.length > 0) {
+          const randomIndex = Math.floor(Math.random() * state.inventory.length);
+          dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[randomIndex] });
+        }
+        break;
+
+      case 'c9': { // Cipher — successive foreshadowing fragments
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'cipher_foreshadowing', value: true } });
+        const cipherCount = state.journal.filter(j => j.startsWith('Cipher Fragment')).length + 1;
+        const cipherFragments = [
+          "'One soldier joins. One ledger burns. The smiling one opens the door from inside.'",
+          "'When the clock strikes red, the old order falls. Trust the face you least expect.'",
+          "'The final key was never hidden — it was carried by the one who asked no questions.'",
+        ];
+        dispatch({
+          type: 'ADD_JOURNAL_ENTRY',
+          payload: `Cipher Fragment #${cipherCount} — ${cipherFragments[Math.min(cipherCount - 1, cipherFragments.length - 1)]}`,
+        });
+        break;
+      }
+
+      case 'c11': { // The Cell — strengthen a random ally
+        const allies = ['elena', 'darius', 'mike', 'fatima', 'ghost'];
+        const ally = allies[Math.floor(Math.random() * allies.length)];
+        dispatch({ type: 'MODIFY_ALLY_TRUST', payload: { ally, amount: 15 } });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: `The Cell activated — ${ally.charAt(0).toUpperCase() + ally.slice(1)}'s commitment to the cause deepens (+15 trust).` });
+        break;
+      }
+
+      case 'c12': // Propaganda Drop
+        dispatch({ type: 'ADD_MEANS', payload: 60 });
+        dispatch({ type: 'MODIFY_SURVEILLANCE', payload: -10 });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Propaganda Drop successful — pamphlets flooded the district. Means +60, surveillance pressure eased.' });
+        break;
+
+      case 'c13': { // The Mole — risky high-reward intel
+        if (Math.random() > 0.45) {
+          dispatch({ type: 'ADD_MEANS', payload: 150 });
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole delivered — a major breakthrough. Critical intelligence secured and funds transferred. Means +150.' });
+        } else {
+          if (state.inventory.length > 0) {
+            dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[Math.floor(Math.random() * state.inventory.length)] });
+          }
+          dispatch({ type: 'MODIFY_SURVEILLANCE', payload: 25 });
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole was compromised. Heavy losses — an asset seized, surveillance spiked.' });
+        }
+        break;
+      }
+
+      case 'c14': // Sabotage
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Sabotage successful — state supply lines disrupted. The operation buys time.' });
+        break;
+
+      case 'c15': // The Theorist — analytical edge, +1 die bonus
+        dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Theorist joined the cell. Analytical edge gained — +1 to next die roll.' });
+        break;
+    }
+  };
 
   const handleReveal = () => {
     if (revealed < count) {
       const card = drawn[revealed];
-      dispatch({ type: 'ADD_DRAWN_CARD', payload: card.id });
-      if (card.id === 'c1') dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
-      if (card.id === 'c6') dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: -1 });
-      if (card.id === 'c3') dispatch({ type: 'ADD_MEANS', payload: 80 });
-      if (card.id === 'c5') dispatch({ type: 'ADD_MEANS', payload: 100 });
-      if (card.id === 'c8') dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
-      if (card.id === 'c2') {
-        dispatch({ type: 'SET_FLAG', payload: { flag: 'suspect_alex', value: true } });
-        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Informant Intel — Encrypted intercept reveals a familiar pattern: controlled cadence, rehearsed emotion, communication style matching federal handler training. Someone near you is performing." });
-      }
-      if (card.id === 'c7' && state.inventory.length > 0) {
-        const randomIndex = Math.floor(Math.random() * state.inventory.length);
-        dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[randomIndex] });
-      }
-      if (card.id === 'c10') {
-        dispatch({ type: 'SET_RED_DAWN', payload: true });
-      }
-      if (card.id === 'c4') {
-        dispatch({ type: 'SET_FLAG', payload: { flag: 'manifesto_secret_dialogue', value: true } });
-        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Manifesto Signal — A one-time covert line is open. You can ask one off-script question in a critical conversation." });
-      }
-      if (card.id === 'c9') {
-        dispatch({ type: 'SET_FLAG', payload: { flag: 'cipher_foreshadowing', value: true } });
-        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "Cipher Fragment — Foreshadowing recovered: 'One soldier joins. One ledger burns. The smiling one opens the door from inside.'" });
-      }
+      handleCardEffect(card);
       setRevealed(r => r + 1);
     } else {
       onComplete();
