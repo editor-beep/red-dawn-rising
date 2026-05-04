@@ -1,6 +1,6 @@
 # Red Dawn Rising — Complete Story Choice & Path Map
 
-Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts`.
+Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts` (scene graph), plus `artifacts/red-dawn-rising/src/hooks/useGame.tsx` (runtime progression/unlock checks).
 
 ## Global structure
 - **Acts 1–4**: shared trunk with branching outcomes.
