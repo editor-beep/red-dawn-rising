@@ -13,8 +13,15 @@ import { SaveSlotsModal } from './SaveSlots';
 import { useAudio } from '../hooks/useAudio';
 import { Menu, X, ShieldAlert, Pocket, Users, BookOpen, Settings as SettingsIcon, Save } from 'lucide-react';
 
-export default function GameScreen() {
-  const { state, dispatch } = useGame();
+function getJournalBorderColor(entry: string): string {
+  if (entry.startsWith('Informant Intel')) return 'border-destructive';
+  if (entry.startsWith('Manifesto Signal')) return 'border-primary';
+  if (entry.startsWith('Cipher Fragment')) return 'border-yellow-500/70';
+  if (entry.startsWith('Secret Dialogue')) return 'border-primary/60';
+  return 'border-muted';
+}
+
+export default function GameScreen() {  const { state, dispatch } = useGame();
   const { playTypewriterClack, playGeigerTick } = useAudio();
   const [, setLocation] = useLocation();
   const [showStore, setShowStore] = useState(false);
@@ -70,6 +77,9 @@ export default function GameScreen() {
       if (choice.effects.addItems) choice.effects.addItems.forEach(i => dispatch({ type: 'ADD_ITEM', payload: i }));
       if (choice.effects.removeItems) choice.effects.removeItems.forEach(i => dispatch({ type: 'REMOVE_ITEM', payload: i }));
       if (choice.effects.addJournalEntries) choice.effects.addJournalEntries.forEach(e => dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: e }));
+      if (choice.effects.protectedScenesRemaining !== undefined) {
+        dispatch({ type: 'SET_PROTECTED_SCENES', payload: choice.effects.protectedScenesRemaining });
+      }
     }
 
     if (choice.skillCheck) {
@@ -271,8 +281,8 @@ export default function GameScreen() {
                   ) : (
                     <ul className="space-y-3">
                       {[...state.journal].reverse().map((entry, idx) => (
-                        <li key={idx} className="text-xs border-l-2 border-muted pl-2 text-foreground/70 leading-relaxed">{entry}</li>
-                      ))}
+                          <li key={idx} className={`text-xs border-l-2 ${getJournalBorderColor(entry)} pl-2 text-foreground/70 leading-relaxed`}>{entry}</li>
+                        ))}
                     </ul>
                   )}
                 </section>
