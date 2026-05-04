@@ -75,13 +75,21 @@ export function CardDrawModal({
         dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Apparatus tightens its grip — state pressure increases.' });
         break;
 
-      case 'c3': // Proletariat
-        dispatch({ type: 'ADD_MEANS', payload: 80 });
+      case 'c3': { // Proletariat — +50% bonus if Mike is in the cell
+        const mikeBuff = state.flags.has_mike || state.flags.mike_recruited;
+        const proletariatGain = mikeBuff ? 120 : 80;
+        dispatch({ type: 'ADD_MEANS', payload: proletariatGain });
+        if (mikeBuff) dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Proletariat surges — Big Mike\'s union network amplified the solidarity dividend (+120 Means).' });
         break;
+      }
 
-      case 'c5': // Strike
-        dispatch({ type: 'ADD_MEANS', payload: 100 });
+      case 'c5': { // Strike — +50% bonus if Mike is in the cell
+        const mikeStrike = state.flags.has_mike || state.flags.mike_recruited;
+        const strikeGain = mikeStrike ? 150 : 100;
+        dispatch({ type: 'ADD_MEANS', payload: strikeGain });
+        if (mikeStrike) dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Strike pays off double — Big Mike\'s workers delivered (+150 Means).' });
         break;
+      }
 
       case 'c8': // Barricade
         dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
