@@ -62,7 +62,14 @@ export const DECK: Card[] = [
 export type SceneChoice = {
   text: string;
   nextSceneId?: string;
-  condition?: { flag?: string; item?: string; missingFlag?: string; missingItem?: string; minMeans?: number };
+  condition?: {
+    flag?: string;
+    flags?: string[];
+    item?: string;
+    missingFlag?: string;
+    missingItem?: string;
+    minMeans?: number;
+  };
   effects?: {
     means?: number;
     surveillance?: number;
@@ -72,9 +79,11 @@ export type SceneChoice = {
     removeItems?: string[];
     addJournalEntries?: string[];
     protectedScenesRemaining?: number;
+    combatBonus?: number;
   };
   dieRoll?: {
     outcomes: Record<number, string>;
+    modifier?: number;
   };
   skillCheck?: {
     target: number;
@@ -409,17 +418,19 @@ export const SCENES: Record<string, Scene> = {
         condition: { item: "medical_supplies" },
         nextSceneId: "scene-13",
         effects: {
-          addFlags: ["has_nadia"],
-          addJournalEntries: ["Nadia Kline joins the inner circle. Her trauma training has already kept two comrades out of hospital records."]
+          addFlags: ["has_nadia", "nadia_recruited"],
+          addJournalEntries: ["Nadia Khalil, former ER trauma nurse, has joined us. Her hands are steady even when everything else isn't."],
+          surveillance: 5
         }
       },
       {
-        text: "Elevate Luis Ortega — your weapons network introduced you",
+        text: "Elevate Luis Ortega (Ex-Special Forces) — your weapons network introduced you",
         condition: { item: "weapons_cache" },
         nextSceneId: "scene-13",
         effects: {
-          addFlags: ["has_luis"],
-          addJournalEntries: ["Luis Ortega joins the inner circle. His combat experience and field-medic training raise the cell's operational ceiling."]
+          addFlags: ["has_luis", "luis_recruited"],
+          addJournalEntries: ["Luis Ortega has joined the cell. His eyes carry the weight of someone who's seen too much."],
+          surveillance: 15
         }
       },
       {
@@ -527,7 +538,13 @@ export const SCENES: Record<string, Scene> = {
         }
       },
       { text: "Stay non-violent", nextSceneId: "scene-16", effects: { addFlags: ["peaceful_movement", "nonviolent_path"] } },
-      { text: "Train defensively only", nextSceneId: "scene-16", effects: { addFlags: ["defensive_path"] } }
+      { text: "Train defensively only", nextSceneId: "scene-16", effects: { addFlags: ["defensive_path"] } },
+      {
+        text: "Build a field medicine network under Nadia — protect without arming",
+        condition: { flag: "nadia_recruited" },
+        nextSceneId: "scene-16-medical",
+        effects: { addFlags: ["nonviolent_path", "nadia_network_active"] }
+      }
     ]
   },
   "scene-16": {
@@ -711,6 +728,25 @@ export const SCENES: Record<string, Scene> = {
           addJournalEntries: ["Armed vanguard units seized three critical infrastructure nodes simultaneously. The state had no answer for coordinated force."]
         }
       },
+      {
+        text: "Luis leads the armed spearhead",
+        condition: { flags: ["luis_recruited", "armed_path"] },
+        dieRoll: {
+          modifier: 2,
+          outcomes: { 1: "scene-23-partial", 3: "scene-23-success", 5: "scene-23-armed-success" }
+        },
+        effects: { addFlags: ["luis_spearhead"] }
+      },
+      {
+        text: "Luis coordinates diversionary strikes",
+        condition: { flag: "luis_recruited" },
+        nextSceneId: "scene-23-success",
+        effects: {
+          addFlags: ["luis_diversion"],
+          surveillance: -20,
+          addJournalEntries: ["Luis's diversionary strikes bought the main team crucial time. The state's response grid never recovered."]
+        }
+      },
       { text: "Execute the plan", dieRoll: { outcomes: { 1: "scene-23-fail", 2: "scene-23-fail", 3: "scene-23-partial", 4: "scene-23-partial", 5: "scene-23-success", 6: "scene-23-success" } } }
     ],
     autoDrawCards: 1
@@ -835,7 +871,8 @@ export const SCENES: Record<string, Scene> = {
     conditionalText: [
       { flag: "elena_trust", paragraph: "Elena stands beside you at the podium, refusing the microphone when it's offered — she's never been interested in the spotlight. You understand, now, why that matters." },
       { flag: "op1_success", paragraph: "The pamphlet workers who blanketed those five factories attend the ceremony. They're steel workers, teachers, cashiers — they look stunned, as if they can't quite believe what they started." },
-      { flag: "peaceful_movement", paragraph: "The transition is strikingly bloodless. Later, historians will credit the movement's discipline. You think of Elena's early warnings and allow yourself a quiet, private moment of gratitude." }
+      { flag: "peaceful_movement", paragraph: "The transition is strikingly bloodless. Later, historians will credit the movement's discipline. You think of Elena's early warnings and allow yourself a quiet, private moment of gratitude." },
+      { flag: "luis_recruited", paragraph: "Luis stands beside you during the final hour, rifle lowered, watching the old guard walk out the doors. 'We did it,' he says quietly. 'Not for glory. For the people who come after us.'" }
     ]
   },
 
@@ -897,7 +934,9 @@ export const SCENES: Record<string, Scene> = {
     conditionalText: [
       { flag: "elena_trust", paragraph: "Elena's face appears on the cover of Time magazine. She gives no interview. The caption reads: 'The Nurse Who Wouldn't Stop.'" },
       { flag: "has_fatima", paragraph: "Fatima's dispatches from outside the courtroom reach forty million readers. They couldn't silence the story, even if they silenced the storyteller." },
-      { flag: "suspect_alex", paragraph: "You knew. You knew before it happened. The knowing didn't save anyone, but it means the next movement will be harder to infiltrate." }
+      { flag: "suspect_alex", paragraph: "You knew. You knew before it happened. The knowing didn't save anyone, but it means the next movement will be harder to infiltrate." },
+      { flag: "luis_recruited", paragraph: "Luis is the last one standing when they come for the safehouse. He covers your retreat without a word. His final transmission: 'Keep moving. The fight doesn't die with us.'" },
+      { flag: "nadia_recruited", paragraph: "Nadia keeps working through the arrests, treating the wounded in a church basement three blocks from the courthouse. They never find her clinic." }
     ]
   },
 
@@ -1335,16 +1374,38 @@ export const SCENES: Record<string, Scene> = {
   "scene-16-armed": {
     id: "scene-16-armed",
     act: 3,
-    title: "Armed and Ready",
+    title: "Training with Luis",
     text: [
-      "The weapons are distributed quietly in the warehouse basement. No ceremony. Just the cold weight of something irreversible.",
-      "Luis runs the first training session. He shows which end is the safety. Elena is there too, positioning herself by the door with a field kit — she never agreed with this, but she refuses to let anyone bleed out over a principle she lost.",
-      "The movement has crossed a line. The state will use this against you. You know that. You also know that they were already using lethal force before you ever picked anything up."
+      "Luis stands in the dim basement, field-stripping a rifle with practiced efficiency.",
+      "'Most people think violence is about rage,' he says quietly. 'It's not. It's about control. Precision. Knowing when to pull the trigger — and when not to.'",
+      "Under his guidance, the cell begins its transformation."
     ],
-    autoEffects: {
-      addJournalEntries: ["Armed training underway. Luis coordinating, Elena present as field medic. The choice is made and cannot be unmade."]
-    },
-    choices: [{ text: "Move forward", nextSceneId: "scene-16" }]
+    choices: [
+      {
+        text: "Intensive Combat Training",
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["luis_armed_training"],
+          combatBonus: 2,
+          addJournalEntries: ["Luis's brutal but effective training has turned us into a real fighting unit. Combat effectiveness +2."],
+          surveillance: 25
+        }
+      },
+      {
+        text: "Focus on hit-and-run tactics and sabotage",
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["luis_sabotage_expert"],
+          addJournalEntries: ["Luis taught us how to strike hard, fast, and disappear into the night."],
+          surveillance: -10
+        }
+      },
+      {
+        text: "Send Luis on a solo reconnaissance mission",
+        dieRoll: { outcomes: { 1: "scene-16-luis-ambush", 4: "scene-16-luis-partial", 6: "scene-16-luis-success" } }
+      }
+    ],
+    autoDrawCards: 1
   },
 
   "scene-18-alex-confront": {
@@ -1386,5 +1447,121 @@ export const SCENES: Record<string, Scene> = {
       addJournalEntries: ["The traitor's network dismantled. Federal handler contacts recovered. The cell knows the full truth now — and it has changed them."]
     },
     choices: [{ text: "Rebuild", nextSceneId: "scene-20" }]
+  },
+
+  // ============================================================
+  // LUIS & NADIA EXPANSION — recon outcomes + medical branch
+  // ============================================================
+
+  "scene-16-luis-ambush": {
+    id: "scene-16-luis-ambush",
+    act: 3,
+    title: "Ambush",
+    text: [
+      "Luis's reconnaissance went wrong. He barely made it back, bleeding from a graze wound on his forearm.",
+      "'They were waiting for us,' he growls, jaw tight. 'Someone talked, or they got lucky. Either way — we need to be smarter.'"
+    ],
+    choices: [
+      {
+        text: "Push through despite the setback",
+        nextSceneId: "scene-17",
+        effects: { surveillance: 30 }
+      },
+      {
+        text: "Treat Luis with Medical Supplies",
+        condition: { item: "medical_supplies" },
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["luis_grateful"],
+          addJournalEntries: ["Luis was saved by your medical supplies. He doesn't say thank you — but you can see it in his eyes."]
+        }
+      }
+    ]
+  },
+
+  "scene-16-luis-partial": {
+    id: "scene-16-luis-partial",
+    act: 3,
+    title: "Mixed Results",
+    text: [
+      "Luis returns at 0300, moving carefully. The mission was compromised midway — he had to abort before reaching the primary objective.",
+      "'I had to pull back,' he says, spreading a hand-drawn map on the table. 'But I got enough. Three-shift rotation. Gap at 0200. That's our window.'"
+    ],
+    choices: [
+      {
+        text: "Work with what you have",
+        nextSceneId: "scene-17",
+        effects: {
+          surveillance: 10,
+          addJournalEntries: ["Partial recon data recovered. Luis identified a narrow operational window — we'll have to move fast and trust it."]
+        }
+      }
+    ]
+  },
+
+  "scene-16-luis-success": {
+    id: "scene-16-luis-success",
+    act: 3,
+    title: "Successful Recon",
+    text: [
+      "Luis returns at dawn with a hand-drawn map, a captured enemy radio still crackling on their frequency, and a rare cold smile.",
+      "'We now know their patrol patterns, their fallback positions, and their comms encryption rotation,' he says. 'They don't know we know. That's worth more than any weapon.'"
+    ],
+    choices: [
+      {
+        text: "Press the advantage",
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["luis_intel_bonus"],
+          surveillance: -15,
+          means: 60,
+          addJournalEntries: ["Luis's recon yielded critical intel. Patrol patterns mapped, fallback positions identified. We now hold the initiative."]
+        }
+      }
+    ],
+    autoDrawCards: 1
+  },
+
+  "scene-16-medical": {
+    id: "scene-16-medical",
+    act: 3,
+    title: "Field Medicine with Nadia",
+    text: [
+      "Nadia converts the back room into a functioning clinic in under two hours. Bandages sorted by type, antibiotics catalogued, two folding cots set up under a bare bulb.",
+      "'We save lives first,' she says, not looking up from her inventory. 'Everything else comes after. A movement that can't keep its people alive long enough to fight isn't a movement — it's a memorial.'"
+    ],
+    choices: [
+      {
+        text: "Advanced First Aid Training for the whole cell",
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["nadia_medical_training"],
+          addJournalEntries: ["Nadia trained the cell in emergency field medicine. Survival odds on any operation just improved significantly."],
+          surveillance: 10
+        }
+      },
+      {
+        text: "Deploy Nadia to build an underground medical network",
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["nadia_network"],
+          addJournalEntries: ["Nadia's contacts are now quietly treating wounded comrades across the city, off the books and off the grid."]
+        }
+      }
+    ]
+  },
+
+  "scene-23-armed-success": {
+    id: "scene-23-armed-success",
+    act: 4,
+    title: "Armed Triumph",
+    text: [
+      "Luis's spearhead cuts through every defensive line they throw at you. Military precision. No wasted motion. Three critical infrastructure nodes seized before the state even identifies the pattern.",
+      "The coordination is flawless — the result of every training session, every field decision, every hard call that led to this moment.",
+      "As the dust settles, Luis stands in the corridor of an occupied government building, rifle lowered, watching workers stream through the front doors for the first time as owners of the space.",
+      "'This is what it's supposed to look like,' he says quietly. You don't disagree."
+    ],
+    choices: [{ text: "Brace for impact", nextSceneId: "scene-24", effects: { means: 500, addFlags: ["op_success", "armed_op_success"] } }],
+    autoDrawCards: 5
   }
 };

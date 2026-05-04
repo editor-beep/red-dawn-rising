@@ -14,6 +14,8 @@ export type Card = {
 export type Flags = Record<string, boolean>;
 export type Allies = Record<string, number>;
 
+export const MAX_COMBAT_BONUS = 3;
+
 export type GameState = {
   currentSceneId: string;
   means: number;
@@ -31,6 +33,7 @@ export type GameState = {
   nextDieRollModifier: number;
   protectedScenesRemaining: number;
   redDawnActive: boolean;
+  combatBonus: number;
 };
 
 export type ActionType =
@@ -53,6 +56,7 @@ export type ActionType =
   | { type: 'SET_PROTECTED_SCENES'; payload: number }
   | { type: 'DECREMENT_PROTECTED_SCENES' }
   | { type: 'SET_RED_DAWN'; payload: boolean }
+  | { type: 'SET_COMBAT_BONUS'; payload: number }
   | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
@@ -79,6 +83,7 @@ export const initialState: GameState = {
   nextDieRollModifier: 0,
   protectedScenesRemaining: 0,
   redDawnActive: false,
+  combatBonus: 0,
 };
 
 export function gameReducer(state: GameState, action: ActionType): GameState {
@@ -124,6 +129,8 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       return { ...state, protectedScenesRemaining: Math.max(0, state.protectedScenesRemaining - 1) };
     case 'SET_RED_DAWN':
       return { ...state, redDawnActive: action.payload };
+    case 'SET_COMBAT_BONUS':
+      return { ...state, combatBonus: Math.max(0, Math.min(MAX_COMBAT_BONUS, action.payload)) };
     case 'LOAD_STATE':
       return {
         ...action.payload,
@@ -133,6 +140,7 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
         nextDieRollModifier: action.payload.nextDieRollModifier ?? 0,
         protectedScenesRemaining: action.payload.protectedScenesRemaining ?? 0,
         redDawnActive: action.payload.redDawnActive ?? false,
+        combatBonus: action.payload.combatBonus ?? 0,
       };
     case 'UNLOCK_ENDING':
       if (state.unlockedEndings.includes(action.payload)) return state;
