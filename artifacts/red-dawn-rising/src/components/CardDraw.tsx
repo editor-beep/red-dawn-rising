@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DECK, ALLY_NAMES } from '../data/gameData';
 import { useGame } from '../hooks/useGame';
 
-const MOLE_SUCCESS_RATE = 0.55;
+const MOLE_SUCCESS_RATE = 0.58;
 
 function getDrawWeight(cardId: string, drawnHistory: string[]): number {
   const drawCount = drawnHistory.filter(id => id === cardId).length;
@@ -59,12 +59,20 @@ export function CardDrawModal({
     dispatch({ type: 'ADD_DRAWN_CARD', payload: card.id });
 
     switch (card.id) {
-      case 'c1': // Vanguard
-        dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
+      case 'c1': { // Vanguard — stacks up to +3 total
+        const currentMod = state.nextDieRollModifier || 0;
+        // Only dispatch if we're below the cap; dispatching when currentMod=2 reaches exactly 3
+        if (currentMod < 3) {
+          dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
+        }
+        const newMod = Math.min(currentMod + 1, 3);
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: `Vanguard boost active (+${newMod} total)` });
         break;
+      }
 
       case 'c6': // Apparatus
         dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: -1 });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Apparatus tightens its grip — state pressure increases.' });
         break;
 
       case 'c3': // Proletariat
@@ -79,8 +87,10 @@ export function CardDrawModal({
         dispatch({ type: 'SET_PROTECTED_SCENES', payload: 2 });
         break;
 
-      case 'c10': // Red Dawn
+      case 'c10': // Red Dawn — cost reduction + momentum surge
         dispatch({ type: 'SET_RED_DAWN', payload: true });
+        dispatch({ type: 'ADD_MEANS', payload: 40 });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Red Dawn rises — costs reduced and momentum gained.' });
         break;
 
       case 'c2': { // Informant — escalating intel on repeat draws
@@ -145,23 +155,27 @@ export function CardDrawModal({
 
       case 'c13': { // The Mole — risky high-reward intel
         if (Math.random() < MOLE_SUCCESS_RATE) {
-          dispatch({ type: 'ADD_MEANS', payload: 150 });
-          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole delivered — a major breakthrough. Critical intelligence secured and funds transferred. Means +150.' });
+          // Success: funds + reduced heat from cleared contacts
+          dispatch({ type: 'ADD_MEANS', payload: 160 });
+          dispatch({ type: 'MODIFY_SURVEILLANCE', payload: -15 });
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole came through — major intelligence haul. Critical intel secured and surveillance pressure eased.' });
         } else {
           removeRandomItem();
-          dispatch({ type: 'MODIFY_SURVEILLANCE', payload: 25 });
-          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole was compromised. Heavy losses — an asset seized, surveillance spiked.' });
+          dispatch({ type: 'MODIFY_SURVEILLANCE', payload: 35 });
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole was turned. Heavy consequences — an asset seized, surveillance spiked.' });
         }
         break;
       }
 
-      case 'c14': // Sabotage
-        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Sabotage successful — state supply lines disrupted. The operation buys time.' });
+      case 'c14': // Sabotage — state logistics disrupted
+        dispatch({ type: 'MODIFY_SURVEILLANCE', payload: -25 });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Sabotage successful. State logistics disrupted — surveillance pressure drops.' });
         break;
 
       case 'c15': // The Theorist — analytical edge, +1 die bonus
+        dispatch({ type: 'SET_FLAG', payload: { flag: 'theorist_insight', value: true } });
         dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: 1 });
-        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Theorist joined the cell. Analytical edge gained — +1 to next die roll.' });
+        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Theorist provides lasting strategic insight — analytical edge gained.' });
         break;
     }
   };
