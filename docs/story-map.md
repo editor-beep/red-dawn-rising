@@ -33,12 +33,12 @@ Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts` (scene graph),
 
 4. `scene-4` Recruitment Drive
    - Recruit Mike (die)
-     - 1–3 → `scene-4-fail` → `scene-5`
-     - 4–6 → `scene-4-mike-success` (+`has_mike`) → `scene-5`
+     - 1–3 → `scene-4-fail` → `scene-5-fractured-route` (+`recruitment_stumble`) → `scene-5`
+     - 4–6 → `scene-4-mike-success` (+`has_mike`, +`logistics_pipeline`) → `scene-5-mike-route` → `scene-5`
    - Recruit Fatima (die)
-     - 1–3 → `scene-4-fail` → `scene-5`
-     - 4–6 → `scene-4-fatima-success` (+`has_fatima`) → `scene-5`
-   - Recruit Ghost → `scene-5` (+`has_ghost`)
+     - 1–3 → `scene-4-fail` → `scene-5-fractured-route` (+`recruitment_stumble`) → `scene-5`
+     - 4–6 → `scene-4-fatima-success` (+`has_fatima`, +`media_cover`) → `scene-5-fatima-route` → `scene-5`
+   - Recruit Ghost → `scene-5-ghost-route` (+`has_ghost`, +`ghost_protocols`) → `scene-5`
 
 ### Act 2
 5. `scene-5` Safehouse
