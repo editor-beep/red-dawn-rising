@@ -653,7 +653,7 @@ export const SCENES: Record<string, Scene> = {
       {
         text: "Mass print and distribute via the Propaganda Press",
         condition: { item: "propaganda_press" },
-        nextSceneId: "scene-18",
+        nextSceneId: "scene-17-press-fallout",
         effects: {
           means: 80,
           addFlags: ["strong_public_support", "major_leak"],
@@ -663,19 +663,61 @@ export const SCENES: Record<string, Scene> = {
       {
         text: "Secure release via Encrypted Comms",
         condition: { item: "encrypted_comms" },
-        dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-18", 3: "scene-18", 4: "scene-18", 5: "scene-18", 6: "scene-18" } },
+        dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-17-secure-drop", 3: "scene-17-secure-drop", 4: "scene-17-secure-drop", 5: "scene-17-secure-drop", 6: "scene-17-secure-drop" } },
         effects: { addFlags: ["secure_leak"] }
       },
-      { text: "Publish widely", dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-17-source-burned", 3: "scene-17-source-burned", 4: "scene-18", 5: "scene-18", 6: "scene-18" } } },
-      { text: "Hold the intel as blackmail", nextSceneId: "scene-18" }
+      { text: "Publish widely", dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-17-source-burned", 3: "scene-17-source-burned", 4: "scene-17-public-backlash", 5: "scene-17-public-backlash", 6: "scene-17-public-backlash" } } },
+      { text: "Hold the intel as blackmail", nextSceneId: "scene-17-blackmail" }
     ],
     autoEffects: {
       addJournalEntries: ["Leaked: Senators trading stocks on classified strike-breaking legislation."]
     }
   },
+
+  "scene-17-press-fallout": {
+    id: "scene-17-press-fallout",
+    act: 3,
+    title: "Printshop Blowback",
+    text: [
+      "The presses run all night, but by dawn the state has traced two distribution hubs.",
+      "You gain momentum in the streets and lose safety in the shadows."
+    ],
+    choices: [{ text: "Relocate the network", nextSceneId: "scene-18", effects: { surveillance: 10 } }]
+  },
+  "scene-17-secure-drop": {
+    id: "scene-17-secure-drop",
+    act: 3,
+    title: "Clean Leak",
+    text: [
+      "The encrypted release lands with journalists and labor channels simultaneously.",
+      "No names burned, but the state now knows someone inside BLACKVEIL is still active."
+    ],
+    choices: [{ text: "Prepare for retaliation", nextSceneId: "scene-18", effects: { means: 50 } }]
+  },
+  "scene-17-public-backlash": {
+    id: "scene-17-public-backlash",
+    act: 3,
+    title: "Narrative Whiplash",
+    text: [
+      "The leak spreads too fast to verify. Pundits call it fabricated. Allies start arguing in public.",
+      "You won reach, but lost control of the story."
+    ],
+    choices: [{ text: "Regroup the organizers", nextSceneId: "scene-18", effects: { followers: -1, means: -50 } }]
+  },
+  "scene-17-blackmail": {
+    id: "scene-17-blackmail",
+    act: 3,
+    title: "Leverage",
+    text: [
+      "You keep the files hidden and start quietly pressuring power brokers.",
+      "It buys time and resources—but also paints a target on everyone who knows the secret."
+    ],
+    choices: [{ text: "Spend the leverage", nextSceneId: "scene-18", effects: { means: 120, addFlags: ["blackmail_path"] } }]
+  },
+
   "scene-18": {
     id: "scene-18",
-    act: 3,
+    act: 4,
     title: "A Comrade Falls",
     text: [
       "It happens at 3 PM on a Tuesday. Darius is arrested leaving a hardware store.",
@@ -707,8 +749,8 @@ export const SCENES: Record<string, Scene> = {
   },
   "scene-19": {
     id: "scene-19",
-    act: 3,
-    title: "The Crisis Meeting",
+    act: 4,
+    title: "Retaliation",
     text: [
       "The safehouse feels like a tomb. You gather the remaining inner circle.",
       "Your newest inner-circle recruit stands up and delivers a rousing, passionate speech about solidarity, about avenging Darius. It unifies everyone in the room.",
@@ -744,24 +786,24 @@ export const SCENES: Record<string, Scene> = {
   },
   "scene-20": {
     id: "scene-20",
-    act: 3,
-    title: "The Point of No Return",
+    act: 4,
+    title: "Crisis Meeting",
     text: [
       "The movement is at its apex. Millions of dollars in economic damage. Thousands of followers. A terrified ruling class.",
       "You are planning 'Operation Red Dawn'—a simultaneous, nationwide strike that will force the government to its knees.",
       "This is the last moment before the storm breaks. Take a breath."
     ],
-    choices: [{ text: "Begin Operation Red Dawn", nextSceneId: "scene-21" }],
+    choices: [{ text: "Escalate to final planning", nextSceneId: "scene-21" }],
     autoEffects: { means: 200 }
   },
   "scene-21": {
     id: "scene-21",
     act: 4,
-    title: "Operation Red Dawn",
+    title: "Point of No Return",
     text: [
       "Act 4: The Storm.",
-      "The plan: Simultaneous actions across 12 major cities. Logistics hubs blocked. Servers crashed. Mass civil disobedience.",
-      "The climax is a march on the Capitol in DC. You must decide your role in history."
+      "You lay out synchronized actions across 12 major cities: logistics hubs blocked, servers crashed, and coordinated mass civil disobedience.",
+      "No one can step off this path now. Every ally in the room knows what comes next."
     ],
     choices: [
       { text: "Lead from the front in DC", nextSceneId: "scene-22", effects: { addFlags: ["lead_front"] } },
@@ -772,11 +814,11 @@ export const SCENES: Record<string, Scene> = {
   "scene-22": {
     id: "scene-22",
     act: 4,
-    title: "The Day Of",
+    title: "Operation Red Dawn",
     text: [
-      "The sun rises on a fractured nation.",
+      "Act 4: The Storm.",
       "The streets are full. The servers are going down. The military is mobilizing.",
-      "Everything hinges on this moment. The culmination of months of planning, bleeding, and hiding."
+      "Operation Red Dawn begins now. Every previous choice is about to be tested at once."
     ],
     choices: [
       {
