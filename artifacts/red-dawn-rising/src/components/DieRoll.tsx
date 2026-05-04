@@ -25,7 +25,13 @@ export function DieRollModal({ onComplete, modifier = 0 }: { onComplete: (result
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md">
-      <div className="text-primary font-mono mb-8 uppercase tracking-widest">Calculating outcome...</div>
+      <div className="text-primary font-mono mb-2 uppercase tracking-widest">Calculating outcome...</div>
+      {modifier !== 0 && (
+        <div className={`mb-6 px-3 py-1 border font-mono text-sm ${modifier > 0 ? 'border-primary/60 text-primary bg-primary/10' : 'border-destructive/60 text-destructive bg-destructive/10'}`}>
+          Active Modifier: {modifier > 0 ? '+' : ''}{modifier}
+        </div>
+      )}
+      {modifier === 0 && <div className="mb-8" />}
       
       <motion.div 
         animate={rolling ? { rotate: [0, 90, 180, 270, 360] } : { scale: [1, 1.2, 1] }}

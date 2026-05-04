@@ -1,5 +1,7 @@
 import { Item, Card } from '../types';
 
+export const ALLY_NAMES = ['elena', 'darius', 'mike', 'fatima', 'ghost'] as const;
+
 export const STORE_ITEMS: Item[] = [
   {
     id: "encrypted_comms",
@@ -40,16 +42,21 @@ export const STORE_ITEMS: Item[] = [
 ];
 
 export const DECK: Card[] = [
-  { id: "c1", name: "The Vanguard", effectDescription: "+1 to next die roll result (capped at 6)" },
-  { id: "c2", name: "The Informant", effectDescription: "Reveals a hidden clue about the agent in your ranks" },
+  { id: "c1", name: "The Vanguard", effectDescription: "+1 to next die roll (stacks)" },
+  { id: "c2", name: "The Informant", effectDescription: "Escalating intel about the traitor in your ranks" },
   { id: "c3", name: "The Proletariat", effectDescription: "Gain 80 Means; solidarity dividend" },
-  { id: "c4", name: "The Manifesto", effectDescription: "Next choice unlocks a secret dialogue option" },
-  { id: "c5", name: "The Strike", effectDescription: "+100 Means; worker action pays off" },
+  { id: "c4", name: "The Manifesto", effectDescription: "Unlocks secret dialogue + growing support" },
+  { id: "c5", name: "The Strike", effectDescription: "+100 Means; worker uprising pays off" },
   { id: "c6", name: "The Apparatus", effectDescription: "The state is watching; -1 to next die roll" },
   { id: "c7", name: "The Martyr", effectDescription: "A comrade is lost; lose one item from your inventory" },
   { id: "c8", name: "The Barricade", effectDescription: "Gain protection; safe from negative events for 2 scenes" },
-  { id: "c9", name: "The Cipher", effectDescription: "Encrypted message; reveals a plot twist foreshadowing" },
+  { id: "c9", name: "The Cipher", effectDescription: "Successive fragments of a larger warning" },
   { id: "c10", name: "Red Dawn", effectDescription: "All Means costs reduced by 50% for this scene" },
+  { id: "c11", name: "The Cell", effectDescription: "Strengthen the network (+15 ally trust)" },
+  { id: "c12", name: "Propaganda Drop", effectDescription: "+60 Means and minor surveillance drop (-10%)" },
+  { id: "c13", name: "The Mole", effectDescription: "Risky high-reward intel — success or betrayal" },
+  { id: "c14", name: "Sabotage", effectDescription: "Disrupt state operations (story impact)" },
+  { id: "c15", name: "The Theorist", effectDescription: "Analytical edge gained; +1 to next die roll" },
 ];
 
 export type SceneChoice = {
