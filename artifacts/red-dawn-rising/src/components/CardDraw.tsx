@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DECK } from '../data/gameData';
+import { DECK, ALLY_NAMES } from '../data/gameData';
 import { useGame } from '../hooks/useGame';
+
+const MOLE_SUCCESS_RATE = 0.55;
 
 function getDrawWeight(cardId: string, drawnHistory: string[]): number {
   const drawCount = drawnHistory.filter(id => id === cardId).length;
@@ -25,9 +27,11 @@ export function CardDrawModal({
   const { state, dispatch } = useGame();
   const [drawn, setDrawn] = useState<typeof DECK>([]);
   const [revealed, setRevealed] = useState<number>(0);
+  // Capture cardsDrawn at mount so the draw weights are stable for this session.
+  const initialCardsDrawn = useRef(state.cardsDrawn);
 
   useEffect(() => {
-    const pool = DECK.map(card => ({ card, weight: getDrawWeight(card.id, state.cardsDrawn) }));
+    const pool = DECK.map(card => ({ card, weight: getDrawWeight(card.id, initialCardsDrawn.current) }));
     const shuffled: typeof DECK = [];
     const remaining = [...pool];
     for (let i = 0; i < count && remaining.length > 0; i++) {
@@ -44,6 +48,12 @@ export function CardDrawModal({
     }
     setDrawn(shuffled);
   }, [count]);
+
+  const removeRandomItem = () => {
+    if (state.inventory.length > 0) {
+      dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[Math.floor(Math.random() * state.inventory.length)] });
+    }
+  };
 
   const handleCardEffect = (card: typeof DECK[0]) => {
     dispatch({ type: 'ADD_DRAWN_CARD', payload: card.id });
@@ -102,10 +112,7 @@ export function CardDrawModal({
       }
 
       case 'c7': // Martyr
-        if (state.inventory.length > 0) {
-          const randomIndex = Math.floor(Math.random() * state.inventory.length);
-          dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[randomIndex] });
-        }
+        removeRandomItem();
         break;
 
       case 'c9': { // Cipher — successive foreshadowing fragments
@@ -124,8 +131,7 @@ export function CardDrawModal({
       }
 
       case 'c11': { // The Cell — strengthen a random ally
-        const allies = ['elena', 'darius', 'mike', 'fatima', 'ghost'];
-        const ally = allies[Math.floor(Math.random() * allies.length)];
+        const ally = ALLY_NAMES[Math.floor(Math.random() * ALLY_NAMES.length)];
         dispatch({ type: 'MODIFY_ALLY_TRUST', payload: { ally, amount: 15 } });
         dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: `The Cell activated — ${ally.charAt(0).toUpperCase() + ally.slice(1)}'s commitment to the cause deepens (+15 trust).` });
         break;
@@ -138,13 +144,11 @@ export function CardDrawModal({
         break;
 
       case 'c13': { // The Mole — risky high-reward intel
-        if (Math.random() > 0.45) {
+        if (Math.random() < MOLE_SUCCESS_RATE) {
           dispatch({ type: 'ADD_MEANS', payload: 150 });
           dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole delivered — a major breakthrough. Critical intelligence secured and funds transferred. Means +150.' });
         } else {
-          if (state.inventory.length > 0) {
-            dispatch({ type: 'REMOVE_ITEM', payload: state.inventory[Math.floor(Math.random() * state.inventory.length)] });
-          }
+          removeRandomItem();
           dispatch({ type: 'MODIFY_SURVEILLANCE', payload: 25 });
           dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'The Mole was compromised. Heavy losses — an asset seized, surveillance spiked.' });
         }

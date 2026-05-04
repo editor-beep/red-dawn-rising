@@ -1,5 +1,7 @@
 import { Item, Card } from '../types';
 
+export const ALLY_NAMES = ['elena', 'darius', 'mike', 'fatima', 'ghost'] as const;
+
 export const STORE_ITEMS: Item[] = [
   {
     id: "encrypted_comms",
