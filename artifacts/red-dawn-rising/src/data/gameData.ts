@@ -213,7 +213,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-mike-success", 5: "scene-4-mike-success", 6: "scene-4-mike-success" } } },
       { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-fatima-success", 5: "scene-4-fatima-success", 6: "scene-4-fatima-success" } } },
-      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5", effects: { addFlags: ["has_ghost"], addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."] } }
+      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5-ghost-route", effects: { addFlags: ["has_ghost"], addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."] } }
     ]
   },
   "scene-4-fail": {
@@ -225,7 +225,27 @@ export const SCENES: Record<string, Scene> = {
       "'I have kids, Marco,' they said, standing up. 'I can't go to federal prison for a pipe dream.'",
       "You lost time, and you exposed your hand slightly, but they promised not to talk. You hope they keep that promise."
     ],
-    choices: [{ text: "Continue", nextSceneId: "scene-5" }]
+    choices: [{ text: "Continue", nextSceneId: "scene-5-fractured-route", effects: { surveillance: 10, means: -25, addFlags: ["recruitment_stumble"] } }]
+  },
+  "scene-5-fractured-route": {
+    id: "scene-5-fractured-route",
+    act: 2,
+    title: "The Safehouse — Fractured Start",
+    text: [
+      "The failed outreach leaves the room tense. Everyone is speaking in half-sentences. Elena wants to lock everything down. Darius wants to pivot and move faster before fear calcifies.",
+      "You're now hunting for a safehouse without the specialist you tried to recruit, and with your confidence visibly shaken."
+    ],
+    choices: [{ text: "Stabilize and choose a base", nextSceneId: "scene-5" }]
+  },
+  "scene-5-ghost-route": {
+    id: "scene-5-ghost-route",
+    act: 2,
+    title: "The Safehouse — Ghost's Terms",
+    text: [
+      "Ghost agrees to join, but insists the first priority is digital hardening. No location with weak power redundancy, no place without line-of-sight for rooftop relays, no compromises.",
+      "The argument shifts from rent and distance to signal discipline and traceability. The cell feels sharper, but less trusting."
+    ],
+    choices: [{ text: "Choose a base under new constraints", nextSceneId: "scene-5", effects: { surveillance: -10, means: -50, addFlags: ["ghost_protocols"] } }]
   },
   "scene-5": {
     id: "scene-5",
@@ -1182,7 +1202,7 @@ export const SCENES: Record<string, Scene> = {
       "He is with you. His logistics contacts and his institutional knowledge of the labor movement are worth more than anything in the supply network."
     ],
     autoEffects: { addFlags: ["has_mike"], addJournalEntries: ["Big Mike Kowalski — veteran union organizer, logistics network connections."] },
-    choices: [{ text: "Welcome him in", nextSceneId: "scene-5" }]
+    choices: [{ text: "Welcome him in", nextSceneId: "scene-5-mike-route", effects: { means: 100, addFlags: ["logistics_pipeline"] } }]
   },
 
   "scene-4-fatima-success": {
@@ -1195,7 +1215,29 @@ export const SCENES: Record<string, Scene> = {
       "She's in. More than in—she's been looking for exactly this. Her access to state media feeds and her source network are now yours."
     ],
     autoEffects: { addFlags: ["has_fatima"], addJournalEntries: ["Fatima Al-Rashid — independent journalist, access to state media feeds."] },
-    choices: [{ text: "Bring her into the fold", nextSceneId: "scene-5" }]
+    choices: [{ text: "Bring her into the fold", nextSceneId: "scene-5-fatima-route", effects: { surveillance: -15, addFlags: ["media_cover"] } }]
+  },
+
+  "scene-5-mike-route": {
+    id: "scene-5-mike-route",
+    act: 2,
+    title: "The Safehouse — Union Infrastructure",
+    text: [
+      "Mike doesn't just join—he starts making calls. Within hours, retired stewards and warehouse foremen are quietly checking deeds, ownership chains, and delivery schedules.",
+      "By nightfall, your safehouse search has become a labor operation: practical, disciplined, and rooted in relationships that predate the crackdown."
+    ],
+    choices: [{ text: "Use Mike's network to pick a base", nextSceneId: "scene-5" }]
+  },
+
+  "scene-5-fatima-route": {
+    id: "scene-5-fatima-route",
+    act: 2,
+    title: "The Safehouse — Information First",
+    text: [
+      "Fatima maps police patrol heat and municipal permit data before anyone signs a lease. She identifies which blocks have the fewest random compliance inspections and which landlords quietly cooperate with task forces.",
+      "The mood shifts: less improvisation, more counter-surveillance. You feel exposed, but informed."
+    ],
+    choices: [{ text: "Choose a base with Fatima's intel", nextSceneId: "scene-5" }]
   },
 
   "scene-5-farm-success": {
