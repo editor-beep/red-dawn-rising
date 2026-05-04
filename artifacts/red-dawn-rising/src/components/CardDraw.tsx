@@ -129,8 +129,12 @@ export function CardDrawModal({
         break;
       }
 
-      case 'c7': // Martyr
-        removeRandomItem();
+      case 'c7': // Martyr — Nadia's network softens the blow
+        if (state.flags.nadia_recruited) {
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: "A comrade fell — but Nadia's underground network pulled them back from the brink. The cost is real, but survivable." });
+        } else {
+          removeRandomItem();
+        }
         break;
 
       case 'c9': { // Cipher — successive foreshadowing fragments
@@ -175,10 +179,17 @@ export function CardDrawModal({
         break;
       }
 
-      case 'c14': // Sabotage — state logistics disrupted
-        dispatch({ type: 'MODIFY_SURVEILLANCE', payload: -25 });
-        dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Sabotage successful. State logistics disrupted — surveillance pressure drops.' });
+      case 'c14': { // Sabotage — Luis multiplies effectiveness
+        const luisBoost = state.flags.luis_recruited ? 1.6 : 1;
+        dispatch({ type: 'MODIFY_SURVEILLANCE', payload: Math.floor(-25 * luisBoost) });
+        if (state.flags.luis_recruited) {
+          dispatch({ type: 'ADD_MEANS', payload: 90 });
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Luis led the sabotage team. The operation was textbook — maximum disruption, zero exposure.' });
+        } else {
+          dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: 'Sabotage successful. State logistics disrupted — surveillance pressure drops.' });
+        }
         break;
+      }
 
       case 'c15': // The Theorist — analytical edge, +1 die bonus
         dispatch({ type: 'SET_FLAG', payload: { flag: 'theorist_insight', value: true } });
