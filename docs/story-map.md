@@ -306,3 +306,38 @@ Design rule for all five: each recruit gets **at least 2 new decision scenes + 1
 - **Flag gates**: `has_fatima`, `has_alex`, `suspect_alex`, `op_success`, `lead_front`, `manifesto_secret_dialogue`, `cipher_foreshadowing`.
 - **RNG-heavy scenes**: 1, 3, 4, 5, 6, 7, 9, 13, 17, 18, 22.
 - **Convergence pattern**: Many side paths alter resources/flags and then merge into the shared spine before `scene-25`.
+
+---
+
+## Newly added scene paths (remapped)
+
+The following paths are now present in the canonical scene graph and should be reviewed for depth/variety:
+
+- **Recruitment additions (`scene-4`)**
+  - `Recruit Luis Ortega (Ex-Special Forces)` (item-gated: `weapons_cache`) → `scene-4-luis-success` → `scene-5`
+  - `Recruit Nadia Khalil (Trauma Nurse)` (item-gated: `medical_supplies`) → `scene-4-nadia-success` → `scene-5`
+
+- **Safehouse variants (`scene-5`)**
+  - `scene-5-mike-route` (post-Mike recruit flavor branch) → `scene-5`
+  - `scene-5-fatima-route` (post-Fatima recruit flavor branch) → `scene-5`
+  - `scene-5-ghost-route` (Ghost protocol branch) → `scene-5`
+
+- **Act 3 specialist operation branches (`scene-16`)**
+  - `scene-16-logistics` (Big Mike route) → `scene-17`
+  - `scene-16-media` (Fatima route) → `scene-17`
+  - `scene-16-hack` (Ghost route) → `scene-17`
+  - `scene-16-medical` (Nadia route) → `scene-17`
+  - `scene-16-luis-ambush` / `scene-16-luis-partial` / `scene-16-luis-success` (Luis tactical outcomes) → `scene-17`
+
+- **Act 3 leak fallout additions (`scene-17`)**
+  - `scene-17-source-burned` → `scene-18`
+  - `scene-17-secure-drop` → `scene-18`
+  - `scene-17-public-backlash` → `scene-18`
+  - `scene-17-blackmail` → `scene-18`
+
+- **Act 4 suspicion branches (`scene-18`)**
+  - `scene-18-wrong-move` → `scene-19`
+  - `scene-18-alex-confirmed` → `scene-19`
+  - `scene-18-alex-confront` → `scene-19`
+
+These branches increase route variety while still reconverging into the endgame spine (`scene-19` → `scene-25`), making them high-impact for narrative depth review.
