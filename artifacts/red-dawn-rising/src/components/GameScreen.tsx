@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../hooks/useGame';
 import { SCENES, SceneChoice, STORE_ITEMS } from '../data/gameData';
+import { MAX_COMBAT_BONUS } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { StoreModal } from './Store';
@@ -80,11 +81,22 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
       if (choice.effects.protectedScenesRemaining !== undefined) {
         dispatch({ type: 'SET_PROTECTED_SCENES', payload: choice.effects.protectedScenesRemaining });
       }
+      if (choice.effects.combatBonus !== undefined) {
+        dispatch({ type: 'SET_COMBAT_BONUS', payload: Math.min(MAX_COMBAT_BONUS, (state.combatBonus || 0) + choice.effects.combatBonus) });
+      }
     }
 
     if (choice.skillCheck) {
       setSkillCheckConfig(choice.skillCheck);
     } else if (choice.dieRoll) {
+      // Apply any inline modifier declared on this specific roll.
+      if (choice.dieRoll.modifier) {
+        dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: choice.dieRoll.modifier });
+      }
+      // Apply the persistent combat bonus earned through Luis's training.
+      if (state.flags.luis_armed_training && state.combatBonus > 0) {
+        dispatch({ type: 'MODIFY_NEXT_DIE_ROLL', payload: state.combatBonus });
+      }
       setDieConfig(choice.dieRoll);
       dispatch({ type: 'SET_ROLLING', payload: true });
     } else if (choice.nextSceneId) {
@@ -175,8 +187,9 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
 
   const availableChoices = scene.choices.filter(choice => {
     if (!choice.condition) return true;
-    const { flag, item, missingFlag, missingItem, minMeans } = choice.condition;
+    const { flag, flags, item, missingFlag, missingItem, minMeans } = choice.condition;
     if (flag && !state.flags[flag]) return false;
+    if (flags && !flags.every(f => state.flags[f])) return false;
     if (missingFlag && state.flags[missingFlag]) return false;
     if (item && !state.inventory.includes(item)) return false;
     if (missingItem && state.inventory.includes(missingItem)) return false;
