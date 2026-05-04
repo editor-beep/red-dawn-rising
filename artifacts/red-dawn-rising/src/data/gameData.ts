@@ -259,16 +259,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Rent a warehouse in Gary (200 Means)", condition: { minMeans: 200 }, nextSceneId: "scene-6", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
       { text: "Use Elena's cousin's farmhouse (Free)", dieRoll: { outcomes: { 1: "scene-5-farm-blown", 2: "scene-5-farm-blown", 3: "scene-5-farm-success", 4: "scene-5-farm-success", 5: "scene-5-farm-success", 6: "scene-5-farm-success" } } },
-      { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-6", effects: { addFlags: ["forged_safehouse"] } },
-      {
-        text: "Set up the farmhouse as a field clinic (Medical Supplies)",
-        condition: { item: "medical_supplies" },
-        nextSceneId: "scene-6",
-        effects: {
-          addFlags: ["medical_stockpiled", "farm_safehouse"],
-          addJournalEntries: ["The farmhouse is now a functioning field clinic. Wounded comrades can recover without hospital exposure."]
-        }
-      }
+      { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-6", effects: { addFlags: ["forged_safehouse"] } }
     ]
   },
   "scene-6": {
@@ -281,12 +272,6 @@ export const SCENES: Record<string, Scene> = {
       "You've mobilized dozens of sympathizers. If this works, the movement shifts from a grievance to a genuine threat. If it fails, the FBI rolls you up."
     ],
     choices: [
-      {
-        text: "Execute with Encrypted Comms (Coordinated Strike)",
-        condition: { item: "encrypted_comms" },
-        dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-partial", 3: "scene-6-success", 4: "scene-6-success", 5: "scene-6-success", 6: "scene-6-success" } },
-        effects: { addFlags: ["comms_boost"], addJournalEntries: ["Encrypted Comms kept all five teams synchronized. The state couldn't intercept the signal it couldn't find."] }
-      },
       { text: "Execute Operation", dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-fail", 3: "scene-6-partial", 4: "scene-6-partial", 5: "scene-6-success", 6: "scene-6-success" } } }
     ]
   },
@@ -370,17 +355,7 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Side with Elena (Slower, Safer)", nextSceneId: "scene-10", effects: { surveillance: -10, addFlags: ["elena_trust"] } },
       { text: "Side with Darius (Faster, Riskier)", nextSceneId: "scene-10", effects: { addFlags: ["darius_trust"] } },
-      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } },
-      {
-        text: "Use the Propaganda Press to reframe the argument as shared purpose",
-        condition: { item: "propaganda_press" },
-        nextSceneId: "scene-10",
-        effects: {
-          means: 30,
-          addFlags: ["unified_cell", "elena_trust", "darius_trust"],
-          addJournalEntries: ["The Propaganda Press helped bridge the divide — both Elena and Darius see their vision in the message. Temporary unity holds."]
-        }
-      }
+      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } }
     ]
   },
   "scene-10": {
@@ -394,7 +369,7 @@ export const SCENES: Record<string, Scene> = {
     ],
     choices: [
       { text: "Hack in remotely", condition: { item: "encrypted_comms" }, nextSceneId: "scene-11", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
-      { text: "Physical infiltration (Skill Check)", skillCheck: { target: 9, itemBonuses: { "safe_house_upgrade": 1, "encrypted_comms": 2 }, successScene: "scene-10-infil-success", partialScene: "scene-11", partialTarget: 7, failureScene: "scene-10-infil-fail" }, effects: { means: 50, surveillance: 20 } }
+      { text: "Physical infiltration (Skill Check)", skillCheck: { target: 9, itemBonuses: { "safe_house_upgrade": 1, "encrypted_comms": 2 }, successScene: "scene-10-infil-success", failureScene: "scene-10-infil-fail" }, effects: { means: 50, surveillance: 20 } }
     ],
     autoEffects: { means: 150 }
   },
