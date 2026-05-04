@@ -7,37 +7,37 @@ export const STORE_ITEMS: Item[] = [
     id: "encrypted_comms",
     name: "Encrypted Comms Device",
     cost: 300,
-    description: "Reduces surveillance risk; unlocks secure dialogue options"
+    description: "Reduces surveillance risk and unlocks secure remote operations; better odds on coordinated strikes"
   },
   {
     id: "forged_docs",
     name: "Forged Documents",
     cost: 500,
-    description: "Opens exile options; enables identity switching"
+    description: "Enables identity changes and exile routes; unlocks civilian cover and safe-house options"
   },
   {
     id: "safe_house_upgrade",
     name: "Safe House Upgrade",
     cost: 400,
-    description: "Protects against raids for 3 scenes"
+    description: "Fortifies against raids for 3 protected scenes; grants skill-check bonuses"
   },
   {
     id: "medical_supplies",
     name: "Medical Supplies",
     cost: 200,
-    description: "Restores after a close call; required for some choices"
+    description: "Saves a comrade in critical moments; unlocks Nadia's recruitment and field medic options"
   },
   {
     id: "weapons_cache",
     name: "Weapons Cache",
     cost: 600,
-    description: "Opens violent confrontation options"
+    description: "Unlocks armed confrontation paths and Luis's recruitment — higher risk, higher reward"
   },
   {
     id: "propaganda_press",
     name: "Propaganda Press",
     cost: 350,
-    description: "+30 Means per scene for 5 scenes; increases movement size"
+    description: "Generates Means and public support; unifies fractured cells; improves leak outcomes"
   }
 ];
 
@@ -71,6 +71,7 @@ export type SceneChoice = {
     addItems?: string[];
     removeItems?: string[];
     addJournalEntries?: string[];
+    protectedScenesRemaining?: number;
   };
   dieRoll?: {
     outcomes: Record<number, string>;
@@ -229,7 +230,16 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Rent a warehouse in Gary (200 Means)", condition: { minMeans: 200 }, nextSceneId: "scene-6", effects: { means: -200, addFlags: ["warehouse_safehouse"], surveillance: 10 } },
       { text: "Use Elena's cousin's farmhouse (Free)", dieRoll: { outcomes: { 1: "scene-5-farm-blown", 2: "scene-5-farm-blown", 3: "scene-5-farm-success", 4: "scene-5-farm-success", 5: "scene-5-farm-success", 6: "scene-5-farm-success" } } },
-      { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-6", effects: { addFlags: ["forged_safehouse"] } }
+      { text: "Buy forged lease", condition: { item: "forged_docs" }, nextSceneId: "scene-6", effects: { addFlags: ["forged_safehouse"] } },
+      {
+        text: "Set up the farmhouse as a field clinic (Medical Supplies)",
+        condition: { item: "medical_supplies" },
+        nextSceneId: "scene-6",
+        effects: {
+          addFlags: ["medical_stockpiled", "farm_safehouse"],
+          addJournalEntries: ["The farmhouse is now a functioning field clinic. Wounded comrades can recover without hospital exposure."]
+        }
+      }
     ]
   },
   "scene-6": {
@@ -242,6 +252,12 @@ export const SCENES: Record<string, Scene> = {
       "You've mobilized dozens of sympathizers. If this works, the movement shifts from a grievance to a genuine threat. If it fails, the FBI rolls you up."
     ],
     choices: [
+      {
+        text: "Execute with Encrypted Comms (Coordinated Strike)",
+        condition: { item: "encrypted_comms" },
+        dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-partial", 3: "scene-6-success", 4: "scene-6-success", 5: "scene-6-success", 6: "scene-6-success" } },
+        effects: { addFlags: ["comms_boost"], addJournalEntries: ["Encrypted Comms kept all five teams synchronized. The state couldn't intercept the signal it couldn't find."] }
+      },
       { text: "Execute Operation", dieRoll: { outcomes: { 1: "scene-6-fail", 2: "scene-6-fail", 3: "scene-6-partial", 4: "scene-6-partial", 5: "scene-6-success", 6: "scene-6-success" } } }
     ]
   },
@@ -325,7 +341,17 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Side with Elena (Slower, Safer)", nextSceneId: "scene-10", effects: { surveillance: -10, addFlags: ["elena_trust"] } },
       { text: "Side with Darius (Faster, Riskier)", nextSceneId: "scene-10", effects: { addFlags: ["darius_trust"] } },
-      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } }
+      { text: "Mediate between them", dieRoll: { outcomes: { 1: "scene-9-mediate-fail", 2: "scene-9-mediate-fail", 3: "scene-9-mediate-fail", 4: "scene-10", 5: "scene-10", 6: "scene-10" } } },
+      {
+        text: "Use the Propaganda Press to reframe the argument as shared purpose",
+        condition: { item: "propaganda_press" },
+        nextSceneId: "scene-10",
+        effects: {
+          means: 30,
+          addFlags: ["unified_cell", "elena_trust", "darius_trust"],
+          addJournalEntries: ["The Propaganda Press helped bridge the divide — both Elena and Darius see their vision in the message. Temporary unity holds."]
+        }
+      }
     ]
   },
   "scene-10": {
@@ -378,8 +404,24 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Elevate Alex Mercer to the inner circle", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_trusted"] } },
       { text: "Elevate Alex, but keep him compartmentalized", nextSceneId: "scene-13", effects: { addFlags: ["has_alex", "alex_suspected"] } },
-      { text: "Elevate Nadia Kline instead", nextSceneId: "scene-13", effects: { addFlags: ["has_nadia"] } },
-      { text: "Elevate Luis Ortega instead", nextSceneId: "scene-13", effects: { addFlags: ["has_luis"] } },
+      {
+        text: "Elevate Nadia Kline — your medical network made the connection possible",
+        condition: { item: "medical_supplies" },
+        nextSceneId: "scene-13",
+        effects: {
+          addFlags: ["has_nadia"],
+          addJournalEntries: ["Nadia Kline joins the inner circle. Her trauma training has already kept two comrades out of hospital records."]
+        }
+      },
+      {
+        text: "Elevate Luis Ortega — your weapons network introduced you",
+        condition: { item: "weapons_cache" },
+        nextSceneId: "scene-13",
+        effects: {
+          addFlags: ["has_luis"],
+          addJournalEntries: ["Luis Ortega joins the inner circle. His combat experience and field-medic training raise the cell's operational ceiling."]
+        }
+      },
       {
         text: "Use the Manifesto backchannel: ask Ghost what Alex's scrubbed file is hiding (Secret Dialogue)",
         condition: { flag: "manifesto_secret_dialogue" },
@@ -427,6 +469,12 @@ export const SCENES: Record<string, Scene> = {
           ]
         }
       },
+      {
+        text: "Armed reconnaissance — flush the tail before they close in",
+        condition: { item: "weapons_cache" },
+        dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } },
+        effects: { addFlags: ["armed_scout"], addJournalEntries: ["Armed recon team deployed. The tail was burned, but at the cost of further escalation."] }
+      },
       { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
     ],
     falloutCards: 1
@@ -456,9 +504,19 @@ export const SCENES: Record<string, Scene> = {
       "The decision rests with you."
     ],
     choices: [
-      { text: "Arm the movement", condition: { item: "weapons_cache" }, nextSceneId: "scene-16", effects: { surveillance: 50, addFlags: ["armed_movement"] } },
-      { text: "Stay non-violent", nextSceneId: "scene-16", effects: { addFlags: ["peaceful_movement"] } },
-      { text: "Train defensively only", nextSceneId: "scene-16" }
+      {
+        text: "Arm the movement",
+        condition: { item: "weapons_cache" },
+        nextSceneId: "scene-16-armed",
+        effects: {
+          means: -50,
+          surveillance: 50,
+          addFlags: ["armed_movement", "armed_path"],
+          addJournalEntries: ["The movement has crossed the Rubicon. We are now armed."]
+        }
+      },
+      { text: "Stay non-violent", nextSceneId: "scene-16", effects: { addFlags: ["peaceful_movement", "nonviolent_path"] } },
+      { text: "Train defensively only", nextSceneId: "scene-16", effects: { addFlags: ["defensive_path"] } }
     ]
   },
   "scene-16": {
@@ -485,6 +543,22 @@ export const SCENES: Record<string, Scene> = {
       "If you publish this, the public outrage will be uncontrollable. But the state will hunt the publisher to the ends of the earth."
     ],
     choices: [
+      {
+        text: "Mass print and distribute via the Propaganda Press",
+        condition: { item: "propaganda_press" },
+        nextSceneId: "scene-18",
+        effects: {
+          means: 80,
+          addFlags: ["strong_public_support", "major_leak"],
+          addJournalEntries: ["The Propaganda Press ran hot all night. The senators' names are on every wall in the city. The message cannot be suppressed."]
+        }
+      },
+      {
+        text: "Secure release via Encrypted Comms",
+        condition: { item: "encrypted_comms" },
+        dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-18", 3: "scene-18", 4: "scene-18", 5: "scene-18", 6: "scene-18" } },
+        effects: { addFlags: ["secure_leak"] }
+      },
       { text: "Publish widely", dieRoll: { outcomes: { 1: "scene-17-source-burned", 2: "scene-17-source-burned", 3: "scene-17-source-burned", 4: "scene-18", 5: "scene-18", 6: "scene-18" } } },
       { text: "Hold the intel as blackmail", nextSceneId: "scene-18" }
     ],
@@ -502,6 +576,22 @@ export const SCENES: Record<string, Scene> = {
       "Paranoia grips the cell. The walls feel incredibly thin."
     ],
     choices: [
+      {
+        text: "Confront Alex directly — you have the evidence",
+        condition: { flag: "suspect_alex" },
+        nextSceneId: "scene-18-alex-confront",
+        effects: { addJournalEntries: ["Confrontation initiated. Alex cornered with the evidence. There is no going back."] }
+      },
+      {
+        text: "Stabilize the situation with Medical Supplies",
+        condition: { item: "medical_supplies" },
+        nextSceneId: "scene-19",
+        effects: {
+          addFlags: ["comrade_saved"],
+          removeItems: ["medical_supplies"],
+          addJournalEntries: ["Quick medical intervention kept a key comrade out of the hospital. Morale restored — we still have a chance."]
+        }
+      },
       { text: "Assume it was surveillance tech", nextSceneId: "scene-19", effects: { means: -100 } },
       { text: "Suspect Alex Mercer", condition: { flag: "has_alex" }, dieRoll: { outcomes: { 1: "scene-18-wrong-move", 2: "scene-18-wrong-move", 3: "scene-18-wrong-move", 4: "scene-18-alex-confirmed", 5: "scene-18-alex-confirmed", 6: "scene-18-alex-confirmed" } } },
       { text: "Suspect Ghost", nextSceneId: "scene-19" }
@@ -522,9 +612,28 @@ export const SCENES: Record<string, Scene> = {
       { flag: "has_nadia", paragraph: "Nadia redirects grief into logistics within minutes—safe routes, fallback apartments, dead drops. It is competent enough to be reassuring and unsettling at once." },
       { flag: "has_luis", paragraph: "Luis organizes medical contingencies before anyone asks. The room calms, but you can't tell whether his composure is discipline or distance." }
     ],
-    choices: [{ text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }],
+    choices: [
+      {
+        text: "Fortify with the Safe House Upgrade — lock the cell down completely",
+        condition: { item: "safe_house_upgrade" },
+        nextSceneId: "scene-20",
+        effects: {
+          surveillance: -20,
+          addFlags: ["fortified"],
+          protectedScenesRemaining: 3,
+          addJournalEntries: ["Safe House Upgrade deployed: reinforced entry points, counter-surveillance sweeps, clean comms. The cell is harder to find now."]
+        }
+      },
+      {
+        text: "Pursue vengeance against the suspected traitor",
+        condition: { flag: "suspect_alex" },
+        nextSceneId: "scene-19-vengeance",
+        effects: { addFlags: ["vengeance_path"] }
+      },
+      { text: "Listen carefully. Say nothing.", nextSceneId: "scene-20" }
+    ],
     autoDrawCards: 5,
-    falloutCards: 1
+    falloutCards: 1,
   },
   "scene-20": {
     id: "scene-20",
@@ -563,8 +672,27 @@ export const SCENES: Record<string, Scene> = {
       "Everything hinges on this moment. The culmination of months of planning, bleeding, and hiding."
     ],
     choices: [
+      {
+        text: "Execute with Encrypted Comms — every team synchronized, every channel secure",
+        condition: { item: "encrypted_comms" },
+        dieRoll: { outcomes: { 1: "scene-23-fail", 2: "scene-23-partial", 3: "scene-23-success", 4: "scene-23-success", 5: "scene-23-success", 6: "scene-23-success" } },
+        effects: {
+          addFlags: ["op_comms_bonus"],
+          addJournalEntries: ["Encrypted Comms held throughout the operation. The state couldn't jam what it couldn't find."]
+        }
+      },
+      {
+        text: "Full Propaganda Blitz — the story breaks before the crackdown does",
+        condition: { item: "propaganda_press" },
+        nextSceneId: "scene-23-success",
+        effects: {
+          addFlags: ["public_support", "strong_public_support"],
+          addJournalEntries: ["The Propaganda Press ran the story before the state could spin it. Two million read the truth before the crackdown began."]
+        }
+      },
       { text: "Execute the plan", dieRoll: { outcomes: { 1: "scene-23-fail", 2: "scene-23-fail", 3: "scene-23-partial", 4: "scene-23-partial", 5: "scene-23-success", 6: "scene-23-success" } } }
-    ]
+    ],
+    autoDrawCards: 1
   },
   "scene-23-fail": {
     id: "scene-23-fail",
@@ -1162,5 +1290,65 @@ export const SCENES: Record<string, Scene> = {
     ],
     autoEffects: { addFlags: ["suspect_alex"] },
     choices: [{ text: "Sit on it", nextSceneId: "scene-19" }]
+  },
+
+  // ============================================================
+  // NEW SCENES — Tickets 2, 3 expansions
+  // ============================================================
+
+  "scene-16-armed": {
+    id: "scene-16-armed",
+    act: 3,
+    title: "Armed and Ready",
+    text: [
+      "The weapons are distributed quietly in the warehouse basement. No ceremony. Just the cold weight of something irreversible.",
+      "Luis runs the first training session. He shows which end is the safety. Elena is there too, positioning herself by the door with a field kit — she never agreed with this, but she refuses to let anyone bleed out over a principle she lost.",
+      "The movement has crossed a line. The state will use this against you. You know that. You also know that they were already using lethal force before you ever picked anything up."
+    ],
+    autoEffects: {
+      addJournalEntries: ["Armed training underway. Luis coordinating, Elena present as field medic. The choice is made and cannot be unmade."]
+    },
+    choices: [{ text: "Move forward", nextSceneId: "scene-16" }]
+  },
+
+  "scene-18-alex-confront": {
+    id: "scene-18-alex-confront",
+    act: 3,
+    title: "The Confrontation",
+    text: [
+      "You lay it all out on the table. The timestamps. The location pings. The verbatim match between his field report and the federal memo.",
+      "Alex doesn't deny it. He doesn't even reach for a cover story. He looks at you with something that might be relief.",
+      "'You were never supposed to find that,' he says quietly. Then he stands up very slowly, hands visible, and walks to the door.",
+      "'I had a job. You have yours. I hope you finish it.'",
+      "He leaves. No explosion. No arrest call. Just gone — burning his operation on the way out. His federal handlers will know he's compromised within hours. You have a window. Narrow, but real."
+    ],
+    choices: [{
+      text: "Use the window — move before they regroup",
+      nextSceneId: "scene-19",
+      effects: {
+        surveillance: -20,
+        removeFlags: ["suspect_alex"],
+        addFlags: ["alex_burned", "comrade_saved"],
+        addJournalEntries: ["Alex Mercer confirmed federal operative — allowed to walk. His handlers lost their inside man. A narrow window opened."]
+      }
+    }]
+  },
+
+  "scene-19-vengeance": {
+    id: "scene-19-vengeance",
+    act: 3,
+    title: "The Hunt",
+    text: [
+      "You don't announce it. You don't call a vote. You just start moving.",
+      "The next forty-eight hours are a quiet, methodical dismantling of everything the suspected traitor has access to. Comms rerouted. Safe house locations rotated. Dead drops abandoned and rebuilt.",
+      "Then you find the proof — buried in a backup drive he thought was wiped. Federal handler contact numbers. Activity logs. The betrayal is documented and undeniable.",
+      "The cell finally knows. The grief and the rage hit the room at the same time. Whatever you were before this moment, you are not that anymore."
+    ],
+    autoEffects: {
+      surveillance: -15,
+      addFlags: ["vengeance_resolved"],
+      addJournalEntries: ["The traitor's network dismantled. Federal handler contacts recovered. The cell knows the full truth now — and it has changed them."]
+    },
+    choices: [{ text: "Rebuild", nextSceneId: "scene-20" }]
   }
 };
