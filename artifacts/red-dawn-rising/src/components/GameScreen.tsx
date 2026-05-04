@@ -73,6 +73,9 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
         dispatch({ type: 'MODIFY_SURVEILLANCE', payload: choice.effects.surveillance });
         if (choice.effects.surveillance > 0) playGeigerTick();
       }
+      if (choice.effects.followers) {
+        dispatch({ type: 'MODIFY_FOLLOWERS', payload: choice.effects.followers });
+      }
       if (choice.effects.addFlags) choice.effects.addFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: true } }));
       if (choice.effects.removeFlags) choice.effects.removeFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: false } }));
       if (choice.effects.addItems) choice.effects.addItems.forEach(i => dispatch({ type: 'ADD_ITEM', payload: i }));
@@ -245,6 +248,10 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
                     </div>
                     <div className="w-full bg-border h-1">
                       <div className={`h-full ${state.surveillanceLevel > 70 ? 'bg-destructive' : 'bg-primary'}`} style={{ width: `${state.surveillanceLevel}%` }} />
+                    </div>
+                    <div className="flex justify-between text-sm mt-2">
+                      <span>Followers</span>
+                      <span className="text-primary">{state.followers}</span>
                     </div>
                   </div>
                 </section>

@@ -20,6 +20,7 @@ export type GameState = {
   currentSceneId: string;
   means: number;
   surveillanceLevel: number;
+  followers: number;
   inventory: string[];
   flags: Flags;
   allies: Allies;
@@ -45,6 +46,7 @@ export type ActionType =
   | { type: 'SET_FLAG'; payload: { flag: string; value: boolean } }
   | { type: 'MODIFY_ALLY_TRUST'; payload: { ally: string; amount: number } }
   | { type: 'MODIFY_SURVEILLANCE'; payload: number }
+  | { type: 'MODIFY_FOLLOWERS'; payload: number }
   | { type: 'ADD_DRAWN_CARD'; payload: string }
   | { type: 'SET_ROLLING'; payload: boolean }
   | { type: 'SET_DRAWING'; payload: boolean }
@@ -63,6 +65,7 @@ export const initialState: GameState = {
   currentSceneId: 'scene-1',
   means: 0,
   surveillanceLevel: 10,
+  followers: 0,
   inventory: [],
   flags: {},
   allies: {
@@ -110,6 +113,8 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       };
     case 'MODIFY_SURVEILLANCE':
       return { ...state, surveillanceLevel: Math.max(0, Math.min(100, state.surveillanceLevel + action.payload)) };
+    case 'MODIFY_FOLLOWERS':
+      return { ...state, followers: Math.max(0, state.followers + action.payload) };
     case 'ADD_DRAWN_CARD':
       return { ...state, cardsDrawn: [...state.cardsDrawn, action.payload] };
     case 'SET_ROLLING':
@@ -134,6 +139,7 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
     case 'LOAD_STATE':
       return {
         ...action.payload,
+        followers: action.payload.followers ?? 0,
         unlockedEndings: action.payload.unlockedEndings ?? [],
         journal: action.payload.journal ?? [],
         lastActSeen: action.payload.lastActSeen ?? 1,

@@ -73,6 +73,7 @@ export type SceneChoice = {
   effects?: {
     means?: number;
     surveillance?: number;
+    followers?: number;
     addFlags?: string[];
     removeFlags?: string[];
     addItems?: string[];
@@ -722,7 +723,7 @@ export const SCENES: Record<string, Scene> = {
       "The leak spreads too fast to verify. Pundits call it fabricated. Allies start arguing in public.",
       "You won reach, but lost control of the story."
     ],
-    choices: [{ text: "Regroup the organizers", nextSceneId: "scene-18", effects: { means: -50 } }]
+    choices: [{ text: "Regroup the organizers", nextSceneId: "scene-18", effects: { followers: -1, means: -50 } }]
   },
   "scene-17-blackmail": {
     id: "scene-17-blackmail",
