@@ -475,7 +475,18 @@ export const SCENES: Record<string, Scene> = {
         dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-13-trap-backfire", 4: "scene-14", 5: "scene-14", 6: "scene-14" } },
         effects: { addFlags: ["armed_scout"], addJournalEntries: ["Armed recon team deployed. The tail was burned, but at the cost of further escalation."] }
       },
-      { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } }
+      { text: "Confront them directly", condition: { item: "weapons_cache" }, nextSceneId: "scene-14", effects: { surveillance: 40, addFlags: ["fbi_confronted"] } },
+      {
+        text: "Launch a targeted sabotage using gathered intel",
+        condition: { flag: "cipher_foreshadowing" },
+        nextSceneId: "scene-13-sabotage-success",
+        effects: { surveillance: -20, addFlags: ["sabotage_boost"] }
+      },
+      {
+        text: "Use The Theorist's strategic analysis to counter the tail",
+        condition: { flag: "theorist_insight" },
+        dieRoll: { outcomes: { 1: "scene-13-trap-backfire", 2: "scene-13-trap-backfire", 3: "scene-14", 4: "scene-14", 5: "scene-14", 6: "scene-14" } }
+      }
     ],
     falloutCards: 1
   },
@@ -688,6 +699,16 @@ export const SCENES: Record<string, Scene> = {
         effects: {
           addFlags: ["public_support", "strong_public_support"],
           addJournalEntries: ["The Propaganda Press ran the story before the state could spin it. Two million read the truth before the crackdown began."]
+        }
+      },
+      {
+        text: "Armed vanguard assault — seize key infrastructure by force",
+        condition: { item: "weapons_cache" },
+        nextSceneId: "scene-23-success",
+        effects: {
+          means: -80,
+          addFlags: ["armed_op"],
+          addJournalEntries: ["Armed vanguard units seized three critical infrastructure nodes simultaneously. The state had no answer for coordinated force."]
         }
       },
       { text: "Execute the plan", dieRoll: { outcomes: { 1: "scene-23-fail", 2: "scene-23-fail", 3: "scene-23-partial", 4: "scene-23-partial", 5: "scene-23-success", 6: "scene-23-success" } } }
@@ -1251,6 +1272,21 @@ export const SCENES: Record<string, Scene> = {
     ],
     autoEffects: { surveillance: 20 },
     choices: [{ text: "Adjust", nextSceneId: "scene-14" }]
+  },
+
+  "scene-13-sabotage-success": {
+    id: "scene-13-sabotage-success",
+    act: 3,
+    title: "Disruption Successful",
+    text: [
+      "Using the Cipher's intelligence, you identify the surveillance team's logistics hub — a nondescript communications relay three blocks from your safehouse.",
+      "A targeted action destroys their equipment and scrambles their reporting chain. The dark sedan vanishes. The familiar face on the subway stops appearing.",
+      "You bought time. The tail is burned, and the state doesn't yet know how."
+    ],
+    autoEffects: {
+      addJournalEntries: ["Sabotage Boost Active — targeted disruption using Cipher intelligence cleared FBI surveillance. Momentum gained."]
+    },
+    choices: [{ text: "Move fast", nextSceneId: "scene-14" }]
   },
 
   "scene-17-source-burned": {
