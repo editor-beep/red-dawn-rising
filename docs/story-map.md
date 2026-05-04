@@ -161,7 +161,147 @@ Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts` (scene graph),
 
 ---
 
-## Gate and requirement checklist
+## Current recruit storyline depth (baseline diagnosis)
+
+### Luis (currently underpowered)
+- Appears at recruitment gate in `scene-12` and in tactical branch at `scene-16`.
+- Has 3 immediate tactical outcomes (`ambush` / `partial` / `success`) but then rapidly reconverges at `scene-17`.
+- Influence mostly mechanical (operation risk profile) and lightly thematic.
+
+### Alex (currently high-stakes but narrow)
+- Core gate at `scene-12` (`has_alex` or rejection path).
+- Major suspicion branch at `scene-18` with confirm/confront variants.
+- Big twist potential, but little mid-arc build-up between recruitment and accusation.
+
+### Mike (currently early-only)
+- Front-loaded in `scene-4` and a route tag in `scene-5`.
+- Adds logistics flavor, but has almost no dedicated decisions after Act 1.
+- Current footprint is mostly flag-based with limited downstream scenes.
+
+### Fatima (currently utility-only)
+- Front-loaded in `scene-4`; optional donor unlock in `scene-7`.
+- Provides media/civil legitimacy but lacks personal conflict and branching payoffs.
+- No dedicated betrayal/pressure/moral decision nodes tied to her arc.
+
+### Ghost (currently mystique without escalation)
+- Recruited in `scene-4`, route flavor in `scene-5`.
+- Referenced by suspicion option in `scene-18`.
+- Strong tone anchor, but missing progressive reveals and player-driven trust ladder.
+
+---
+
+## Expansion plan — double each recruit path depth before reconvergence
+
+Design rule for all five: each recruit gets **at least 2 new decision scenes + 1 consequence scene** before rejoin, with one short-term and one delayed payoff.
+
+## 1) Luis expansion plan
+
+### Proposed new arc nodes
+- **`scene-15-luis-war-room`** (insert between `scene-15` and `scene-16` when `has_luis`):
+  - Choice A: Adopt Luis’s disciplined three-cell plan (+stealth, -speed).
+  - Choice B: Override with broad strike map (+speed, +exposure).
+  - Choice C: Delegate to local crews (+morale variance, RNG swing).
+- **`scene-16-luis-loyalty-test`** (after current `scene-16-luis-*` outcomes):
+  - Choice A: Extract wounded allies (resource drain, loyalty gain).
+  - Choice B: Protect intel cache (strategic gain, trust loss).
+- **`scene-17-luis-fallout`** (pre-`scene-18` consequence scene):
+  - Determines whether Luis becomes stabilizer, rival, or martyr symbol.
+
+### Outcome targets (minimum doubled depth)
+- Add 6–8 narrative outcomes across trust and tactical axes.
+- Create at least one new branch that modifies `scene-22` odds distinctly (not just text flavor).
+
+## 2) Alex expansion plan
+
+### Proposed new arc nodes
+- **`scene-13-alex-vetting`** (parallel branch when `has_alex`):
+  - Run internal audit, shadow Alex, or ignore warning signs.
+- **`scene-14-alex-network`**:
+  - Use Alex’s contacts for comms expansion, safehouse routing, or counter-disinfo.
+  - Each option seeds different suspicion evidence for `scene-18`.
+- **`scene-18-alex-reckoning+`** (extends existing branch):
+  - Add plea bargain, staged misinformation, or public tribunal options.
+
+### Outcome targets
+- Split Alex into 3 role states by Act 4: trusted architect / compromised asset / deliberate double-game.
+- Ensure each state changes endgame framing in at least two ending arcs (`e1`–`e4`).
+
+## 3) Mike expansion plan
+
+### Proposed new arc nodes
+- **`scene-6-mike-distribution`** (if `has_mike`):
+  - Decide between centralized supply convoy, micro-caches, or black-market brokers.
+- **`scene-10-mike-pressure`**:
+  - Mike is offered immunity-for-cooperation; player can cover, cut loose, or counter-leak.
+- **`scene-19-mike-aftermath`**:
+  - Logistics survive, collapse, or militarize depending on earlier calls.
+
+### Outcome targets
+- Give Mike recurring agency in Acts 2–4 (not only Act 1).
+- Add at least one route where Mike’s network directly unlocks/non-unlocks a final-operation option at `scene-22`.
+
+## 4) Fatima expansion plan
+
+### Proposed new arc nodes
+- **`scene-7-fatima-media-strategy`** (if `has_fatima`):
+  - Grassroots narrative, elite persuasion, or international spotlight.
+- **`scene-11-fatima-crackdown`**:
+  - State smear campaign response: rebut with receipts, go quiet, or pivot to martyr narrative.
+- **`scene-17-fatima-ethics`**:
+  - Decide whether to publish sensitive leak details that could harm civilians.
+
+### Outcome targets
+- Create a credibility meter that affects protest turnout, donor trust, and repression severity.
+- Ensure Fatima can become movement voice, liability, or conscience brake by Act 4.
+
+## 5) Ghost expansion plan
+
+### Proposed new arc nodes
+- **`scene-8-ghost-protocol`** (if `has_ghost`):
+  - Hard compartmentalization vs. selective transparency vs. open-cell trust.
+- **`scene-13-ghost-cipher`**:
+  - Choose to pursue Ghost’s lead aggressively, cautiously, or as bait.
+- **`scene-18-ghost-unmasked`**:
+  - Reveal can confirm Ghost as protector, manipulator, or fragmented network identity.
+
+### Outcome targets
+- Build a trust/paranoia ladder that materially changes which accusation options appear at `scene-18`.
+- Add one unique Ghost-enabled path to `scene-25` setup (e.g., covert evacuation or internal purge proof).
+
+---
+
+## Cross-character integration plan (so arcs feel connected, not siloed)
+- Add a hidden **Influence Matrix** keyed by recruit flags and 2–3 per-character state flags.
+- At `scene-20` crisis meeting, branch dialogue/authority by matrix totals:
+  - Operational bloc (Luis + Mike)
+  - Legitimacy bloc (Fatima + Alex)
+  - Security bloc (Ghost + Luis/Alex interactions)
+- Convert some current RNG-only checks into hybrid checks: `roll + character-state modifier`.
+- Ensure each recruit has:
+  1. One “spotlight win” branch,
+  2. One morally costly branch,
+  3. One failure branch with lasting consequences.
+
+---
+
+## Suggested implementation phasing
+
+### Phase 1 — Structural scaffolding
+- Add scene IDs and route edges for the 15 proposed recruit scenes.
+- Add new state flags per recruit (trust, pressure, compromise, doctrine alignment).
+
+### Phase 2 — Narrative pass
+- Write short, medium, and consequence passages for each new node.
+- Add callback lines in `scene-20`, `scene-22`, and `scene-25` to reflect recruit states.
+
+### Phase 3 — Balance and convergence tuning
+- Validate branch counts and ensure no dead-end loops.
+- Re-balance resource impacts so no recruit is strictly optimal.
+- Verify that reconvergence still happens, but later and with sharper payoff variance.
+
+---
+
+## Gate and requirement checklist (current)
 - **Item gates**: `forged_docs`, `encrypted_comms`, `weapons_cache`, `propaganda_press`, plus route-specific item checks in skill scenes.
 - **Flag gates**: `has_fatima`, `has_alex`, `suspect_alex`, `op_success`, `lead_front`, `manifesto_secret_dialogue`, `cipher_foreshadowing`.
 - **RNG-heavy scenes**: 1, 3, 4, 5, 6, 7, 9, 13, 17, 18, 22.
