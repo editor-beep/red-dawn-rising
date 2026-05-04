@@ -73,6 +73,7 @@ export type SceneChoice = {
   effects?: {
     means?: number;
     surveillance?: number;
+    followers?: number;
     addFlags?: string[];
     removeFlags?: string[];
     addItems?: string[];
@@ -125,6 +126,7 @@ export type Scene = {
   autoEffects?: {
     means?: number;
     surveillance?: number;
+    followers?: number;
     addFlags?: string[];
     addJournalEntries?: string[];
   };
@@ -213,7 +215,9 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-mike-success", 5: "scene-4-mike-success", 6: "scene-4-mike-success" } } },
       { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-fatima-success", 5: "scene-4-fatima-success", 6: "scene-4-fatima-success" } } },
-      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5-ghost-route", effects: { addFlags: ["has_ghost"], addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."] } }
+      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5-ghost-route", effects: { addFlags: ["has_ghost", "ghost_recruited"], addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."] } },
+      { text: "Recruit Luis Ortega (Ex-Special Forces)", condition: { item: "weapons_cache" }, nextSceneId: "scene-4-luis-success", effects: { addFlags: ["luis_recruited", "has_luis"], surveillance: 15 } },
+      { text: "Recruit Nadia Khalil (Trauma Nurse)", condition: { item: "medical_supplies" }, nextSceneId: "scene-4-nadia-success", effects: { addFlags: ["nadia_recruited", "has_nadia"], surveillance: 5 } }
     ]
   },
   "scene-4-fail": {
@@ -315,7 +319,7 @@ export const SCENES: Record<string, Scene> = {
       "Two factories were reached before corporate security locked down the premises.",
       "The message is out there, circulating in break rooms and union halls, but it lacks the shock-and-awe impact you wanted."
     ],
-    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 30 } }]
+    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 30, followers: 1 } }]
   },
   "scene-6-success": {
     id: "scene-6-success",
@@ -330,7 +334,7 @@ export const SCENES: Record<string, Scene> = {
       { flag: "farm_safehouse", paragraph: "The farmhouse's isolation bought you the setup window you needed; by dawn, every route map and drop packet had been staged and dispatched." },
       { flag: "forged_safehouse", paragraph: "The forged commercial lease let you hide in plain sight, turning a legitimate-looking office into a covert dispatch hub for the drop." }
     ],
-    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 100, addFlags: ["op1_success"] } }]
+    choices: [{ text: "Continue", nextSceneId: "scene-7", effects: { means: 100, followers: 2, addFlags: ["op1_success"] } }]
   },
   "scene-7": {
     id: "scene-7",
@@ -357,7 +361,7 @@ export const SCENES: Record<string, Scene> = {
       "Small donations drip in from burner wallets and union mutual-aid circles.",
       "It isn't glamorous, but the funding is hard to trace and builds legitimacy with ordinary supporters."
     ],
-    choices: [{ text: "Plan next phase", nextSceneId: "scene-8", effects: { addFlags: ["grassroots_backing"] } }]
+    choices: [{ text: "Plan next phase", nextSceneId: "scene-8", effects: { followers: 1, addFlags: ["grassroots_backing"] } }]
   },
   "scene-7-donor-route": {
     id: "scene-7-donor-route",
@@ -367,7 +371,7 @@ export const SCENES: Record<string, Scene> = {
       "Fatima brokers a private meeting and the transfer lands overnight in layered accounts.",
       "The budget problem vanishes, but now someone with resources knows exactly what you're trying to become."
     ],
-    choices: [{ text: "Accept the tradeoff", nextSceneId: "scene-8", effects: { addFlags: ["donor_dependency"] } }]
+    choices: [{ text: "Accept the tradeoff", nextSceneId: "scene-8", effects: { followers: 1, addFlags: ["donor_dependency"] } }]
   },
   "scene-7-skip-route": {
     id: "scene-7-skip-route",
@@ -590,9 +594,9 @@ export const SCENES: Record<string, Scene> = {
       "Or do you stay decentralized, coordinating only loosely?"
     ],
     choices: [
-      { text: "Merge — one unified movement", nextSceneId: "scene-15", effects: { means: 300, surveillance: 30, addFlags: ["unified_movement"] } },
-      { text: "Stay decentralized", nextSceneId: "scene-15", effects: { surveillance: -10, addFlags: ["decentralized"] } },
-      { text: "Absorb them completely under your sole command", condition: { item: "propaganda_press" }, nextSceneId: "scene-15", effects: { means: 500, addFlags: ["unified_movement"] } }
+      { text: "Merge — one unified movement", nextSceneId: "scene-15", effects: { means: 300, surveillance: 30, followers: 3, addFlags: ["unified_movement"] } },
+      { text: "Stay decentralized", nextSceneId: "scene-15", effects: { surveillance: -10, followers: 1, addFlags: ["decentralized"] } },
+      { text: "Absorb them completely under your sole command", condition: { item: "propaganda_press" }, nextSceneId: "scene-15", effects: { means: 500, followers: 3, addFlags: ["unified_movement"] } }
     ]
   },
   "scene-15": {
@@ -618,6 +622,24 @@ export const SCENES: Record<string, Scene> = {
       },
       { text: "Stay non-violent", nextSceneId: "scene-16", effects: { addFlags: ["peaceful_movement", "nonviolent_path"] } },
       { text: "Train defensively only", nextSceneId: "scene-16", effects: { addFlags: ["defensive_path"] } },
+      {
+        text: "Put Big Mike's logistics network to work",
+        condition: { flag: "has_mike" },
+        nextSceneId: "scene-16-logistics",
+        effects: { addFlags: ["nonviolent_path"] }
+      },
+      {
+        text: "Deploy Fatima's media operation",
+        condition: { flag: "has_fatima" },
+        nextSceneId: "scene-16-media",
+        effects: { addFlags: ["nonviolent_path"] }
+      },
+      {
+        text: "Unleash Ghost's digital capabilities",
+        condition: { flag: "has_ghost" },
+        nextSceneId: "scene-16-hack",
+        effects: { addFlags: ["nonviolent_path"] }
+      },
       {
         text: "Build a field medicine network under Nadia — protect without arming",
         condition: { flag: "nadia_recruited" },
@@ -820,6 +842,15 @@ export const SCENES: Record<string, Scene> = {
       "The streets are full. The servers are going down. The military is mobilizing.",
       "Operation Red Dawn begins now. Every previous choice is about to be tested at once."
     ],
+    conditionalText: [
+      { flag: "has_luis", paragraph: "Luis checks his rifle one last time. 'Control your breathing. One trigger at a time. We've trained for this.'" },
+      { flag: "has_nadia", paragraph: "Nadia adjusts her medical bag in the corner. 'I didn't come this far to watch any of you die. Stay alive out there.'" },
+      { flag: "has_mike", paragraph: "Big Mike cracks his knuckles. 'Been fighting bastards in suits my whole life. Tonight we fight the ones with badges. Let's make it count.'" },
+      { flag: "has_fatima", paragraph: "Fatima looks up from her laptop. 'Whatever happens tonight, the world is going to hear the truth. I'll make sure of it.'" },
+      { flag: "has_ghost", paragraph: "Ghost's distorted voice crackles through the comms: 'Their systems are blind. I own their cameras now. You have a window — don't waste it.'" },
+      { flag: "elena_trust", paragraph: "Elena speaks quietly before anyone else can: 'We've come this far without becoming what we hate. Let's keep it that way.'" },
+      { flag: "darius_trust", paragraph: "Even from custody, Darius managed to get a message through: 'Hit them where it counts. For all of us.'" }
+    ],
     choices: [
       {
         text: "Execute with Encrypted Comms — every team synchronized, every channel secure",
@@ -851,12 +882,12 @@ export const SCENES: Record<string, Scene> = {
       },
       {
         text: "Luis leads the armed spearhead",
-        condition: { flags: ["luis_recruited", "armed_path"] },
-        dieRoll: {
-          modifier: 2,
-          outcomes: { 1: "scene-23-partial", 3: "scene-23-success", 5: "scene-23-armed-success" }
-        },
-        effects: { addFlags: ["luis_spearhead"] }
+        condition: { flag: "has_luis" },
+        dieRoll: { outcomes: { 1: "scene-23-partial", 2: "scene-23-partial", 3: "scene-23-success", 4: "scene-23-success", 5: "scene-23-armed-success", 6: "scene-23-armed-success" } },
+        effects: {
+          addFlags: ["luis_spearhead"],
+          addJournalEntries: ["Luis took the front. Professional, precise, relentless."]
+        }
       },
       {
         text: "Luis coordinates diversionary strikes",
@@ -866,6 +897,15 @@ export const SCENES: Record<string, Scene> = {
           addFlags: ["luis_diversion"],
           surveillance: -20,
           addJournalEntries: ["Luis's diversionary strikes bought the main team crucial time. The state's response grid never recovered."]
+        }
+      },
+      {
+        text: "Ghost blinds the surveillance grid",
+        condition: { flag: "has_ghost" },
+        dieRoll: { outcomes: { 1: "scene-23-partial", 2: "scene-23-success", 3: "scene-23-success", 4: "scene-23-success", 5: "scene-23-success", 6: "scene-23-success" } },
+        effects: {
+          addFlags: ["ghost_supported_op"],
+          addJournalEntries: ["Ghost took down the city's surveillance grid two minutes before operations began. We moved in total darkness — theirs."]
         }
       },
       { text: "Execute the plan", dieRoll: { outcomes: { 1: "scene-23-fail", 2: "scene-23-fail", 3: "scene-23-partial", 4: "scene-23-partial", 5: "scene-23-success", 6: "scene-23-success" } } }
@@ -993,7 +1033,11 @@ export const SCENES: Record<string, Scene> = {
       { flag: "elena_trust", paragraph: "Elena stands beside you at the podium, refusing the microphone when it's offered — she's never been interested in the spotlight. You understand, now, why that matters." },
       { flag: "op1_success", paragraph: "The pamphlet workers who blanketed those five factories attend the ceremony. They're steel workers, teachers, cashiers — they look stunned, as if they can't quite believe what they started." },
       { flag: "peaceful_movement", paragraph: "The transition is strikingly bloodless. Later, historians will credit the movement's discipline. You think of Elena's early warnings and allow yourself a quiet, private moment of gratitude." },
-      { flag: "luis_recruited", paragraph: "Luis stands beside you during the final hour, rifle lowered, watching the old guard walk out the doors. 'We did it,' he says quietly. 'Not for glory. For the people who come after us.'" }
+      { flag: "has_mike", paragraph: "Big Mike addresses the first assembly of the new workers' council. He doesn't give a speech. He just reads the names of everyone who didn't make it. The room is silent for a long time." },
+      { flag: "has_fatima", paragraph: "Fatima's reporting becomes the definitive firsthand account of the revolution. She refuses all book deals and publishes it freely, under a Creative Commons license." },
+      { flag: "has_ghost", paragraph: "Ghost is never identified. Their role in the revolution becomes mythology — a ghost in the machine who haunted the surveillance state into blindness. That's exactly how they wanted it." },
+      { flag: "has_nadia", paragraph: "Nadia runs the transition health commission, ensuring no one loses care during the handover. She does it quietly, without ceremony, the way she's always done everything that matters." },
+      { flag: "has_luis", paragraph: "Luis stands beside you during the final hour, rifle lowered, watching the old guard walk out the doors. 'We did it,' he says quietly. 'Not for glory. For the people who come after us.'" }
     ]
   },
 
@@ -1056,8 +1100,10 @@ export const SCENES: Record<string, Scene> = {
       { flag: "elena_trust", paragraph: "Elena's face appears on the cover of Time magazine. She gives no interview. The caption reads: 'The Nurse Who Wouldn't Stop.'" },
       { flag: "has_fatima", paragraph: "Fatima's dispatches from outside the courtroom reach forty million readers. They couldn't silence the story, even if they silenced the storyteller." },
       { flag: "suspect_alex", paragraph: "You knew. You knew before it happened. The knowing didn't save anyone, but it means the next movement will be harder to infiltrate." },
-      { flag: "luis_recruited", paragraph: "Luis is the last one standing when they come for the safehouse. He covers your retreat without a word. His final transmission: 'Keep moving. The fight doesn't die with us.'" },
-      { flag: "nadia_recruited", paragraph: "Nadia keeps working through the arrests, treating the wounded in a church basement three blocks from the courthouse. They never find her clinic." }
+      { flag: "has_mike", paragraph: "Big Mike organized a national prison labor strike from the outside in your honor. It lasted eleven days. The warden called it 'unprecedented.' Mike called it 'the beginning.'" },
+      { flag: "has_ghost", paragraph: "Ghost hacked the prison's communications system and routed your voice out to thirty underground radio stations. The state called it a technical error. It wasn't." },
+      { flag: "has_nadia", paragraph: "Nadia keeps working through the arrests, treating the wounded in a church basement three blocks from the courthouse. They never find her clinic." },
+      { flag: "has_luis", paragraph: "Luis is the last one standing when they come for the safehouse. He covers your retreat without a word. His final transmission: 'Keep moving. The fight doesn't die with us.'" }
     ]
   },
 
@@ -1118,7 +1164,11 @@ export const SCENES: Record<string, Scene> = {
     conditionalText: [
       { flag: "elena_trust", paragraph: "Elena's last encrypted message reached you six weeks ago: 'The clinic is still open. We're fine. Come home when you can.'" },
       { flag: "has_ghost", paragraph: "Ghost routes your manifesto through seventeen proxies and posts it simultaneously to 400 servers. Even from exile, the words reach the right hands." },
-      { flag: "darius_trust", paragraph: "Darius was released on bail, the charges quietly reduced. He is teaching computer science at a community college. His students don't know who he is. He prefers it that way." }
+      { flag: "darius_trust", paragraph: "Darius was released on bail, the charges quietly reduced. He is teaching computer science at a community college. His students don't know who he is. He prefers it that way." },
+      { flag: "has_mike", paragraph: "Big Mike refused to leave. He's still at the warehouse, running supply lines for cells you'll never meet, in cities you may never see again." },
+      { flag: "has_fatima", paragraph: "Fatima followed you into exile — not to stay, but to document. She spent three weeks interviewing you and then flew back to face the charges. She said the story was worth it." },
+      { flag: "has_nadia", paragraph: "Nadia sends you medical updates on the comrades who were wounded. Coded, clinical, precise. She ends every one the same way: 'Everyone is breathing. Keep going.'" },
+      { flag: "has_luis", paragraph: "Luis is underground — domestically. You don't have contact. The silence means he's careful, and careful means he's still in the fight." }
     ]
   },
 
@@ -1183,7 +1233,11 @@ export const SCENES: Record<string, Scene> = {
     conditionalText: [
       { flag: "elena_trust", paragraph: "Elena survived. Barely. She'll never fully forgive you for trusting him, and you understand. You don't forgive yourself either." },
       { flag: "alex_suspected", paragraph: "You suspected. You said nothing. The weight of that silence is heavier than everything else." },
-      { flag: "has_ghost", paragraph: "Ghost vanished the night of the poisoning. No trace. You don't know if Ghost was also compromised, or if Ghost is the only one who escaped clean. You will never know." }
+      { flag: "has_ghost", paragraph: "Ghost vanished the night of the poisoning. No trace. You don't know if Ghost was also compromised, or if Ghost is the only one who escaped clean. You will never know." },
+      { flag: "has_mike", paragraph: "Big Mike was out on a supply run when it happened. He came back to the aftermath. He didn't say anything for three days. Then he went back to work. That's Mike." },
+      { flag: "has_fatima", paragraph: "Fatima published everything — the poisoning, the agent's identity, the federal program that sanctioned it. She published it from a hospital bed. The story ran everywhere." },
+      { flag: "has_nadia", paragraph: "Nadia saved the ones who could be saved. She doesn't talk about the ones she couldn't. Her hands don't shake, but her eyes have changed." },
+      { flag: "has_luis", paragraph: "Luis tracked Alex — Agent Holt — for eleven months after the poisoning. You never asked what happened at the end of that trail. Some things are better not known." }
     ]
   },
 
@@ -1256,7 +1310,11 @@ export const SCENES: Record<string, Scene> = {
     conditionalText: [
       { flag: "elena_trust", paragraph: "Elena runs the free clinic three blocks from Marco's porch. She never ran for office. She never needed to." },
       { flag: "peaceful_movement", paragraph: "The choice not to arm the movement turned out to be the right one — not for moral reasons, but practical ones. An armed vanguard can be isolated and crushed. Ten thousand kitchens cannot." },
-      { flag: "has_fatima", paragraph: "Fatima's archives are now housed at seven universities. The full story of the early years has been told — accurately, with all the failures intact." }
+      { flag: "has_fatima", paragraph: "Fatima's archives are now housed at seven universities. The full story of the early years has been told — accurately, with all the failures intact." },
+      { flag: "has_mike", paragraph: "Big Mike spent his final years teaching young organizers the logistics of solidarity — how to move things, how to feed people, how to keep a network alive when the state is trying to kill it." },
+      { flag: "has_ghost", paragraph: "Ghost, whoever they were, built the open-source mesh network that now connects eleven million people outside corporate infrastructure. They never claimed credit. They didn't need to." },
+      { flag: "has_nadia", paragraph: "Nadia's free clinic model was replicated in 300 cities. She wrote the manual herself, in plain language, so anyone could do it without her." },
+      { flag: "has_luis", paragraph: "Luis spent decades training community defense networks — not militias, but neighbors who knew how to protect each other. He said the difference mattered. It did." }
     ]
   },
 
@@ -1302,7 +1360,7 @@ export const SCENES: Record<string, Scene> = {
       "'I did thirty years at Bethlehem Steel,' he finally says. 'I watched them break every union they touched. I've been waiting for someone to ask me this.' He extends a calloused hand.",
       "He is with you. His logistics contacts and his institutional knowledge of the labor movement are worth more than anything in the supply network."
     ],
-    autoEffects: { addFlags: ["has_mike"], addJournalEntries: ["Big Mike Kowalski — veteran union organizer, logistics network connections."] },
+    autoEffects: { addFlags: ["has_mike", "mike_recruited"], followers: 1, addJournalEntries: ["Big Mike Kowalski — veteran union organizer, logistics network connections."] },
     choices: [{ text: "Welcome him in", nextSceneId: "scene-5-mike-route", effects: { means: 100, addFlags: ["logistics_pipeline"] } }]
   },
 
@@ -1315,7 +1373,7 @@ export const SCENES: Record<string, Scene> = {
       "'I have three stories my editor killed for national security reasons,' she says quietly. 'You just described every single one of them.'",
       "She's in. More than in—she's been looking for exactly this. Her access to state media feeds and her source network are now yours."
     ],
-    autoEffects: { addFlags: ["has_fatima"], addJournalEntries: ["Fatima Al-Rashid — independent journalist, access to state media feeds."] },
+    autoEffects: { addFlags: ["has_fatima", "fatima_recruited"], followers: 1, addJournalEntries: ["Fatima Al-Rashid — independent journalist, access to state media feeds."] },
     choices: [{ text: "Bring her into the fold", nextSceneId: "scene-5-fatima-route", effects: { surveillance: -15, addFlags: ["media_cover"] } }]
   },
 
@@ -1592,6 +1650,133 @@ export const SCENES: Record<string, Scene> = {
     choices: [{ text: "Rebuild", nextSceneId: "scene-20" }]
   },
 
+
+  // ============================================================
+  // NEW SCENES — Recruit expansion (Mike, Fatima, Ghost, Luis, Nadia)
+  // ============================================================
+
+  "scene-4-luis-success": {
+    id: "scene-4-luis-success",
+    act: 2,
+    title: "Luis Joins the Cause",
+    text: [
+      "Luis Ortega listens without blinking. When you finish, he leans back and sets his coffee down.",
+      "\'I did two tours. I came back and watched the VA bureaucracy kill three guys I served with. Quietly, with paperwork.\' He looks at you steadily. \'What do you need?\'",
+      "He is in. His combat training and tactical discipline will raise the cell\'s operational ceiling immediately."
+    ],
+    autoEffects: { addJournalEntries: ["Luis Ortega — ex-special forces, combat trained, tactical discipline. Motivated by institutional betrayal of veterans."] },
+    choices: [{ text: "Bring him in", nextSceneId: "scene-5" }]
+  },
+
+  "scene-4-nadia-success": {
+    id: "scene-4-nadia-success",
+    act: 2,
+    title: "Nadia Joins the Cause",
+    text: [
+      "Nadia Khalil is already exhausted when you find her — twelve-hour shift, third in a row. She reads your message in the break room, then folds it and puts it in her pocket.",
+      "\'I\'ve sewn people back together who were broken by this system,\' she says quietly. \'I\'m tired of only treating the symptoms.\'",
+      "She\'s in. Her trauma training, field-medicine experience, and steady nerves under pressure are worth more than any weapon in your arsenal."
+    ],
+    autoEffects: { addJournalEntries: ["Nadia Khalil — trauma nurse, field medic, unbreakable under pressure. Joined because she\'s tired of treating wounds the system keeps inflicting."] },
+    choices: [{ text: "Welcome her", nextSceneId: "scene-5" }]
+  },
+
+  "scene-16-logistics": {
+    id: "scene-16-logistics",
+    act: 3,
+    title: "Supply Lines with Big Mike",
+    text: [
+      "Big Mike turns the back of the warehouse into a distribution hub. Crates, manifests, and old union contacts fill the space.",
+      "\'I moved steel for 35 years,\' he says, wiping his hands on a rag. \'Now I move hope. And sometimes, things that go boom.\'",
+      "His network is larger than you imagined. Decades of union contacts across six states, all quietly furious, all waiting for someone to ask."
+    ],
+    choices: [
+      {
+        text: "Establish underground supply network",
+        nextSceneId: "scene-17",
+        effects: {
+          means: 100,
+          addFlags: ["mike_logistics"],
+          addJournalEntries: ["Big Mike\'s underground network is active. Supply costs reduced, steady flow of materials guaranteed."]
+        }
+      },
+      {
+        text: "Organize a major worker solidarity action",
+        nextSceneId: "scene-17",
+        effects: {
+          means: 150,
+          followers: 1,
+          addFlags: ["mike_solidarity"],
+          addJournalEntries: ["Mike rallied the old guard. The union networks are waking up — worker morale is surging across the region."]
+        }
+      }
+    ]
+  },
+
+  "scene-16-media": {
+    id: "scene-16-media",
+    act: 3,
+    title: "The Narrative War",
+    text: [
+      "Fatima works late into the night, eyes glowing from multiple screens. Encrypted drafts, source contacts, burner accounts — she is building a counter-narrative operation from scratch.",
+      "\'The state controls the story,\' she says without looking up. \'We\'re going to change the ending.\'",
+      "She has contacts inside three different newsrooms and access to state media feeds the government doesn\'t know are compromised."
+    ],
+    choices: [
+      {
+        text: "Launch counter-narrative campaign",
+        nextSceneId: "scene-17",
+        effects: {
+          surveillance: -20,
+          followers: 1,
+          addFlags: ["fatima_media"],
+          addJournalEntries: ["Fatima\'s counter-narrative is gaining traction. Public opinion is shifting. The state\'s story is no longer going uncontested."]
+        }
+      },
+      {
+        text: "Use her contacts to prepare a major leak",
+        condition: { item: "propaganda_press" },
+        nextSceneId: "scene-17",
+        effects: {
+          means: 180,
+          addFlags: ["major_expose"],
+          addJournalEntries: ["Fatima and the Propaganda Press — an unstoppable combination. The leak is staged and ready to detonate."]
+        }
+      }
+    ]
+  },
+
+  "scene-16-hack": {
+    id: "scene-16-hack",
+    act: 3,
+    title: "Digital Shadows",
+    text: [
+      "Ghost rarely speaks. Their voice, when it comes, is distorted through layers of encryption and a voice modulator.",
+      "The only thing you know for sure is that they hate the surveillance state as much as you do — possibly more.",
+      "Their fingers move across keyboards faster than you can follow. The screens are full of scrolling data that makes no sense to you, but clearly means something to Ghost."
+    ],
+    choices: [
+      {
+        text: "Deep system infiltration",
+        nextSceneId: "scene-17",
+        effects: {
+          surveillance: -30,
+          addFlags: ["ghost_hack"],
+          addJournalEntries: ["Ghost breached a mid-level state database. Valuable intel acquired, several surveillance nodes quietly disabled."]
+        }
+      },
+      {
+        text: "Coordinate encrypted digital strike",
+        condition: { item: "encrypted_comms" },
+        nextSceneId: "scene-17",
+        effects: {
+          addFlags: ["ghost_comms"],
+          addJournalEntries: ["Ghost combined with the Encrypted Comms device — a devastating digital strike capability. Their systems don\'t know what hit them."]
+        }
+      }
+    ]
+  },
+
   // ============================================================
   // LUIS & NADIA EXPANSION — recon outcomes + medical branch
   // ============================================================
@@ -1601,8 +1786,8 @@ export const SCENES: Record<string, Scene> = {
     act: 3,
     title: "Ambush",
     text: [
-      "Luis's reconnaissance went wrong. He barely made it back, bleeding from a graze wound on his forearm.",
-      "'They were waiting for us,' he growls, jaw tight. 'Someone talked, or they got lucky. Either way — we need to be smarter.'"
+      "Luis\'s reconnaissance went wrong. He barely made it back, bleeding from a graze wound on his forearm.",
+      "\'They were waiting for us,\' he growls, jaw tight. \'Someone talked, or they got lucky. Either way — we need to be smarter.\'"
     ],
     choices: [
       {
@@ -1616,7 +1801,7 @@ export const SCENES: Record<string, Scene> = {
         nextSceneId: "scene-17",
         effects: {
           addFlags: ["luis_grateful"],
-          addJournalEntries: ["Luis was saved by your medical supplies. He doesn't say thank you — but you can see it in his eyes."]
+          addJournalEntries: ["Luis was saved by your medical supplies. He doesn\'t say thank you — but you can see it in his eyes."]
         }
       }
     ]
@@ -1628,7 +1813,7 @@ export const SCENES: Record<string, Scene> = {
     title: "Mixed Results",
     text: [
       "Luis returns at 0300, moving carefully. The mission was compromised midway — he had to abort before reaching the primary objective.",
-      "'I had to pull back,' he says, spreading a hand-drawn map on the table. 'But I got enough. Three-shift rotation. Gap at 0200. That's our window.'"
+      "\'I had to pull back,\' he says, spreading a hand-drawn map on the table. \'But I got enough. Three-shift rotation. Gap at 0200. That\'s our window.\'"
     ],
     choices: [
       {
@@ -1636,7 +1821,7 @@ export const SCENES: Record<string, Scene> = {
         nextSceneId: "scene-17",
         effects: {
           surveillance: 10,
-          addJournalEntries: ["Partial recon data recovered. Luis identified a narrow operational window — we'll have to move fast and trust it."]
+          addJournalEntries: ["Partial recon data recovered. Luis identified a narrow operational window — we\'ll have to move fast and trust it."]
         }
       }
     ]
@@ -1648,7 +1833,7 @@ export const SCENES: Record<string, Scene> = {
     title: "Successful Recon",
     text: [
       "Luis returns at dawn with a hand-drawn map, a captured enemy radio still crackling on their frequency, and a rare cold smile.",
-      "'We now know their patrol patterns, their fallback positions, and their comms encryption rotation,' he says. 'They don't know we know. That's worth more than any weapon.'"
+      "\'We now know their patrol patterns, their fallback positions, and their comms encryption rotation,\' he says. \'They don\'t know we know. That\'s worth more than any weapon.\'"
     ],
     choices: [
       {
@@ -1658,7 +1843,7 @@ export const SCENES: Record<string, Scene> = {
           addFlags: ["luis_intel_bonus"],
           surveillance: -15,
           means: 60,
-          addJournalEntries: ["Luis's recon yielded critical intel. Patrol patterns mapped, fallback positions identified. We now hold the initiative."]
+          addJournalEntries: ["Luis\'s recon yielded critical intel. Patrol patterns mapped, fallback positions identified. We now hold the initiative."]
         }
       }
     ],
@@ -1671,7 +1856,7 @@ export const SCENES: Record<string, Scene> = {
     title: "Field Medicine with Nadia",
     text: [
       "Nadia converts the back room into a functioning clinic in under two hours. Bandages sorted by type, antibiotics catalogued, two folding cots set up under a bare bulb.",
-      "'We save lives first,' she says, not looking up from her inventory. 'Everything else comes after. A movement that can't keep its people alive long enough to fight isn't a movement — it's a memorial.'"
+      "\'We save lives first,\' she says, not looking up from her inventory. \'Everything else comes after. A movement that can\'t keep its people alive long enough to fight isn\'t a movement — it\'s a memorial.\'"
     ],
     choices: [
       {
@@ -1688,7 +1873,7 @@ export const SCENES: Record<string, Scene> = {
         nextSceneId: "scene-17",
         effects: {
           addFlags: ["nadia_network"],
-          addJournalEntries: ["Nadia's contacts are now quietly treating wounded comrades across the city, off the books and off the grid."]
+          addJournalEntries: ["Nadia\'s contacts are now quietly treating wounded comrades across the city, off the books and off the grid."]
         }
       }
     ]
@@ -1699,10 +1884,10 @@ export const SCENES: Record<string, Scene> = {
     act: 4,
     title: "Armed Triumph",
     text: [
-      "Luis's spearhead cuts through every defensive line they throw at you. Military precision. No wasted motion. Three critical infrastructure nodes seized before the state even identifies the pattern.",
+      "Luis\'s spearhead cuts through every defensive line they throw at you. Military precision. No wasted motion. Three critical infrastructure nodes seized before the state even identifies the pattern.",
       "The coordination is flawless — the result of every training session, every field decision, every hard call that led to this moment.",
       "As the dust settles, Luis stands in the corridor of an occupied government building, rifle lowered, watching workers stream through the front doors for the first time as owners of the space.",
-      "'This is what it's supposed to look like,' he says quietly. You don't disagree."
+      "\'This is what it\'s supposed to look like,\' he says quietly. You don\'t disagree."
     ],
     choices: [{ text: "Brace for impact", nextSceneId: "scene-24", effects: { means: 500, addFlags: ["op_success", "armed_op_success"] } }],
     autoDrawCards: 5

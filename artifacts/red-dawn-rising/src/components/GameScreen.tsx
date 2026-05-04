@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../hooks/useGame';
 import { SCENES, SceneChoice, STORE_ITEMS } from '../data/gameData';
-import { MAX_COMBAT_BONUS } from '../types';
+import { MAX_COMBAT_BONUS, MAX_FOLLOWERS } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { StoreModal } from './Store';
@@ -73,6 +73,9 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
         dispatch({ type: 'MODIFY_SURVEILLANCE', payload: choice.effects.surveillance });
         if (choice.effects.surveillance > 0) playGeigerTick();
       }
+      if (choice.effects.followers) {
+        dispatch({ type: 'MODIFY_FOLLOWERS', payload: choice.effects.followers });
+      }
       if (choice.effects.addFlags) choice.effects.addFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: true } }));
       if (choice.effects.removeFlags) choice.effects.removeFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: false } }));
       if (choice.effects.addItems) choice.effects.addItems.forEach(i => dispatch({ type: 'ADD_ITEM', payload: i }));
@@ -117,6 +120,9 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
       if (nextScene.autoEffects.surveillance) {
         dispatch({ type: 'MODIFY_SURVEILLANCE', payload: nextScene.autoEffects.surveillance });
         if (nextScene.autoEffects.surveillance > 0) playGeigerTick();
+      }
+      if (nextScene.autoEffects.followers) {
+        dispatch({ type: 'MODIFY_FOLLOWERS', payload: nextScene.autoEffects.followers });
       }
       if (nextScene.autoEffects.addFlags) nextScene.autoEffects.addFlags.forEach(f => dispatch({ type: 'SET_FLAG', payload: { flag: f, value: true } }));
       if (nextScene.autoEffects.addJournalEntries) nextScene.autoEffects.addJournalEntries.forEach(e => dispatch({ type: 'ADD_JOURNAL_ENTRY', payload: e }));
@@ -246,6 +252,13 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
                     <div className="w-full bg-border h-1">
                       <div className={`h-full ${state.surveillanceLevel > 70 ? 'bg-destructive' : 'bg-primary'}`} style={{ width: `${state.surveillanceLevel}%` }} />
                     </div>
+                    <div className="flex justify-between text-sm mt-2">
+                      <span>Followers</span>
+                      <span className="text-primary">{state.followers}/{MAX_FOLLOWERS}</span>
+                    </div>
+                    <div className="w-full bg-border h-1">
+                      <div className="h-full bg-primary/70" style={{ width: `${(state.followers / MAX_FOLLOWERS) * 100}%` }} />
+                    </div>
                   </div>
                 </section>
 
@@ -286,19 +299,7 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
                   </ul>
                 </section>
 
-                {/* Field Notes / Journal */}
-                <section>
-                  <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-3 uppercase tracking-wider"><BookOpen size={14} /> Field Notes</h4>
-                  {state.journal.length === 0 ? (
-                    <div className="text-sm text-muted-foreground/50 italic">No intel recorded.</div>
-                  ) : (
-                    <ul className="space-y-3">
-                      {[...state.journal].reverse().map((entry, idx) => (
-                          <li key={idx} className={`text-xs border-l-2 ${getJournalBorderColor(entry)} pl-2 text-foreground/70 leading-relaxed`}>{entry}</li>
-                        ))}
-                    </ul>
-                  )}
-                </section>
+                {/* Field Notes / Journal — shown in main content below choices */}
               </div>
             </motion.aside>
           </>
@@ -385,6 +386,22 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
                 </button>
               ))}
             </div>
+
+            {/* Field Notes — always visible */}
+            {state.journal.length > 0 && (
+              <div className="mt-10 border-t border-border/50 pt-6">
+                <h4 className="flex items-center gap-2 text-muted-foreground text-xs mb-4 uppercase tracking-wider font-mono">
+                  <BookOpen size={13} /> Field Notes
+                </h4>
+                <ul className="space-y-3">
+                  {[...state.journal].reverse().map((entry, idx) => (
+                    <li key={idx} className={`text-xs border-l-2 ${getJournalBorderColor(entry)} pl-3 text-foreground/70 leading-relaxed font-mono`}>
+                      {entry}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Bottom actions */}
             <div className="mt-6 flex justify-between items-center pt-4 border-t border-border/30 pb-8">
