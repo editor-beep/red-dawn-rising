@@ -150,10 +150,10 @@ Source of truth: `artifacts/red-dawn-rising/src/data/gameData.ts` (scene graph),
 
 ### Act 5: Ending hub
 24. `scene-25` Final choice gate
-   - Stand your ground (needs `op_success`) → `e1-1 → e1-2 → e1-3 → e1-4 → e1-5` ⇒ **Ending e1: The Long March**
-   - Surrender (needs `lead_front`) OR Fight to the bitter end → `e2-1 → e2-2 → e2-3 → e2-4 → e2-5` ⇒ **Ending e2: The Cage**
-   - Flee the country (needs `forged_docs`) → `e3-1 → e3-2 → e3-3 → e3-4 → e3-5` ⇒ **Ending e3: The Exile**
-   - Purge traitor inside (needs `suspect_alex`) → `e4-1 → e4-2 → e4-3 → e4-4 → e4-5` ⇒ **Ending e4: The Poison**
+   - Stand your ground → `e1-1 → e1-2 → e1-3 → e1-4 → e1-5`
+   - Surrender OR Fight to the bitter end → `e2-1 → e2-2 → e2-3 → e2-4 → e2-5`
+   - Flee the country → `e3-1 → e3-2 → e3-3 → e3-4 → e3-5`
+   - Purge traitor inside → `e4-1 → e4-2 → e4-3 → e4-4 → e4-5`
 
 ### Secret post-completion route
 25. Unlocked after all four major endings are completed:

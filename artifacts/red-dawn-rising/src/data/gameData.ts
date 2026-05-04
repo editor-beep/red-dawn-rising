@@ -927,10 +927,10 @@ export const SCENES: Record<string, Scene> = {
       "Your next action determines how history remembers you, and what becomes of this revolution."
     ],
     choices: [
-      { text: "Stand your ground at the Capitol (Path to Victory)", condition: { flag: "op_success" }, nextSceneId: "e1-1" },
-      { text: "Surrender to save the others (Path to Martyrdom)", condition: { flag: "lead_front" }, nextSceneId: "e2-1" },
-      { text: "Flee the country (Path to Exile)", condition: { item: "forged_docs" }, nextSceneId: "e3-1" },
-      { text: "Purge the traitor inside (Path of Vengeance)", condition: { flag: "suspect_alex" }, nextSceneId: "e4-1" },
+      { text: "Stand your ground at the Capitol", condition: { flag: "op_success" }, nextSceneId: "e1-1" },
+      { text: "Surrender to save the others", condition: { flag: "lead_front" }, nextSceneId: "e2-1" },
+      { text: "Flee the country", condition: { item: "forged_docs" }, nextSceneId: "e3-1" },
+      { text: "Purge the traitor inside", condition: { flag: "suspect_alex" }, nextSceneId: "e4-1" },
       { text: "Fight to the bitter end", nextSceneId: "e2-1" }
     ]
   },
