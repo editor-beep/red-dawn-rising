@@ -60,6 +60,12 @@ export default function GameScreen() {  const { state, dispatch } = useGame();
   };
 
   const handleChoice = (choice: SceneChoice) => {
+    if (choice.effects?.means && choice.effects.means < 0) {
+      const cost = Math.abs(choice.effects.means);
+      const effectiveCost = state.redDawnActive ? Math.floor(cost / 2) : cost;
+      if (state.means < effectiveCost) return;
+    }
+
     if (choice.effects) {
       if (choice.effects.means) {
         if (choice.effects.means > 0) {
