@@ -467,10 +467,10 @@ export const SCENES: Record<string, Scene> = {
     text: [
       "Target: A Blackrock-owned datacenter in Indianapolis holding automated eviction records for 8,000 families.",
       "If those servers go down, the evictions halt indefinitely. It's a massive escalation.",
-      "Ghost says he can wipe it remotely, but only if you have military-grade encrypted comms. Otherwise, you'll have to physically break into the server room to plant a drive."
+      "If you have military-grade encrypted comms, a remote wipe might be possible. Otherwise, you'll have to physically break into the server room to plant a drive."
     ],
     choices: [
-      { text: "Hack in remotely", condition: { item: "encrypted_comms" }, nextSceneId: "scene-10-remote-success", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
+      { text: "Hack in remotely", condition: { flags: ["has_ghost"], item: "encrypted_comms" }, nextSceneId: "scene-10-remote-success", effects: { means: 100, addFlags: ["datacenter_wiped"] } },
       { text: "Physical infiltration (Skill Check)", skillCheck: { target: 9, itemBonuses: { "safe_house_upgrade": 1, "encrypted_comms": 2 }, successScene: "scene-10-infil-success", failureScene: "scene-10-infil-fail" }, effects: { means: 50, surveillance: 20 } }
     ],
     autoEffects: { means: 150 }
