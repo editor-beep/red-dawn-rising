@@ -215,9 +215,9 @@ export const SCENES: Record<string, Scene> = {
     choices: [
       { text: "Recruit 'Big Mike' Kowalski (Union Vet)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-mike-success", 5: "scene-4-mike-success", 6: "scene-4-mike-success" } } },
       { text: "Recruit Fatima Al-Rashid (Journalist)", dieRoll: { outcomes: { 1: "scene-4-fail", 2: "scene-4-fail", 3: "scene-4-fail", 4: "scene-4-fatima-success", 5: "scene-4-fatima-success", 6: "scene-4-fatima-success" } } },
-      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-5-ghost-route", effects: { addFlags: ["has_ghost", "ghost_recruited"], addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."] } },
-      { text: "Recruit Luis Ortega (Ex-Special Forces)", condition: { item: "weapons_cache" }, nextSceneId: "scene-4-luis-success", effects: { addFlags: ["luis_recruited", "has_luis"], surveillance: 15 } },
-      { text: "Recruit Nadia Khalil (Trauma Nurse)", condition: { item: "medical_supplies" }, nextSceneId: "scene-4-nadia-success", effects: { addFlags: ["nadia_recruited", "has_nadia"], surveillance: 5 } }
+      { text: "Recruit 'Ghost' (Anonymous Hacker)", nextSceneId: "scene-4-ghost-success" },
+      { text: "Recruit Luis Ortega (Ex-Special Forces)", condition: { item: "weapons_cache" }, nextSceneId: "scene-4-luis-success" },
+      { text: "Recruit Nadia Khalil (Trauma Nurse)", condition: { item: "medical_supplies" }, nextSceneId: "scene-4-nadia-success" }
     ]
   },
   "scene-4-fail": {
@@ -1466,6 +1466,24 @@ export const SCENES: Record<string, Scene> = {
     choices: [{ text: "Bring her into the fold", nextSceneId: "scene-5-fatima-route", effects: { surveillance: -15, addFlags: ["media_cover"] } }]
   },
 
+  "scene-4-ghost-success": {
+    id: "scene-4-ghost-success",
+    act: 2,
+    title: "Ghost's Conditions",
+    text: [
+      "The response arrives twenty minutes after Darius sends the invite. No greeting. No name. Just a list: power redundancy requirements, relay line-of-sight, and encrypted key-exchange protocols.",
+      "Then one final line appears: 'If you want me in, we do this properly. No improvisation. No heroics. Operational discipline or nothing.'",
+      "Ghost is in—on strict terms. The room feels safer and less human at the same time."
+    ],
+    autoEffects: {
+      addFlags: ["has_ghost", "ghost_recruited"],
+      addJournalEntries: ["'Ghost' — anonymous hacker, background professionally scrubbed. Origin unknown."],
+      surveillance: -10,
+      means: -50
+    },
+    choices: [{ text: "Accept the terms", nextSceneId: "scene-5-ghost-route" }]
+  },
+
   "scene-5-mike-route": {
     id: "scene-5-mike-route",
     act: 2,
@@ -1753,7 +1771,7 @@ export const SCENES: Record<string, Scene> = {
       "\'I did two tours. I came back and watched the VA bureaucracy kill three guys I served with. Quietly, with paperwork.\' He looks at you steadily. \'What do you need?\'",
       "He is in. His combat training and tactical discipline will raise the cell\'s operational ceiling immediately."
     ],
-    autoEffects: { addJournalEntries: ["Luis Ortega — ex-special forces, combat trained, tactical discipline. Motivated by institutional betrayal of veterans."] },
+    autoEffects: { addFlags: ["has_luis", "luis_recruited"], surveillance: 15, addJournalEntries: ["Luis Ortega — ex-special forces, combat trained, tactical discipline. Motivated by institutional betrayal of veterans."] },
     choices: [{ text: "Bring him in", nextSceneId: "scene-5" }]
   },
 
@@ -1766,7 +1784,7 @@ export const SCENES: Record<string, Scene> = {
       "\'I\'ve sewn people back together who were broken by this system,\' she says quietly. \'I\'m tired of only treating the symptoms.\'",
       "She\'s in. Her trauma training, field-medicine experience, and steady nerves under pressure are worth more than any weapon in your arsenal."
     ],
-    autoEffects: { addJournalEntries: ["Nadia Khalil — trauma nurse, field medic, unbreakable under pressure. Joined because she\'s tired of treating wounds the system keeps inflicting."] },
+    autoEffects: { addFlags: ["has_nadia", "nadia_recruited"], surveillance: 5, addJournalEntries: ["Nadia Khalil — trauma nurse, field medic, unbreakable under pressure. Joined because she\'s tired of treating wounds the system keeps inflicting."] },
     choices: [{ text: "Welcome her", nextSceneId: "scene-5" }]
   },
 
