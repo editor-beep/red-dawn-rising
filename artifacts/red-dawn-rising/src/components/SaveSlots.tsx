@@ -5,7 +5,7 @@ import { Save, FolderOpen, Trash2 } from 'lucide-react';
 
 function formatSavedAt(savedAt: string): string {
   const d = new Date(savedAt);
-  return isNaN(d.getTime()) ? 'Unknown date' : d.toLocaleDateString();
+  return isNaN(d.getTime()) ? 'Unknown date' : d.toLocaleString();
 }
 
 export function SaveSlotsModal({ onClose, mode }: { onClose: () => void; mode: 'save' | 'load' }) {
@@ -62,7 +62,12 @@ export function SaveSlotsModal({ onClose, mode }: { onClose: () => void; mode: '
             <div key={slot.name} className="flex items-center gap-2 p-3 border border-border hover:border-primary/50 transition-colors">
               <div className="flex-1 min-w-0">
                 <div className="font-mono text-sm text-foreground truncate">{slot.name}</div>
-                <div className="font-mono text-xs text-muted-foreground truncate">{slot.sceneTitle}</div>
+                <div className="font-mono text-xs text-muted-foreground truncate">
+                  {slot.act ? `Act ${slot.act} · ${slot.sceneTitle}` : slot.sceneTitle}
+                </div>
+                <div className="font-mono text-[10px] text-muted-foreground/70 truncate">
+                  Means: {slot.means} · Followers: {slot.followers} · Surveillance: {slot.surveillanceLevel}%
+                </div>
                 {slot.savedAt && (
                   <div className="font-mono text-xs text-muted-foreground/50">
                     {formatSavedAt(slot.savedAt)}
