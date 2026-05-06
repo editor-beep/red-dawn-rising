@@ -14,10 +14,22 @@ export default function TitleScreen() {
   const { startVinylStatic, stopVinylStatic } = useAudio();
   const [showSettings, setShowSettings] = useState(false);
   const [showLoadSlots, setShowLoadSlots] = useState(false);
+  const [hasSaveData, setHasSaveData] = useState(false);
 
   useEffect(() => {
     startVinylStatic();
     return () => stopVinylStatic();
+  }, []);
+
+  useEffect(() => {
+    try {
+      const autosave = localStorage.getItem('red-dawn-save');
+      const slotsRaw = localStorage.getItem('red-dawn-slots');
+      const slots = slotsRaw ? Object.keys(JSON.parse(slotsRaw)) : [];
+      setHasSaveData(Boolean(autosave) || slots.length > 0);
+    } catch {
+      setHasSaveData(false);
+    }
   }, []);
 
   const standardEndings = ENDINGS.filter(e => e.id !== SECRET_ENDING_ID);
@@ -71,8 +83,14 @@ export default function TitleScreen() {
           </button>
 
           <button
-            onClick={() => setLocation('/game')}
-            className="w-full py-4 px-8 border border-border text-foreground font-mono text-xl uppercase hover:bg-border transition-colors duration-300"
+            onClick={() => hasSaveData && setLocation('/game')}
+            disabled={!hasSaveData}
+            className={`w-full py-4 px-8 border font-mono text-xl uppercase transition-colors duration-300 ${
+              hasSaveData
+                ? 'border-border text-foreground hover:bg-border'
+                : 'border-border/50 text-muted-foreground/40 cursor-not-allowed'
+            }`}
+            title={hasSaveData ? 'Continue' : 'No saved game found'}
           >
             Continue
           </button>

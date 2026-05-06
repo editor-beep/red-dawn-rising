@@ -18,6 +18,7 @@ export const MAX_COMBAT_BONUS = 3;
 export const MAX_FOLLOWERS = 10;
 
 export type GameState = {
+  saveVersion: number;
   currentSceneId: string;
   means: number;
   surveillanceLevel: number;
@@ -63,6 +64,7 @@ export type ActionType =
   | { type: 'RESET'; payload?: { startSceneId?: string } };
 
 export const initialState: GameState = {
+  saveVersion: 2,
   currentSceneId: 'scene-1',
   means: 0,
   surveillanceLevel: 10,
@@ -139,7 +141,9 @@ export function gameReducer(state: GameState, action: ActionType): GameState {
       return { ...state, combatBonus: Math.max(0, Math.min(MAX_COMBAT_BONUS, action.payload)) };
     case 'LOAD_STATE':
       return {
+        ...initialState,
         ...action.payload,
+        saveVersion: action.payload.saveVersion ?? 2,
         followers: action.payload.followers ?? 0,
         unlockedEndings: action.payload.unlockedEndings ?? [],
         journal: action.payload.journal ?? [],
