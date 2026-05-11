@@ -116,7 +116,7 @@ export default function TitleScreen() {
           )}
 
           <a
-            href="https://www.themeansofproduction.press"
+            href="https://ko-fi.com/themeansofproduction"
             target="_blank"
             rel="noopener noreferrer"
             className="pt-2 text-[11px] font-mono uppercase tracking-[0.3em] text-muted-foreground/50 transition-colors hover:text-destructive"
