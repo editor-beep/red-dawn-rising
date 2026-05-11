@@ -114,6 +114,16 @@ export default function TitleScreen() {
               <div className="absolute inset-0 bg-primary/10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
             </motion.button>
           )}
+
+          <a
+            href="https://www.themeansofproduction.press"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pt-2 text-[11px] font-mono uppercase tracking-[0.3em] text-muted-foreground/50 transition-colors hover:text-destructive"
+            title="Donate to the Cause"
+          >
+            // Donate to the Cause ↗
+          </a>
         </div>
 
         {/* Endings tracker */}
